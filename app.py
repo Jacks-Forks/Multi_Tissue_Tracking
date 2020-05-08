@@ -5,19 +5,26 @@ from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 
-dirpath = os.getcwd()
+#file system set up
 
-UPLOAD_FOLDER = dirpath + "/static/uploads"
+def check_system():
+    if os.path.isdir('./static/uploads') == False:
+        logging.info("no uploads folder")
+        os.mkdir('./static/uploads')
+    if os.path.isdir('./static/uploads/csvfiles') == False:
+        os.mkdir('./static/uploads/csvfiles')
+    if os.path.isdir('./static/uploads/videofiles') == False:
+        os.mkdir('./static/uploads/videofiles')
+
+check_system()
+
+current_directory = os.getcwd()
+
+UPLOAD_FOLDER = current_directory + "/static/uploads"
 VIDEO_UPLOAD_FOLDER = UPLOAD_FOLDER + "/videofiles"
 CSV_UPLOAD_FOLDER = UPLOAD_FOLDER + "/csvfiles"
 
 ALLOWED_EXTENSIONS = {'csv', 'mov'}
-
-app = Flask(__name__)
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['VIDEO_FOLDER'] = VIDEO_UPLOAD_FOLDER
-app.config['CSV_FOLDER'] = CSV_UPLOAD_FOLDER
 
 def where_to_upload(filename):
     result = ""
@@ -29,6 +36,14 @@ def where_to_upload(filename):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+#flask stuff
+
+app = Flask(__name__)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['VIDEO_FOLDER'] = VIDEO_UPLOAD_FOLDER
+app.config['CSV_FOLDER'] = CSV_UPLOAD_FOLDER
 
 @app.route("/")
 def main():
