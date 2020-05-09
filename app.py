@@ -2,7 +2,6 @@
 import logging
 import os
 
-
 from flask import (Flask, flash, redirect, render_template, request,
                    send_from_directory, url_for)
 
@@ -32,7 +31,6 @@ def where_to_upload(filename):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit(
         '.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 app = Flask(__name__)
 
