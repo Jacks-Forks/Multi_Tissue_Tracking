@@ -30,4 +30,5 @@ def findpoints(dataframe, buffer, poly, window, thresh, mindist):
                 if dfdt >= 0:
                     frontpoints[i].append(k)
                     break
+
     return dataframe, peaks, basepoints, frontpoints

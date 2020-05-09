@@ -91,6 +91,7 @@ dasher.layout = html.Div([
 ])
 def storedFiles(folder, smooth, thresh, buff, dist):
     dataframes = []
+
     if folder is not None:
         files = glob.glob(folder + '/*')
         for file in files:
