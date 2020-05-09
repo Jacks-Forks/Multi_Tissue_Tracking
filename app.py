@@ -1,7 +1,7 @@
 
 import logging
 import os
-
+# hello
 from flask import (Flask, flash, redirect, render_template, request,
                    send_from_directory, url_for)
 
@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 
-#file system set up
+# file system set up
 
 
 def check_system():
@@ -46,7 +46,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit(
         '.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-    #flask stuff
+    # flask stuff
 
 
 app = Flask(__name__)
