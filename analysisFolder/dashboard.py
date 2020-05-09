@@ -5,27 +5,22 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
-
+import glob
 from dash.dependencies import Input, Output, State
 
 import analysisFolder.analysis as analysis
 
+dates = glob.glob('static/uploads/csvfiles/*')
+
 dasher = dash.Dash(__name__, requests_pathname_prefix='/dash/')
 dasher.layout = html.Div([
-    dcc.Upload(id='upload-data',
-               children=html.Div(['Drag and Drop or ',
-                                  html.A('Select Files')]),
-               style={
-                   'width': '100%',
-                   'height': '60px',
-                   'lineHeight': '60px',
-                   'borderWidth': '1px',
-                   'borderStyle': 'dashed',
-                   'boderRadius': '5px',
-                   'textAlign': 'center',
-                   'margin': '10px'
-               },
-               multiple=True),
+    dcc.Link('Need to Upload', href='/uploadFile', refresh=True),
+    dcc.Dropdown(
+        id="files",
+        options=[
+            {'label': i, 'value': i} for i in dates
+        ]
+    ),
     html.Div('[Polynomial Value, Window]:'),
     dcc.RangeSlider(id='smoothing',
                     min=0,
@@ -91,35 +86,23 @@ dasher.layout = html.Div([
 ])
 
 
-def dataframecreator(raw):
-    dataframes = []
-    for i in range(len(raw)):
-        content_type, content_string = raw[i].split(',')
-        decoded = base64.b64decode(content_string)
-        dataframes.append(pd.read_csv(io.StringIO(decoded.decode('utf-8'))))
-    return dataframes
-
-
 @dasher.callback(Output('graphs', 'children'), [
-    Input('upload-data', 'contents'),
+    Input('files', 'value'),
     Input('smoothing', 'value'),
     Input('thresh', 'value'),
     Input('buff', 'value'),
     Input('dist', 'value')
-], [State('upload-data', 'filename'),
-    State('upload-data', 'last_modified')])
-def update_output(list_of_contents, smoothvalues, thresh, buff, mindist,
-                  list_of_names, list_of_dates):
-    #dataframes = []
-    buffer = buff
-    #thresh = .6
-    #mindist = 5
-    poly = smoothvalues[0]
-    window = smoothvalues[1]
-    if list_of_contents is not None:
-        dataframeo = dataframecreator(list_of_contents)
-        dataframeo, peaks, basepoints = analysis.findpoints(dataframeo, buffer, poly,
-                                                            window, thresh, mindist)
+])
+def storedFiles(folder, smooth, thresh, buff, dist):
+    dataframes = []
+    files = glob.glob(folder + '/*')
+    for file in files:
+        dataframes.append(pd.read_csv(file))
+    poly = smooth[0]
+    window = smooth[1]
+    if files is not None:
+        dataframeo, peaks, basepoints = analysis.findpoints(dataframes, buff, poly,
+                                                            window, thresh, dist)
 
         return ([
             dcc.Graph(id='graph#{}'.format(i),
@@ -149,5 +132,5 @@ def update_output(list_of_contents, smoothvalues, thresh, buff, mindist,
                                   'size': 12
                               }
                           }]
-            }) for i in range(len(list_of_contents))
+            }) for i in range(len(files))
         ])
