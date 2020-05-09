@@ -5,9 +5,10 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
-import peakutils
+
 from dash.dependencies import Input, Output, State
-from scipy.signal import savgol_filter
+
+from analysis import analyze
 
 dasher = dash.Dash(__name__, requests_pathname_prefix='/dash/')
 dasher.layout = html.Div([
@@ -116,26 +117,10 @@ def update_output(list_of_contents, smoothvalues, thresh, buff, mindist,
     poly = smoothvalues[0]
     window = smoothvalues[1]
     if list_of_contents is not None:
-        global dataframeo, origin, peaks, basepoints
-        peaks = []
-        basepoints = []
         dataframeo = dataframecreator(list_of_contents)
-        origin = dataframecreator(list_of_contents)
-        for i in range(len(dataframeo)):
-            dataframeo[i]['disp'] = savgol_filter(origin[i]['disp'], window,
-                                                  poly)
-            dataframeo[i]['disp'] = dataframeo[i]['disp'] * -1
-            peaks.append(
-                peakutils.indexes(dataframeo[i]['disp'], thresh, mindist))
-            peaks[i] = peaks[i][1:-1]
-            basepoints.append([])
-            for peak in peaks[i]:
-                for k in range(peak - buffer, 1, -1):
-                    dfdt = (dataframeo[i]['disp'][k] -
-                            dataframeo[i]['disp'][k - 1])
-                    if dfdt <= 0:
-                        basepoints[i].append(k)
-                        break
+        dataframeo, peaks, basepoints = analyze.findpoints(dataframeo, buffer, poly,
+                                                           window, thresh, mindist)
+
         return ([
             dcc.Graph(id='graph#{}'.format(i),
                       figure={
@@ -164,5 +149,5 @@ def update_output(list_of_contents, smoothvalues, thresh, buff, mindist,
                                   'size': 12
                               }
                           }]
-                      }) for i in range(len(list_of_contents))
+            }) for i in range(len(list_of_contents))
         ])
