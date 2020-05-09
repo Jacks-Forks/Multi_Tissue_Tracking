@@ -14,7 +14,7 @@ dates = glob.glob('static/uploads/csvfiles/*')
 
 dasher = dash.Dash(__name__, requests_pathname_prefix='/dash/')
 dasher.layout = html.Div([
-    dcc.Link('Need to Upload', href='/uploadFile', refresh=True),
+    dcc.Link('Go to Upload', href='/uploadFile', refresh=True),
     dcc.Dropdown(
         id="files",
         options=[
