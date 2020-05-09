@@ -1,11 +1,16 @@
+
 import logging
 import os
-from flask import Flask, render_template, flash, request, redirect, url_for, send_from_directory
+
+from flask import (Flask, flash, redirect, render_template, request,
+                   send_from_directory, url_for)
+
 from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 
 #file system set up
+
 
 def check_system():
     if os.path.isdir('./static/uploads') == False:
@@ -15,6 +20,7 @@ def check_system():
         os.mkdir('./static/uploads/csvfiles')
     if os.path.isdir('./static/uploads/videofiles') == False:
         os.mkdir('./static/uploads/videofiles')
+
 
 check_system()
 
@@ -26,6 +32,7 @@ CSV_UPLOAD_FOLDER = UPLOAD_FOLDER + "/csvfiles"
 
 ALLOWED_EXTENSIONS = {'csv', 'mov'}
 
+
 def where_to_upload(filename):
     result = ""
     if filename.rsplit('.', 1)[1].lower() == 'csv':
@@ -34,10 +41,13 @@ def where_to_upload(filename):
         result = app.config['VIDEO_FOLDER']
     return result
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-#flask stuff
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit(
+        '.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    #flask stuff
+
 
 app = Flask(__name__)
 
@@ -45,11 +55,13 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['VIDEO_FOLDER'] = VIDEO_UPLOAD_FOLDER
 app.config['CSV_FOLDER'] = CSV_UPLOAD_FOLDER
 
+
 @app.route("/")
 def main():
     return render_template('index.html')
 
-@app.route('/uploadFile', methods = [ 'GET', 'POST'])
+
+@app.route('/uploadFile', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -73,6 +85,7 @@ def upload_file():
 
     return render_template('upload.html')
 
+
 @app.route('/uploads/<filefolder>')
 def view_upload_folder(filefolder):
     list_of_files = []
@@ -80,7 +93,4 @@ def view_upload_folder(filefolder):
     for filename in os.listdir(app.config[filefolder]):
         list_of_files.append(filename)
 
-    return render_template('viewUploads.html', value = list_of_files)
-
-if __name__ == "__main__":
-    app.run()
+    return render_template('viewUploads.html', value=list_of_files)
