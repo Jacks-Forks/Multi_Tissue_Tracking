@@ -7,6 +7,7 @@ def findpoints(dataframe, buffer, poly, window, thresh, mindist):
 
     peaks = []
     basepoints = []
+    frontpoints = []
 
     for i in range(len(dataframe)):
         dataframe[i]['disp'] = savgol_filter(origin[i]['disp'], window,
@@ -16,6 +17,7 @@ def findpoints(dataframe, buffer, poly, window, thresh, mindist):
             peakutils.indexes(dataframe[i]['disp'], thresh, mindist))
         peaks[i] = peaks[i][1:-1]
         basepoints.append([])
+        frontpoints.append([])
         for peak in peaks[i]:
             for k in range(peak - buffer, 1, -1):
                 dfdt = (dataframe[i]['disp'][k] -
@@ -23,4 +25,9 @@ def findpoints(dataframe, buffer, poly, window, thresh, mindist):
                 if dfdt <= 0:
                     basepoints[i].append(k)
                     break
-    return dataframe, peaks, basepoints
+            for k in range(peak + buffer, len(dataframe[i]['disp']), 1):
+                dfdt = (dataframe[i]['disp'][k + 1] - dataframe[i]['disp'][k])
+                if dfdt >= 0:
+                    frontpoints[i].append(k)
+                    break
+    return dataframe, peaks, basepoints, frontpoints

@@ -71,18 +71,14 @@ dasher.layout = html.Div([
                             'label': '23'
                         }
                     }),
-    html.Div(' '),
-    html.Div('Graphs:'),
-    html.Div(id='graphs', children=[dcc.Graph(id='graph#{}'.format('1'))]),
     html.Div('Threshold:'),
     dcc.Slider(id='thresh', min=0, max=1, step=.1, value=.6),
     html.Div('MinDist:'),
     dcc.Slider(id='dist', min=0, max=10, value=5),
     html.Div('BufferDist:'),
     dcc.Slider(id='buff', min=0, max=10, value=3),
-    html.Div(id='hh'),
-    html.Button('Submit', id='button'),
-    html.Div(id='tri')
+    html.Div('Graphs:'),
+    html.Div(id='graphs', children=[dcc.Graph(id='graph#{}'.format('1'))])
 ])
 
 
@@ -95,22 +91,22 @@ dasher.layout = html.Div([
 ])
 def storedFiles(folder, smooth, thresh, buff, dist):
     dataframes = []
-    files = glob.glob(folder + '/*')
-    for file in files:
-        dataframes.append(pd.read_csv(file))
-    poly = smooth[0]
-    window = smooth[1]
-    if files is not None:
-        dataframeo, peaks, basepoints = analysis.findpoints(dataframes, buff, poly,
-                                                            window, thresh, dist)
+    if folder is not None:
+        files = glob.glob(folder + '/*')
+        for file in files:
+            dataframes.append(pd.read_csv(file))
+        poly = smooth[0]
+        window = smooth[1]
 
+        dataframeo, peaks, basepoints, frontpoints = analysis.findpoints(dataframes, buff, poly,
+                                                                         window, thresh, dist)
         return ([
             dcc.Graph(id='graph#{}'.format(i),
                       figure={
                           'data': [{
                               'x': dataframeo[i]['time'],
                               'y': dataframeo[i]['disp'],
-                              'name': 'Trace 1',
+                              'name': 'Displacement',
                               'mode': 'line',
                               'marker': {
                                   'size': 12
@@ -118,7 +114,7 @@ def storedFiles(folder, smooth, thresh, buff, dist):
                           }, {
                               'x': dataframeo[i]['time'][peaks[i]],
                               'y': dataframeo[i]['disp'][peaks[i]],
-                              'name': 'Trace 1',
+                              'name': 'Peaks',
                               'mode': 'markers',
                               'marker': {
                                   'size': 12
@@ -126,7 +122,15 @@ def storedFiles(folder, smooth, thresh, buff, dist):
                           }, {
                               'x': dataframeo[i]['time'][basepoints[i]],
                               'y': dataframeo[i]['disp'][basepoints[i]],
-                              'name': 'Trace 1',
+                              'name': 'Basepoints',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': dataframeo[i]['time'][frontpoints[i]],
+                              'y': dataframeo[i]['disp'][frontpoints[i]],
+                              'name': 'Frontpoints',
                               'mode': 'markers',
                               'marker': {
                                   'size': 12
