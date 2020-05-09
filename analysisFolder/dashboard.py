@@ -8,7 +8,7 @@ import pandas as pd
 
 from dash.dependencies import Input, Output, State
 
-from analysis import analyze
+import analysisFolder.analysis as analysis
 
 dasher = dash.Dash(__name__, requests_pathname_prefix='/dash/')
 dasher.layout = html.Div([
@@ -118,8 +118,8 @@ def update_output(list_of_contents, smoothvalues, thresh, buff, mindist,
     window = smoothvalues[1]
     if list_of_contents is not None:
         dataframeo = dataframecreator(list_of_contents)
-        dataframeo, peaks, basepoints = analyze.findpoints(dataframeo, buffer, poly,
-                                                           window, thresh, mindist)
+        dataframeo, peaks, basepoints = analysis.findpoints(dataframeo, buffer, poly,
+                                                            window, thresh, mindist)
 
         return ([
             dcc.Graph(id='graph#{}'.format(i),
