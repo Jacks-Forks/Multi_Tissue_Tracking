@@ -14,7 +14,15 @@
 
   <h1>Here are the files</h1>
 
-  <h3>Files in folder: {{ value }}</h3>
+  <form class="form-inline" method="POST" action="{{ url_for ('test')}}">
+    <span class "input-groupaddon">Please select day</span>
+    <select name="comp_select" class="daySelector">
+      {% for i in dictonary_of_days_filepath %}
+      <option value="{{i}}"> {{i}}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-default">Go</button>
+  </form>
 
 </body>
 
