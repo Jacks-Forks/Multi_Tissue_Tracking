@@ -59,17 +59,19 @@ def main():
     return render_template('index.html')
 
 
-@app.route("/showVids", methods=['GET'])
-def showVideoOptions():
-    return render_template('viewUploads.html', dictonary_of_days_filepath=os.listdir(app.config["VIDEO_FOLDER"]))
+@app.route('/showFiles', defaults={'passedFolder': app.config['VIDEO_FOLDER']})
+@app.route("/showFiles/<passedFolder>", methods=['GET'])
+def showVideoOptions(passedFolder=app.config['VIDEO_FOLDER']):
+    if passedFolder == app.config['VIDEO_FOLDER']:
+        return render_template('viewUploads.html', dictonary_of_days_filepath=os.listdir(app.config['VIDEO_FOLDER']))
+    else:
+        return render_template('viewUploads.html', dictonary_of_days_filepath=os.listdir(app.config['VIDEO_FOLDER'] + "/" + passedFolder))
 
 
 @app.route("/test", methods=['GET', 'POST'])
 def test():
     select = request.form.get('comp_select')
-    arr = os.listdir(app.config['VIDEO_FOLDER'] + '/' + select)
-    logging.info(arr)
-    return(str(select))  # just to see what select is
+    return redirect('/showFiles/' + select)
 
 
 @app.route('/uploadFile', methods=['GET', 'POST'])
