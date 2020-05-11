@@ -4,11 +4,12 @@ import os
 
 
 from flask import (Flask, flash, redirect, render_template, request,
-                   send_from_directory, url_for)
-
+                   send_from_directory, url_for, abort, send_file)
+from flask_autoindex import AutoIndex
 from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
+logging.warning("New Run Starts Here")
 
 current_directory = os.getcwd()
 
@@ -59,19 +60,51 @@ def main():
     return render_template('index.html')
 
 
-@app.route('/showFiles', defaults={'passedFolder': app.config['VIDEO_FOLDER']})
-@app.route("/showFiles/<passedFolder>", methods=['GET'])
-def showVideoOptions(passedFolder=app.config['VIDEO_FOLDER']):
-    if passedFolder == app.config['VIDEO_FOLDER']:
-        return render_template('viewUploads.html', dictonary_of_days_filepath=os.listdir(app.config['VIDEO_FOLDER']))
+'''
+@app.route('/showFiles', defaults={'passedFolder': "", 'fileName': ""},  methods=['GET', 'POST'])
+@app.route("/showFiles/<path:passedFolder>", methods=['GET', 'POST'])
+@app.route("/showFiles/<path:passedFolder>/<path:fileName>", methods=['GET', 'POST'])
+def showFiles(passedFolder, filesName):
+
+    select = request.form.get('comp_select')
+
+    if select != None:
+        abs_path = os.path.join(
+            app.config['VIDEO_FOLDER'], passedFolder, select)
+        redirect(showFiles(passedFolder, select))
     else:
-        return render_template('viewUploads.html', dictonary_of_days_filepath=os.listdir(app.config['VIDEO_FOLDER'] + "/" + passedFolder))
+        abs_path = os.path.join(app.config['VIDEO_FOLDER'], passedFolder)
+
+    logging.info("new: " + abs_path)
+
+    if not os.path.exists(abs_path):
+        logging.warning(abs_path)
+        return abort(404)
+
+    if os.path.isfile(abs_path):
+        logging.info("is a file")
+        return send_file(abs_path)
+
+    files = os.listdir(abs_path)
+    return render_template('viewUploads.html', files=files, path=abs_path)
 
 
 @app.route("/test", methods=['GET', 'POST'])
 def test():
     select = request.form.get('comp_select')
     return redirect('/showFiles/' + select)
+'''
+
+upload_index = AutoIndex(app, browse_root=app.config['UPLOAD_FOLDER'])
+
+
+@app.route('/files')
+@app.route('/files/<path:path>')
+def browseFiles(path="."):
+    if os.path.isfile(path):
+        logging.info("is a file")
+        return send_file(path)
+    return upload_index.render_autoindex(path)
 
 
 @app.route('/uploadFile', methods=['GET', 'POST'])
