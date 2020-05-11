@@ -1,10 +1,8 @@
-
 import logging
 import os
 
-from flask import (Flask, flash, redirect, render_template, request,
-                   send_from_directory, url_for, abort, send_file)
-from flask_autoindex import AutoIndex
+from flask import (Flask, abort, flash, redirect, render_template, request,
+                   send_file, send_from_directory, url_for)
 from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
@@ -33,6 +31,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit(
         '.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -58,7 +57,7 @@ def main():
     return render_template('index.html')
 
 
-@app.route('/showVideo', defaults={'day': ""},  methods=['GET', 'POST'])
+@app.route('/showVideo', defaults={'day': ""}, methods=['GET', 'POST'])
 @app.route("/showVideo/<path:day>", methods=['GET', 'POST'])
 def showVideo(day):
 
@@ -66,8 +65,7 @@ def showVideo(day):
     logging.info(select)
 
     if select != None:
-        abs_path = os.path.join(
-            app.config['VIDEO_FOLDER'], day, select)
+        abs_path = os.path.join(app.config['VIDEO_FOLDER'], day, select)
     else:
         abs_path = os.path.join(app.config['VIDEO_FOLDER'], day)
 
