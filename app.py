@@ -1,14 +1,15 @@
 
 import logging
 import os
-
+from pathlib import Path
 
 from flask import (Flask, flash, redirect, render_template, request,
-                   send_from_directory, url_for)
-
+                   send_from_directory, url_for, abort, send_file)
+from flask_autoindex import AutoIndex
 from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
+logging.warning("New Run Starts Here")
 
 current_directory = os.getcwd()
 
@@ -57,6 +58,34 @@ check_system()
 @app.route("/")
 def main():
     return render_template('index.html')
+
+
+@app.route('/showVideo', defaults={'day': ""},  methods=['GET', 'POST'])
+@app.route("/showVideo/<path:day>", methods=['GET', 'POST'])
+def showVideo(day):
+
+    select = request.form.get('comp_select')
+    logging.info(select)
+
+    if select != None:
+        abs_path = os.path.join(
+            app.config['VIDEO_FOLDER'], day, select)
+    else:
+        abs_path = os.path.join(app.config['VIDEO_FOLDER'], day)
+
+    logging.info("new: " + abs_path)
+
+    if not os.path.exists(abs_path):
+        logging.warning(abs_path)
+        return abort(404)
+
+    if os.path.isfile(abs_path):
+        logging.info("is a file")
+        logging.info("Selected file path: " + abs_path)
+        return send_file(abs_path)
+
+    files = os.listdir(abs_path)
+    return render_template('viewUploads.html', files=files, day=select)
 
 
 @app.route('/uploadFile', methods=['GET', 'POST'])
