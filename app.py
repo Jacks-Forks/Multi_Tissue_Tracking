@@ -1,7 +1,6 @@
 
 import logging
 import os
-from pathlib import Path
 
 from flask import (Flask, flash, redirect, render_template, request,
                    send_from_directory, url_for, abort, send_file)
