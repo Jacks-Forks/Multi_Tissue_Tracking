@@ -57,31 +57,37 @@ def main():
     return render_template('index.html')
 
 
-@app.route('/showVideo', defaults={'day': ""}, methods=['GET', 'POST'])
-@app.route("/showVideo/<path:day>", methods=['GET', 'POST'])
-def showVideo(day):
+@app.route('/browser')
+def browse():
+    itemList = os.listdir(app.config['UPLOAD_FOLDER'])
+    return render_template('browser.html', itemList=itemList)
 
-    select = request.form.get('comp_select')
-    logging.info(select)
 
-    if select != None:
-        abs_path = os.path.join(app.config['VIDEO_FOLDER'], day, select)
-    else:
-        abs_path = os.path.join(app.config['VIDEO_FOLDER'], day)
+@app.route('/browser/<path:urlFilePath>')
+def browser(urlFilePath):
+    nestedFilePath = os.path.join(app.config['UPLOAD_FOLDER'], urlFilePath)
 
-    logging.info("new: " + abs_path)
+    if os.path.realpath(nestedFilePath) != nestedFilePath:
+        # stops file travesal attack
+        return abort(401)
 
-    if not os.path.exists(abs_path):
-        logging.warning(abs_path)
-        return abort(404)
+    if os.path.isdir(nestedFilePath):
+        itemList = os.listdir(nestedFilePath)
+        if not urlFilePath.startswith("/"):
+            urlFilePath = "/" + urlFilePath
+        return render_template('browser.html', urlFilePath=urlFilePath, itemList=itemList)
 
-    if os.path.isfile(abs_path):
-        logging.info("is a file")
-        logging.info("Selected file path: " + abs_path)
-        return send_file(abs_path)
+    if os.path.isfile(nestedFilePath):
+        selected_file_path = nestedFilePath
+        logging.info('FilePath: ' + selected_file_path)
+        if not urlFilePath.startswith("/"):
+            urlFilePath = "/" + urlFilePath
+        return """
+        <!DOCTYPE html>
+        <h1> well do somthing with the file </h1>
+        """
 
-    files = os.listdir(abs_path)
-    return render_template('viewUploads.html', files=files, day=select)
+    return abort(404)
 
 
 @app.route('/uploadFile', methods=['GET', 'POST'])
@@ -107,6 +113,20 @@ def upload_file():
             '''
 
     return render_template('upload.html')
+
+
+# error handling
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('fileNotFound.html'), 404
+
+
+@app.errorhandler(401)
+def file_traversal(e):
+    return '''
+    <!DOCTYPE html>
+    <h1> Please Dont Do This</h1>
+    '''
 
 
 @app.route('/uploads/<filefolder>')
