@@ -11,7 +11,7 @@
 
   <h1>Here are the files</h1>
 
-  <form class="form-inline" method="POST" action="{{ url_for ('showFiles', path=selection )}}">
+  <form class="form-inline" method="POST" action="{{ url_for ('showVideo', day = day)}}">
     <span class "input-groupaddon">Please select day</span>
     <select name="comp_select" class="daySelector">
       {% for i in files %}

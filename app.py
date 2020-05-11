@@ -1,7 +1,7 @@
 
 import logging
 import os
-
+from pathlib import Path
 
 from flask import (Flask, flash, redirect, render_template, request,
                    send_from_directory, url_for, abort, send_file)
@@ -60,20 +60,18 @@ def main():
     return render_template('index.html')
 
 
-'''
-@app.route('/showFiles', defaults={'passedFolder': "", 'fileName': ""},  methods=['GET', 'POST'])
-@app.route("/showFiles/<path:passedFolder>", methods=['GET', 'POST'])
-@app.route("/showFiles/<path:passedFolder>/<path:fileName>", methods=['GET', 'POST'])
-def showFiles(passedFolder, filesName):
+@app.route('/showVideo', defaults={'day': ""},  methods=['GET', 'POST'])
+@app.route("/showVideo/<path:day>", methods=['GET', 'POST'])
+def showVideo(day):
 
     select = request.form.get('comp_select')
+    logging.info(select)
 
     if select != None:
         abs_path = os.path.join(
-            app.config['VIDEO_FOLDER'], passedFolder, select)
-        redirect(showFiles(passedFolder, select))
+            app.config['VIDEO_FOLDER'], day, select)
     else:
-        abs_path = os.path.join(app.config['VIDEO_FOLDER'], passedFolder)
+        abs_path = os.path.join(app.config['VIDEO_FOLDER'], day)
 
     logging.info("new: " + abs_path)
 
@@ -83,28 +81,11 @@ def showFiles(passedFolder, filesName):
 
     if os.path.isfile(abs_path):
         logging.info("is a file")
+        logging.info("Selected file path: " + abs_path)
         return send_file(abs_path)
 
     files = os.listdir(abs_path)
-    return render_template('viewUploads.html', files=files, path=abs_path)
-
-
-@app.route("/test", methods=['GET', 'POST'])
-def test():
-    select = request.form.get('comp_select')
-    return redirect('/showFiles/' + select)
-'''
-
-upload_index = AutoIndex(app, browse_root=app.config['UPLOAD_FOLDER'])
-
-
-@app.route('/files')
-@app.route('/files/<path:path>')
-def browseFiles(path="."):
-    if os.path.isfile(path):
-        logging.info("is a file")
-        return send_file(path)
-    return upload_index.render_autoindex(path)
+    return render_template('viewUploads.html', files=files, day=select)
 
 
 @app.route('/uploadFile', methods=['GET', 'POST'])
