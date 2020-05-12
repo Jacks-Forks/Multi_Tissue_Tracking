@@ -53,25 +53,39 @@ def findP(peaks, bases, fronts, disp, time, perc):
     negxpoints = []
 
     for i in range(len(bases)):
-        ydiff = (disp[peaks[i]] - disp[bases[i]]) * perc
-        yval = disp[bases[i]] + ydiff
+        baseline = (disp[bases[i]] + disp[fronts[i]]) / 2
+        ydiff = (disp[peaks[i]] - baseline) * perc
+        yval = negyval = baseline + ydiff
+        #ydiff = (disp[peaks[i]] - disp[bases[i]]) * perc
+        #yval = disp[bases[i]] + ydiff
 
         for j in range(bases[i], peaks[i], 1):
             if disp[j] > yval:
                 slope = (disp[j] - disp[j - 1]) / (time[j] - time[j - 1])
                 xval = ((yval - disp[j - 1]) / slope) + time[j - 1]
                 break
+            elif j == peaks[i]:
+                xval = peaks[i]
+                break
         ypoints.append(yval)
         xpoints.append(xval)
 
-        negydiff = (disp[peaks[i]] - disp[fronts[i]]) * perc
-        negyval = disp[fronts[i]] + negydiff
+        #negydiff = (disp[peaks[i]] - disp[fronts[i]]) * perc
+        #negyval = disp[fronts[i]] + negydiff
         for j in range(peaks[i], fronts[i], 1):
-            if disp[j] < negyval:
+            if disp[j] < yval:
                 slope = (disp[j] - disp[j - 1]) / (time[j] - time[j - 1])
-                negxval = ((negyval - disp[j - 1]) / slope) + time[j - 1]
+                negxval = ((yval - disp[j - 1]) / slope) + time[j - 1]
+                break
+            if (j == fronts[i] - 1):
+                print('hahhoey')
+                slope = (disp[j - 1] - disp[j - 2]) / \
+                    (time[j - 1] - time[j - 2])
+                negxval = ((yval - disp[j - 2]) / slope) + time[j - 2]
+                #negyval = disp[j]
+                #negxval = fronts[i]
                 break
 
-        negypoints.append(negyval)
+        negypoints.append(yval)
         negxpoints.append(negxval)
     return xpoints, ypoints, negxpoints, negypoints

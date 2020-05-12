@@ -100,17 +100,21 @@ def storedFiles(folder, smooth, thresh, buff, dist):
         poly = smooth[0]
         window = smooth[1]
 
-        dataframeo, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(dataframes, buff, poly,
-                                                                                             window, thresh, dist)
-        t50, stder = calc.t50(fifty[0], dataframeo[0]['time'])
-        c50, stder2 = calc.c50(peaks[0], fifty[0], dataframeo[0]['time'])
-        r50, stder3 = calc.r50(peaks[0], fifty[0], dataframeo[0]['time'])
+        dataframeo, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(
+            dataframes, buff, poly, window, thresh, dist)
+
+        t50 = []
+        c50 = []
+        r50 = []
+
+        for i in range(len(fifty)):
+            t50.append(calc.t50(fifty[i], dataframeo[i]['time']))
+            c50.append(calc.c50(peaks[i], fifty[i], dataframeo[i]['time']))
+            r50.append(calc.r50(peaks[i], fifty[i], dataframeo[i]['time']))
+
         print(t50)
-        print(stder)
-        print(c50)
-        print(stder2)
         print(r50)
-        print(stder3)
+        print(c50)
 
         return ([
             dcc.Graph(id='graph#{}'.format(i),
