@@ -15,14 +15,15 @@ UPLOAD_FOLDER = current_directory + "/static/uploads"
 VIDEO_UPLOAD_FOLDER = UPLOAD_FOLDER + "/videofiles"
 CSV_UPLOAD_FOLDER = UPLOAD_FOLDER + "/csvfiles"
 
-ALLOWED_EXTENSIONS = {'csv', 'mov'}
+ALLOWED_EXTENSIONS = {'csv', 'mov', 'mp4'}
+video_file_extentions = {'mov', 'mp4'}
 
 
 def where_to_upload(filename):
     result = ""
     if filename.rsplit('.', 1)[1].lower() == 'csv':
         result = app.config['CSV_FOLDER']
-    elif filename.rsplit('.', 1)[1].lower() == 'mov':
+    elif filename.rsplit('.', 1)[1].lower() in video_file_extentions:
         result = app.config['VIDEO_FOLDER']
     return result
 
@@ -57,39 +58,6 @@ def main():
     return render_template('index.html')
 
 
-@app.route('/browser')
-def browse():
-    itemList = os.listdir(app.config['UPLOAD_FOLDER'])
-    return render_template('browser.html', itemList=itemList)
-
-
-@app.route('/browser/<path:urlFilePath>')
-def browser(urlFilePath):
-    nestedFilePath = os.path.join(app.config['UPLOAD_FOLDER'], urlFilePath)
-
-    if os.path.realpath(nestedFilePath) != nestedFilePath:
-        # stops file travesal attack
-        return abort(401)
-
-    if os.path.isdir(nestedFilePath):
-        itemList = os.listdir(nestedFilePath)
-        if not urlFilePath.startswith("/"):
-            urlFilePath = "/" + urlFilePath
-        return render_template('browser.html', urlFilePath=urlFilePath, itemList=itemList)
-
-    if os.path.isfile(nestedFilePath):
-        selected_file_path = nestedFilePath
-        logging.info('FilePath: ' + selected_file_path)
-        if not urlFilePath.startswith("/"):
-            urlFilePath = "/" + urlFilePath
-        return """
-        <!DOCTYPE html>
-        <h1> well do somthing with the file </h1>
-        """
-
-    return abort(404)
-
-
 @app.route('/uploadFile', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -119,21 +87,3 @@ def upload_file():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('fileNotFound.html'), 404
-
-
-@app.errorhandler(401)
-def file_traversal(e):
-    return '''
-    <!DOCTYPE html>
-    <h1> Please Dont Do This</h1>
-    '''
-
-
-@app.route('/uploads/<filefolder>')
-def view_upload_folder(filefolder):
-    list_of_files = []
-
-    for filename in os.listdir(app.config[filefolder]):
-        list_of_files.append(filename)
-
-    return render_template('viewUploads.html', value=list_of_files)

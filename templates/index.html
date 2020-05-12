@@ -3,29 +3,28 @@
 
 <head>
 
-    <title>Multi-Tissue-Tracking-Project</title>
-    <!--<script src="mouseClick.js"></script>-->
-    <script src="{{ url_for('static', filename='JS/mouseClick.js') }}"></script>
+  <title>Multi-Tissue-Tracking-Project</title>
+  <!--<script src="mouseClick.js"></script>-->
+  <script src="{{ url_for('static', filename='JS/mouseClick.js') }}"></script>
 
 </head>
 
 <body>
 
-    <h1>Multi Tissue Tracking</h1>
-    <h3> Docker Updated </h3>
-    <img id="img" src = "{{ path }}" width = "400" height = "300"></img>
-    <img id="myImgId" alt="" src="{{ url_for('static', filename= path )}}" width="400" height="300" />
+  <h1>Multi Tissue Tracking</h1>
+  <h3> Docker Updated </h3>
+  <img id="myImgId" src="{{ path }}" width="400" height="300"></img>
 
-    <script type="text/javascript">
-        <!--
-        var myImg = document.getElementById("myImgId");
-        myImg.onmousedown = GetCoordinates;
-        //
-        -->
-    </script>
+  <script type="text/javascript">
+    <!--
+    var myImg = document.getElementById("myImgId");
+    myImg.onmousedown = GetCoordinates;
+    //
+    -->
+  </script>
 
-    <p>X:<span id="x"></span></p>
-    <p>Y:<span id="y"></span></p>
+  <p>X:<span id="x"></span></p>
+  <p>Y:<span id="y"></span></p>
 
 
 </body>
