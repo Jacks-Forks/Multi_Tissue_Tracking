@@ -65,4 +65,4 @@ def postselect():
     cv2.imwrite('static/img/' + splits
                 [3] + '/' + base + '.jpg', images)
 
-    return render_template("index.html", path='static/img/' + splits[3] + '/' + base + '.jpg')
+    return render_template("selectPosts.html", path='static/img/' + splits[3] + '/' + base + '.jpg')

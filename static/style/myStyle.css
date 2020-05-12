@@ -1,0 +1,11 @@
+#canvas {
+  width: 2000px;
+  height: 2000px;
+  border: 0px solid transparent;
+  padding: 0px;
+}
+
+.rectangle {
+  border: 1px solid #FF0000;
+  position: absolute;
+}

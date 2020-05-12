@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>Multi-Tissue-Tracking-Project</title>
+  <!--<script src="mouseClick.js"></script>-->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
+  <script src="{{ url_for('static', filename='JS/boxes.js') }}"></script>
+
+</head>
+
+<body>
+
+  <h1>Multi Tissue Tracking</h1>
+
+  <form id="number_of_posts" action="" method="GET">
+    <label for="quantity">Quantity (between 1 and 5):</label>
+    <input type="number" id="quantity" name="quantity" min="2" max="10">
+    <input type="submit">
+  </form>
+
+  <div id="canvas"><img id="pic" src="{{ path }}" coords="0,0"></img></div>
+
+  <script>
+    initDraw(document.getElementById('canvas'));
+  </script>
+
+</body>
+
+</html>
