@@ -56,8 +56,6 @@ def findP(peaks, bases, fronts, disp, time, perc):
         baseline = (disp[bases[i]] + disp[fronts[i]]) / 2
         ydiff = (disp[peaks[i]] - baseline) * perc
         yval = negyval = baseline + ydiff
-        #ydiff = (disp[peaks[i]] - disp[bases[i]]) * perc
-        #yval = disp[bases[i]] + ydiff
 
         for j in range(bases[i], peaks[i], 1):
             if yval < disp[bases[i]]:
@@ -75,8 +73,6 @@ def findP(peaks, bases, fronts, disp, time, perc):
         ypoints.append(yval)
         xpoints.append(xval)
 
-        #negydiff = (disp[peaks[i]] - disp[fronts[i]]) * perc
-        #negyval = disp[fronts[i]] + negydiff
         for j in range(peaks[i], fronts[i], 1):
             if negyval < disp[fronts[i]]:
                 negxval = time[fronts[i]]
