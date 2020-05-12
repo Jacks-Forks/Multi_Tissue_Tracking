@@ -9,6 +9,7 @@ import glob
 from dash.dependencies import Input, Output, State
 
 import analysisFolder.analysis as analysis
+import analysisFolder.calculations as calc
 
 dates = glob.glob('static/uploads/csvfiles/*')
 
@@ -101,6 +102,16 @@ def storedFiles(folder, smooth, thresh, buff, dist):
 
         dataframeo, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(dataframes, buff, poly,
                                                                                              window, thresh, dist)
+        t50, stder = calc.t50(fifty[0], dataframeo[0]['time'])
+        c50, stder2 = calc.c50(peaks[0], fifty[0], dataframeo[0]['time'])
+        r50, stder3 = calc.r50(peaks[0], fifty[0], dataframeo[0]['time'])
+        print(t50)
+        print(stder)
+        print(c50)
+        print(stder2)
+        print(r50)
+        print(stder3)
+
         return ([
             dcc.Graph(id='graph#{}'.format(i),
                       figure={

@@ -34,6 +34,11 @@ def forcecoef(youngs, radius, l_r, a_r, l_l, a_l, deltaT):
     return avg, std
 
 
+'''
+Time Parameters
+'''
+
+
 def beating_freq(time, peaks):
     timediff = []
     for i in range(len(peaks) - 1):
@@ -41,11 +46,6 @@ def beating_freq(time, peaks):
     std = np.std(timediff)
     avg = sum(timediff) / len(timediff)
     return avg, std
-
-
-'''
-Time Parameters
-'''
 
 
 def time2pk(tens, peaks, time):
@@ -59,7 +59,7 @@ def time2pk(tens, peaks, time):
 
 def time2rel(ninety, peaks, time):
     t2rel = []
-    for in in range(len(ninety[2])):
+    for i in range(len(ninety[2])):
         t2rel.append(ninety[2][i] - time[peaks[i]])
     std = np.std(t2rel)
     avg = sum(t2rel) / len(t2rel)
