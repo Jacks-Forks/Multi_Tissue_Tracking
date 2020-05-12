@@ -17,7 +17,7 @@ Force Parameters
 '''
 
 
-def forcecoef(youngs, radius, l_r, a_r, l_l, a_l, deltaT):
+def force(youngs, radius, l_r, a_r, l_l, a_l, deltaT):
     # Deltat should be a list od displacements between posts, can be at peaks for active force, ot at basepoints for passive
     #force, std = forcecoef(young, rasd, lr, ar, ll, al, delta)
     forceRatio = ((a_r**2) * ((3 * l_r) - a_r)) / \
@@ -25,6 +25,9 @@ def forcecoef(youngs, radius, l_r, a_r, l_l, a_l, deltaT):
     Lcoef = (3 * np.pi * youngs * (radius**4)) / \
         (2 * (a_l**2) * ((3 * l_l) - a_l))
     Lforce = []
+
+    # Should be abs or fix my disp to not be negatives
+    # should be disp from total disp, not just dist between them
     for i in range(len(deltaT)):
         deltaL = deltaT[i] / (1 + forceRatio)
         Lforce.append(Lcoef * deltaL)

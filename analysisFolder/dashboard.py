@@ -106,8 +106,17 @@ def storedFiles(folder, smooth, thresh, buff, dist):
         t50 = []
         c50 = []
         r50 = []
-
+        devforce = []
+        peakdist = []
         for i in range(len(fifty)):
+            for j in range(len(peaks[i])):
+                peakdist.append(dataframeo[i]['disp'][peaks[i][j]])
+
+            '''
+            Need to fix force
+            '''
+            devforce.append(calc.force(
+                1330000, .0005, .012, .0115, .012, .0115, peakdist))
             t50.append(calc.t50(fifty[i], dataframeo[i]['time']))
             c50.append(calc.c50(peaks[i], fifty[i], dataframeo[i]['time']))
             r50.append(calc.r50(peaks[i], fifty[i], dataframeo[i]['time']))
@@ -115,7 +124,7 @@ def storedFiles(folder, smooth, thresh, buff, dist):
         print(t50)
         print(r50)
         print(c50)
-
+        print(devforce)
         return ([
             dcc.Graph(id='graph#{}'.format(i),
                       figure={
