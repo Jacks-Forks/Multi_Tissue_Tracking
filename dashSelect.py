@@ -11,7 +11,7 @@ import cv2
 
 folders = glob.glob('static/uploads/videofiles/*')
 
-filer = None
+filer = videostream = None
 
 app = dash.Dash(__name__, requests_pathname_prefix='/vidSelect/')
 app.layout = html.Div([
@@ -26,7 +26,7 @@ app.layout = html.Div([
         id='file'
     ),
     html.Div(id='fileselected'),
-    dcc.Link('Navigate to "/page-2"', href='/vidSelect/oi', refresh=True),
+    dcc.Link('Navigate to "/page-2"', href='/vidSelect/post', refresh=True),
 ])
 
 
@@ -47,23 +47,22 @@ def selected_file(file):
     if file is not None:
         global filer
         filer = file
-        oi()
+        postselect()
         return
 
 
-@app.server.route('/oi')
-def oi():
-    global filer
-    print(filer.split('/')[4])
+@app.server.route('/post')
+def postselect():
+    global filer, videostream
+
     splits = filer.split('/')
     base = splits[4].split('.')[0]
-    print('static/img/' + filer.split('/')
-          [3] + base + '.jpg')
-    filepath = filer
+
     videostream = cv2.VideoCapture(filer)
     images = videostream.read()[1]
     if not os.path.exists('static/img/' + filer.split('/')[3]):
         os.mkdir('static/img/' + filer.split('/')[3])
     cv2.imwrite('static/img/' + filer.split('/')
                 [3] + '/' + base + '.jpg', images)
+
     return render_template("index.html", path='static/img/' + filer.split('/')[3] + '/' + base + '.jpg')
