@@ -99,8 +99,8 @@ def storedFiles(folder, smooth, thresh, buff, dist):
         poly = smooth[0]
         window = smooth[1]
 
-        dataframeo, peaks, basepoints, frontpoints = analysis.findpoints(dataframes, buff, poly,
-                                                                         window, thresh, dist)
+        dataframeo, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(dataframes, buff, poly,
+                                                                                             window, thresh, dist)
         return ([
             dcc.Graph(id='graph#{}'.format(i),
                       figure={
@@ -132,6 +132,54 @@ def storedFiles(folder, smooth, thresh, buff, dist):
                               'x': dataframeo[i]['time'][frontpoints[i]],
                               'y': dataframeo[i]['disp'][frontpoints[i]],
                               'name': 'Frontpoints',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': ten[i][0],
+                              'y': ten[i][1],
+                              'name': 'Ten Cont',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': fifty[i][0],
+                              'y': fifty[i][1],
+                              'name': 'Fifty Cont',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': ninety[i][0],
+                              'y': ninety[i][1],
+                              'name': 'Ninety Cont',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': ten[i][2],
+                              'y': ten[i][3],
+                              'name': 'Ten Rel',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': fifty[i][2],
+                              'y': fifty[i][3],
+                              'name': 'Fifty Ten',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': ninety[i][2],
+                              'y': ninety[i][3],
+                              'name': 'Ninety Rel',
                               'mode': 'markers',
                               'marker': {
                                   'size': 12
