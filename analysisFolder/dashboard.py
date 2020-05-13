@@ -123,6 +123,7 @@ def storedFiles(folder, smooth, thresh, buff, dist):
         devforce = []
         actforce = []
         pasforce = []
+
         peakdist = []
         basedist = []
         devdist = []
