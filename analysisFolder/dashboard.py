@@ -9,6 +9,19 @@ import glob
 from dash.dependencies import Input, Output, State
 
 import analysisFolder.analysis as analysis
+import analysisFolder.calculations as calc
+
+
+'''
+These Should Be User Editable
+'''
+youngs = 1330000
+radius = .0005
+l_r = .012
+a_r = .0115
+l_l = .012
+a_l = .0115
+count = 0
 
 dates = glob.glob('static/uploads/csvfiles/*')
 
@@ -77,9 +90,36 @@ dasher.layout = html.Div([
     dcc.Slider(id='dist', min=0, max=10, value=5),
     html.Div('BufferDist:'),
     dcc.Slider(id='buff', min=0, max=10, value=3),
+    dcc.RadioItems(
+        id='radio',
+        options=[
+            {'label': 'EHT', 'value': 'EHT'},
+            {'label': 'Multi Tissue', 'value': 'MT'}
+        ],
+        value='MT',
+        style={'width': 500}
+    ),
+    html.Button(id='reload', n_clicks=0, hidden=True),
+    dcc.Input(
+        id='young',
+        type='number',
+        value='133000'
+    ),
+    html.Div(id='holder'),
     html.Div('Graphs:'),
     html.Div(id='graphs', children=[dcc.Graph(id='graph#{}'.format('1'))])
 ])
+
+
+@dasher.callback(Output('reload', 'n_clicks'), [
+    Input('radio', 'value'),
+    Input('young', 'value')
+])
+def consts(type, you):
+    global count, youngs
+    youngs = you
+    count = count + 1
+    return count
 
 
 @dasher.callback(Output('graphs', 'children'), [
@@ -87,20 +127,95 @@ dasher.layout = html.Div([
     Input('smoothing', 'value'),
     Input('thresh', 'value'),
     Input('buff', 'value'),
-    Input('dist', 'value')
+    Input('dist', 'value'),
+    Input('reload', 'n_clicks')
 ])
-def storedFiles(folder, smooth, thresh, buff, dist):
+def storedFiles(folder, smooth, thresh, buff, dist, but):
+    print(but)
+    print(youngs)
     dataframes = []
 
     if folder is not None:
         files = glob.glob(folder + '/*')
         for file in files:
             dataframes.append(pd.read_csv(file))
+        for i in range(len(dataframes)):
+            dataframes[i]['time'] = dataframes[i]['time'] / 1000
+
         poly = smooth[0]
         window = smooth[1]
 
-        dataframeo, peaks, basepoints, frontpoints = analysis.findpoints(dataframes, buff, poly,
-                                                                         window, thresh, dist)
+        dataframeo, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(
+            dataframes, buff, poly, window, thresh, dist)
+
+        t50 = []
+        c50 = []
+        r50 = []
+
+        t2rel50 = []
+        t2rel90 = []
+        t2pks = []
+
+        dfdt = []
+        negdfdt = []
+
+        freq = []
+        freqCOV = []
+
+        devforce = []
+        actforce = []
+        pasforce = []
+
+        peakdist = []
+        basedist = []
+        devdist = []
+
+        for i in range(len(fifty)):
+            for j in range(len(peaks[i])):
+                peakdist.append(7 + dataframeo[i]['disp'][peaks[i][j]])
+                basedist.append(7 + dataframeo[i]['disp'][basepoints[i][j]])
+                devdist.append(peakdist[j] - basedist[j])
+            '''
+            Add User Input
+
+            '''
+            actforce.append(calc.force(
+                youngs, radius, l_r, a_r, l_l, a_l, peakdist))
+            pasforce.append(calc.force(
+                youngs, radius, l_r, a_r, l_l, a_l, basedist))
+            devforce.append(calc.force(
+                youngs, radius, l_r, a_r, l_l, a_l, devdist))
+            t50.append(calc.t50(fifty[i], dataframeo[i]['time']))
+            c50.append(calc.c50(peaks[i], fifty[i], dataframeo[i]['time']))
+            r50.append(calc.r50(peaks[i], fifty[i], dataframeo[i]['time']))
+            freq.append(calc.beating_freq(dataframeo[i]['time'], peaks[i]))
+            freqCOV.append(freq[i][1] / freq[i][0])
+            t2rel50.append(calc.time2rel50(
+                fifty[i], peaks[i], dataframeo[i]['time']))
+            t2rel90.append(calc.time2rel50(
+                ten[i], peaks[i], dataframeo[i]['time']))
+            t2pks.append(calc.time2pk(ten[i], peaks[i], dataframeo[i]['time']))
+            dfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
+            negdfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
+
+        print(str(t50) + '\n')
+        print(str(r50) + '\n')
+        print(str(c50) + '\n')
+
+        print(str(t2pks) + '\n')
+        print(str(t2rel50) + '\n')
+        print(str(t2rel90) + '\n')
+
+        print(str(dfdt) + '\n')
+        print(str(negdfdt) + '\n')
+
+        print(str(freq) + '\n')
+        print(str(freqCOV) + '\n')
+
+        print(str(actforce) + '\n')
+        print(str(pasforce) + '\n')
+        print(str(devforce) + '\n')
+
         return ([
             dcc.Graph(id='graph#{}'.format(i),
                       figure={
@@ -132,6 +247,54 @@ def storedFiles(folder, smooth, thresh, buff, dist):
                               'x': dataframeo[i]['time'][frontpoints[i]],
                               'y': dataframeo[i]['disp'][frontpoints[i]],
                               'name': 'Frontpoints',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': ten[i][0],
+                              'y': ten[i][1],
+                              'name': 'Ten Cont',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': fifty[i][0],
+                              'y': fifty[i][1],
+                              'name': 'Fifty Cont',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': ninety[i][0],
+                              'y': ninety[i][1],
+                              'name': 'Ninety Cont',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': ten[i][2],
+                              'y': ten[i][3],
+                              'name': 'Ten Rel',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': fifty[i][2],
+                              'y': fifty[i][3],
+                              'name': 'Fifty Ten',
+                              'mode': 'markers',
+                              'marker': {
+                                  'size': 12
+                              }
+                          }, {
+                              'x': ninety[i][2],
+                              'y': ninety[i][3],
+                              'name': 'Ninety Rel',
                               'mode': 'markers',
                               'marker': {
                                   'size': 12
