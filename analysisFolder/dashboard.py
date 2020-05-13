@@ -96,11 +96,22 @@ dasher.layout = html.Div([
             {'label': 'EHT', 'value': 'EHT'},
             {'label': 'Multi Tissue', 'value': 'MT'}
         ],
-        value='MT'
+        value='MT',
+        style={'width': 500}
     ),
+    html.Button('Update Constants', id='reload',
+                n_clicks=0, style={'margin-right': 10, 'width': 500}),
+    html.Div(id='holder'),
     html.Div('Graphs:'),
     html.Div(id='graphs', children=[dcc.Graph(id='graph#{}'.format('1'))])
 ])
+
+
+@dasher.callback(Output('holder', 'children'), [
+    Input('radio', 'value')
+])
+def consts(type):
+    return type
 
 
 @dasher.callback(Output('graphs', 'children'), [
@@ -109,8 +120,9 @@ dasher.layout = html.Div([
     Input('thresh', 'value'),
     Input('buff', 'value'),
     Input('dist', 'value'),
+    Input('reload', 'n_clicks')
 ])
-def storedFiles(folder, smooth, thresh, buff, dist):
+def storedFiles(folder, smooth, thresh, buff, dist, but):
     dataframes = []
 
     if folder is not None:
