@@ -97,22 +97,44 @@ def storedFiles(folder, smooth, thresh, buff, dist):
         files = glob.glob(folder + '/*')
         for file in files:
             dataframes.append(pd.read_csv(file))
+        for i in range(len(dataframes)):
+            dataframes[i]['time'] = dataframes[i]['time'] / 1000
+
         poly = smooth[0]
         window = smooth[1]
 
         dataframeo, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(
             dataframes, buff, poly, window, thresh, dist)
 
-        t50 = c50 = r50 = []
-        devforce = actforce = pasforce = []
-        peakdist = basedist = devdist = []
+        t50 = []
+        c50 = []
+        r50 = []
+
+        t2rel50 = []
+        t2rel90 = []
+        t2pks = []
+
+        dfdt = []
+        negdfdt = []
+
+        freq = []
+        freqCOV = []
+
+        devforce = []
+        actforce = []
+        pasforce = []
+        peakdist = []
+        basedist = []
+        devdist = []
 
         for i in range(len(fifty)):
             for j in range(len(peaks[i])):
                 peakdist.append(7 + dataframeo[i]['disp'][peaks[i][j]])
                 basedist.append(7 + dataframeo[i]['disp'][basepoints[i][j]])
                 devdist.append(peakdist[j] - basedist[j])
-
+            '''
+            Add User Input
+            '''
             actforce.append(calc.force(
                 1330000, .0005, .012, .0115, .012, .0115, peakdist))
             pasforce.append(calc.force(
@@ -122,13 +144,33 @@ def storedFiles(folder, smooth, thresh, buff, dist):
             t50.append(calc.t50(fifty[i], dataframeo[i]['time']))
             c50.append(calc.c50(peaks[i], fifty[i], dataframeo[i]['time']))
             r50.append(calc.r50(peaks[i], fifty[i], dataframeo[i]['time']))
+            freq.append(calc.beating_freq(dataframeo[i]['time'], peaks[i]))
+            freqCOV.append(freq[i][1] / freq[i][0])
+            t2rel50.append(calc.time2rel50(
+                fifty[i], peaks[i], dataframeo[i]['time']))
+            t2rel90.append(calc.time2rel50(
+                ten[i], peaks[i], dataframeo[i]['time']))
+            t2pks.append(calc.time2pk(ten[i], peaks[i], dataframeo[i]['time']))
+            dfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
+            negdfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
 
-        print(t50)
-        print(r50)
-        print(c50)
-        print(actforce)
-        print(pasforce)
-        print(devforce)
+        print(str(t50) + '\n')
+        print(str(r50) + '\n')
+        print(str(c50) + '\n')
+
+        print(str(t2pks) + '\n')
+        print(str(t2rel50) + '\n')
+        print(str(t2rel90) + '\n')
+
+        print(str(dfdt) + '\n')
+        print(str(negdfdt) + '\n')
+
+        print(str(freq) + '\n')
+        print(str(freqCOV) + '\n')
+
+        print(str(actforce) + '\n')
+        print(str(pasforce) + '\n')
+        print(str(devforce) + '\n')
 
         return ([
             dcc.Graph(id='graph#{}'.format(i),

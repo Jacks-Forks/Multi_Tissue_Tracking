@@ -18,16 +18,12 @@ Force Parameters
 
 
 def force(youngs, radius, l_r, a_r, l_l, a_l, deltaT):
-    # Deltat should be a list od displacements between posts, can be at peaks for active force, ot at basepoints for passive
-    #force, std = forcecoef(young, rasd, lr, ar, ll, al, delta)
     forceRatio = ((a_r**2) * ((3 * l_r) - a_r)) / \
         ((a_l**2) * ((3 * l_l) - a_l))
     Lcoef = (3 * np.pi * youngs * (radius**4)) / \
         (2 * (a_l**2) * ((3 * l_l) - a_l))
     Lforce = []
 
-    # Should be abs or fix my disp to not be negatives
-    # should be disp from total disp, not just dist between them
     for i in range(len(deltaT)):
         deltaL = deltaT[i] / (1 + forceRatio)
         Lforce.append(Lcoef * deltaL)
@@ -52,15 +48,24 @@ def beating_freq(time, peaks):
 
 
 def time2pk(tens, peaks, time):
-    t2pk = []
+    t2pke = []
     for i in range(len(peaks)):
-        t2pk.append(time[peaks[i]] - time[tens[i]])
-    std = np.std(t2pk)
-    avg = sum(t2pk) / len(t2pk)
+        t2pke.append(time[peaks[i]] - tens[0][i])
+    std = np.std(t2pke)
+    avg = sum(t2pke) / len(t2pke)
     return avg, std
 
 
-def time2rel(ninety, peaks, time):
+def time2rel50(fifty, peaks, time):
+    t2rel = []
+    for i in range(len(fifty[2])):
+        t2rel.append(fifty[2][i] - time[peaks[i]])
+    std = np.std(t2rel)
+    avg = sum(t2rel) / len(t2rel)
+    return avg, std
+
+
+def time2rel90(ninety, peaks, time):
     t2rel = []
     for i in range(len(ninety[2])):
         t2rel.append(ninety[2][i] - time[peaks[i]])
