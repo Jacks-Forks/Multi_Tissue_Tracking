@@ -103,20 +103,22 @@ def storedFiles(folder, smooth, thresh, buff, dist):
         dataframeo, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(
             dataframes, buff, poly, window, thresh, dist)
 
-        t50 = []
-        c50 = []
-        r50 = []
-        devforce = []
-        peakdist = []
+        t50 = c50 = r50 = []
+        devforce = actforce = pasforce = []
+        peakdist = basedist = devdist = []
+
         for i in range(len(fifty)):
             for j in range(len(peaks[i])):
-                peakdist.append(dataframeo[i]['disp'][peaks[i][j]])
+                peakdist.append(7 + dataframeo[i]['disp'][peaks[i][j]])
+                basedist.append(7 + dataframeo[i]['disp'][basepoints[i][j]])
+                devdist.append(peakdist[j] - basedist[j])
 
-            '''
-            Need to fix force
-            '''
-            devforce.append(calc.force(
+            actforce.append(calc.force(
                 1330000, .0005, .012, .0115, .012, .0115, peakdist))
+            pasforce.append(calc.force(
+                1330000, .0005, .012, .0115, .012, .0115, basedist))
+            devforce.append(calc.force(
+                1330000, .0005, .012, .0115, .012, .0115, devdist))
             t50.append(calc.t50(fifty[i], dataframeo[i]['time']))
             c50.append(calc.c50(peaks[i], fifty[i], dataframeo[i]['time']))
             r50.append(calc.r50(peaks[i], fifty[i], dataframeo[i]['time']))
@@ -124,7 +126,10 @@ def storedFiles(folder, smooth, thresh, buff, dist):
         print(t50)
         print(r50)
         print(c50)
+        print(actforce)
+        print(pasforce)
         print(devforce)
+
         return ([
             dcc.Graph(id='graph#{}'.format(i),
                       figure={
