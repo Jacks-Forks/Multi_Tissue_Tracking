@@ -11,6 +11,18 @@ from dash.dependencies import Input, Output, State
 import analysisFolder.analysis as analysis
 import analysisFolder.calculations as calc
 
+
+'''
+These Should Be User Editable
+'''
+youngs = 1330000
+radius = .0005
+l_r = .012
+a_r = .0115
+l_l = .012
+a_l = .0115
+
+
 dates = glob.glob('static/uploads/csvfiles/*')
 
 dasher = dash.Dash(__name__, requests_pathname_prefix='/dash/')
@@ -78,6 +90,14 @@ dasher.layout = html.Div([
     dcc.Slider(id='dist', min=0, max=10, value=5),
     html.Div('BufferDist:'),
     dcc.Slider(id='buff', min=0, max=10, value=3),
+    dcc.RadioItems(
+        id='radio',
+        options=[
+            {'label': 'EHT', 'value': 'EHT'},
+            {'label': 'Multi Tissue', 'value': 'MT'}
+        ],
+        value='MT'
+    ),
     html.Div('Graphs:'),
     html.Div(id='graphs', children=[dcc.Graph(id='graph#{}'.format('1'))])
 ])
@@ -88,7 +108,7 @@ dasher.layout = html.Div([
     Input('smoothing', 'value'),
     Input('thresh', 'value'),
     Input('buff', 'value'),
-    Input('dist', 'value')
+    Input('dist', 'value'),
 ])
 def storedFiles(folder, smooth, thresh, buff, dist):
     dataframes = []
@@ -135,13 +155,14 @@ def storedFiles(folder, smooth, thresh, buff, dist):
                 devdist.append(peakdist[j] - basedist[j])
             '''
             Add User Input
+
             '''
             actforce.append(calc.force(
-                1330000, .0005, .012, .0115, .012, .0115, peakdist))
+                youngs, radius, l_r, a_r, l_l, a_l, peakdist))
             pasforce.append(calc.force(
-                1330000, .0005, .012, .0115, .012, .0115, basedist))
+                youngs, radius, l_r, a_r, l_l, a_l, basedist))
             devforce.append(calc.force(
-                1330000, .0005, .012, .0115, .012, .0115, devdist))
+                youngs, radius, l_r, a_r, l_l, a_l, devdist))
             t50.append(calc.t50(fifty[i], dataframeo[i]['time']))
             c50.append(calc.c50(peaks[i], fifty[i], dataframeo[i]['time']))
             r50.append(calc.r50(peaks[i], fifty[i], dataframeo[i]['time']))
