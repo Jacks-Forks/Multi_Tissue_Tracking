@@ -1,8 +1,11 @@
-function initDraw(canvas) {
-  var num_posts = document.getElementById("number_of_posts").value;
-  var quan = document.getElementById("quantity").value
-  console.log(num_posts);
-  console.log(quan)
+function getPostCount() {
+  var post_count = document.getElementById("numPosts").value
+  initDraw(document.getElementById('canvas'), post_count);
+}
+
+function initDraw(canvas, post_count) {
+  var boxes = new Array()
+  //  var boxCordinates = new List()
 
   function setMousePosition(e) {
     var ev = e || window.event; //Moz || IE
@@ -37,22 +40,44 @@ function initDraw(canvas) {
     if (element !== null) {
       element = null;
       canvas.style.cursor = "default";
-      console.log("finsihed.");
-      console.log(mouse.x);
-      console.log(mouse.y);
+      post_count--;
+      console.log("finsihed." + post_count);
+      boxes.push(GetCoordinates());
       console.log(GetCoordinates());
+      if (post_count == 0) {
+        console.log("stop here");
+        console.log(boxes);
+
+        var boxes_as_json = JSON.stringify(boxes)
+
+
+
+        $.ajax({
+          type: 'POST',
+          url: "/test",
+          data: boxes_as_json,
+          processData: false,
+          contentType: false,
+          success: function(result) {
+            console.log(data)
+            //add below line to redirect
+            window.location.replace(data.url, points = data.point);
+          }
+        })
+        //  return boxes;
+      }
+
     } else {
       console.log("begun.");
       mouse.startX = mouse.x;
       mouse.startY = mouse.y;
       element = document.createElement('div');
-      element.className = 'rectangle'
+      element.className = 'rectangle';
       element.style.left = mouse.x + 'px';
       element.style.top = mouse.y + 'px';
-      canvas.appendChild(element)
+      canvas.appendChild(element);
       canvas.style.cursor = "crosshair";
-      console.log(mouse.x)
-      console.log(mouse.y)
+      boxes.push(GetCoordinates());
       console.log(GetCoordinates());
     }
   }

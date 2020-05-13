@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 
 from flask import (Flask, abort, flash, redirect, render_template, request,
                    send_file, send_from_directory, url_for)
@@ -56,6 +57,16 @@ check_system()
 @app.route("/")
 def main():
     return render_template('upload.html')
+
+
+@app.route("/test", methods=['GET', 'POST'])
+def my_function():
+    if request.method == "POST":
+        logging.info("it is a post")
+
+        from_js = request.get_data()
+        print(from_js)
+        data = json.loads(from_js)
 
 
 @app.route('/uploadFile', methods=['GET', 'POST'])

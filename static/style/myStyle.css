@@ -9,3 +9,13 @@
   border: 1px solid #FF0000;
   position: absolute;
 }
+
+#pic {
+  height: 50%;
+  width: 50%;
+}
+
+#canvas {
+  height: fit-content;
+  width: fit-content;
+}
