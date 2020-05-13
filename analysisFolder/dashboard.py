@@ -21,7 +21,7 @@ l_r = .012
 a_r = .0115
 l_l = .012
 a_l = .0115
-
+count = 0
 
 dates = glob.glob('static/uploads/csvfiles/*')
 
@@ -99,19 +99,27 @@ dasher.layout = html.Div([
         value='MT',
         style={'width': 500}
     ),
-    html.Button('Update Constants', id='reload',
-                n_clicks=0, style={'margin-right': 10, 'width': 500}),
+    html.Button(id='reload', n_clicks=0, hidden=True),
+    dcc.Input(
+        id='young',
+        type='number',
+        value='133000'
+    ),
     html.Div(id='holder'),
     html.Div('Graphs:'),
     html.Div(id='graphs', children=[dcc.Graph(id='graph#{}'.format('1'))])
 ])
 
 
-@dasher.callback(Output('holder', 'children'), [
-    Input('radio', 'value')
+@dasher.callback(Output('reload', 'n_clicks'), [
+    Input('radio', 'value'),
+    Input('young', 'value')
 ])
-def consts(type):
-    return type
+def consts(type, you):
+    global count, youngs
+    youngs = you
+    count = count + 1
+    return count
 
 
 @dasher.callback(Output('graphs', 'children'), [
@@ -123,6 +131,8 @@ def consts(type):
     Input('reload', 'n_clicks')
 ])
 def storedFiles(folder, smooth, thresh, buff, dist, but):
+    print(but)
+    print(youngs)
     dataframes = []
 
     if folder is not None:
