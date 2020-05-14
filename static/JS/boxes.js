@@ -50,7 +50,22 @@ function initDraw(canvas, post_count) {
 
         var boxes_as_json = JSON.stringify(boxes)
 
+        //        sendToFlask(boxes_as_json);
 
+
+
+        /*
+                $("button").click(function() {
+                  $.post("demo_test_post.asp", {
+                      name: "Donald Duck",
+                      city: "Duckburg"
+                    },
+                    function(data, status) {
+                      alert("Data: " + data + "\nStatus: " + status);
+                    });
+                });
+
+                */
 
         $.ajax({
           type: 'POST',
@@ -58,13 +73,18 @@ function initDraw(canvas, post_count) {
           data: boxes_as_json,
           processData: false,
           contentType: false,
-          success: function(result) {
-            console.log(data)
-            //add below line to redirect
-            window.location.replace(data.url, points = data.point);
+          success: function(response) {
+            console.log(response);
+            console.log(response.url)
+
+            //  console.log(response["idk"])
+            //  test = response.idk
+            //  test = "<h1> so so stange </h1>"
+            $('body').append(response.url);
           }
         })
-        //  return boxes;
+
+
       }
 
     } else {
@@ -82,7 +102,28 @@ function initDraw(canvas, post_count) {
     }
   }
 }
+/*
+function sendToFlask(dataToSend) {
+  var url = "/getBoxes";
+  var method = "POST";
+  var postData = dataToSend;
+  var shouldBeAsync = true;
 
+  var request = new XMLHttpRequest();
+  request.onload = function() {
+
+    var status = request.status; // HTTP response status, e.g., 200 for "200 OK"
+    var data = request.responseText; // Returned data, e.g., an HTML document.
+  }
+
+  request.open(method, url, shouldBeAsync);
+  request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  request.send(postData);
+
+  window.location.href =
+
+}
+*/
 function FindPosition(oElement) {
   if (typeof(oElement.offsetParent) != "undefined") {
     for (var posX = 0, posY = 0; oElement; oElement = oElement.offsetParent) {

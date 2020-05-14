@@ -3,7 +3,7 @@ import os
 import json
 
 from flask import (Flask, abort, flash, redirect, render_template, request,
-                   send_file, send_from_directory, url_for)
+                   send_file, send_from_directory, url_for, jsonify)
 from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
@@ -59,6 +59,12 @@ def main():
     return render_template('upload.html')
 
 
+@app.route("/getBoxes", methods=["GET", "POST"])
+@app.route("/getBoxes/<boxInfo>", methods=["GET", "POST"])
+def getBoxes(boxInfo):
+    return render_template('showData.html', boxCoords=boxInfo)
+
+
 @app.route("/test", methods=['GET', 'POST'])
 def my_function():
     if request.method == "POST":
@@ -67,6 +73,11 @@ def my_function():
         from_js = request.get_data()
         print(from_js)
         data = json.loads(from_js)
+        url = "/uploadFile"
+        link = "<a href= {{url_for('getBoxes', boxInfo=" + \
+            str(data) + ")}}>Click to Track</a>"
+        return jsonify({'status': 'OK', 'url': link, 'data': data})
+        # return json.dumps({'status': 'OK', 'url': url, 'data': data, 'idk': iDontGetIt})
 
 
 @app.route('/uploadFile', methods=['GET', 'POST'])
