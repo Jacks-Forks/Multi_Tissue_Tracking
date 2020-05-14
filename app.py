@@ -59,25 +59,14 @@ def main():
     return render_template('upload.html')
 
 
-@app.route("/getBoxes", methods=["GET", "POST"])
-@app.route("/getBoxes/<boxInfo>", methods=["GET", "POST"])
-def getBoxes(boxInfo):
-    return render_template('showData.html', boxCoords=boxInfo)
-
-
-@app.route("/test", methods=['GET', 'POST'])
-def my_function():
+@app.route("/boxCoordinates", methods=['GET', 'POST'])
+def boxCoordinates():
     if request.method == "POST":
-        logging.info("it is a post")
-
         from_js = request.get_data()
-        print(from_js)
+        logging.info(from_js)
         data = json.loads(from_js)
-        url = "/uploadFile"
-        link = "<a href= {{url_for('getBoxes', boxInfo=" + \
-            str(data) + ")}}>Click to Track</a>"
-        return jsonify({'status': 'OK', 'url': link, 'data': data})
-        # return json.dumps({'status': 'OK', 'url': url, 'data': data, 'idk': iDontGetIt})
+        logging.info(data)
+        return jsonify({'status': 'OK', 'data': data})
 
 
 @app.route('/uploadFile', methods=['GET', 'POST'])
