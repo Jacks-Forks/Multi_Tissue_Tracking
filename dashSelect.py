@@ -60,9 +60,9 @@ def postselect():
 
     videostream = cv2.VideoCapture(filer)
     images = videostream.read()[1]
-    if not os.path.exists('static/img/' + filer.split('/')[3]):
-        os.mkdir('static/img/' + filer.split('/')[3])
-    cv2.imwrite('static/img/' + filer.split('/')
+    if not os.path.exists('static/img/' + splits[3]):
+        os.mkdir('static/img/' + splits[3])
+    cv2.imwrite('static/img/' + splits
                 [3] + '/' + base + '.jpg', images)
 
-    return render_template("index.html", path='static/img/' + filer.split('/')[3] + '/' + base + '.jpg')
+    return render_template("selectPosts.html", path='static/img/' + splits[3] + '/' + base + '.jpg')
