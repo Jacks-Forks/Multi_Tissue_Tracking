@@ -1,6 +1,8 @@
 #canvas {
-  width: 2000px;
-  height: 2000px;
+  /*  width: 2000px;
+  height: 2000px;*/
+  height: fit-content;
+  width: fit-content;
   border: 0px solid transparent;
   padding: 0px;
 }
@@ -11,11 +13,6 @@
 }
 
 #pic {
-  height: 50%;
-  width: 50%;
-}
-
-#canvas {
-  height: fit-content;
-  width: fit-content;
+  height: 540px;
+  width: 960px;
 }

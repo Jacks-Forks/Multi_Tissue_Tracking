@@ -54,10 +54,13 @@ def start_trackign(unformated_points):
         if count >= 100:
             break
         image = videostream.read()[1]
+        '''
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
 
-        # cv2.waitKey(20)
+
+        cv2.waitKey(20)
+        '''
 
         if image is None:
             break
@@ -81,6 +84,8 @@ def start_trackign(unformated_points):
             postio[i] = (centroidX, centroidY)
 
         for (objectID, centroid) in postio.items():
+            """
+            only for debugging showes image and draws box on image
             text = "{}".format(objectID)
             cv2.putText(image, text, (centroid[0] - 10, centroid[1] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -88,6 +93,7 @@ def start_trackign(unformated_points):
             logging.info((centroid[0], centroid[1]))
 
             cv2.imshow("test", image)
+            """
             if (objectID % 2) == 0:
                 # Save the x position of the even post
                 evenX = centroid[0]
@@ -108,14 +114,13 @@ def start_trackign(unformated_points):
                 count = count + 1
                 print(count)
                 displacmet.append(disp)
-            #   trace.data[0].x = xox
-            #   trace.data[0].y = lists
-        # trace = fig.add_trace(go.Scatter(x=xox,y=lists))
 
+    '''
     videostream.release()
     # Closes all the frames
     cv2.destroyAllWindows()
     cv2.waitKey(1)
+    '''
     df = pd.DataFrame(displacmet)
     df.to_csv('displacmet.csv', index=False)
 
