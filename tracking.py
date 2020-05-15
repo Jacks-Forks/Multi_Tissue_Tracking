@@ -36,11 +36,11 @@ def start_trackign(unformated_points):
 
     trackers = cv2.MultiTracker_create()
 
-    box = format_points(unformated_points)
+    boxes = format_points(unformated_points)
 
-    for i in range(len(box)):
+    for box in boxes:
         tracker = OPENCV_OBJECT_TRACKERS['csrt']()
-        trackers.add(tracker, images, box[i])
+        trackers.add(tracker, images, box)
 
     count = 0
     xox = []
@@ -49,16 +49,12 @@ def start_trackign(unformated_points):
     # fig = go.Figure()
     # trace = fig.add_trace(go.Scatter(x=xox, y=lists))
     while True:
-        # count = count + 1
-        print(count)
         if count >= 100:
             break
         image = videostream.read()[1]
         '''
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
-
-
         cv2.waitKey(20)
         '''
 
@@ -85,7 +81,7 @@ def start_trackign(unformated_points):
 
         for (objectID, centroid) in postio.items():
             """
-            only for debugging showes image and draws box on image
+            only for debugging showes image and draws boxes on image
             text = "{}".format(objectID)
             cv2.putText(image, text, (centroid[0] - 10, centroid[1] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -112,7 +108,6 @@ def start_trackign(unformated_points):
                 disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2))
                 xox.append(count)
                 count = count + 1
-                print(count)
                 displacmet.append(disp)
 
     '''
@@ -121,7 +116,7 @@ def start_trackign(unformated_points):
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     '''
-    df = pd.DataFrame(displacmet)
+    df = pd.DataFrame(displacmet, columns=["Displacment"])
     df.to_csv('displacmet.csv', index=False)
 
-    return box
+    return boxes
