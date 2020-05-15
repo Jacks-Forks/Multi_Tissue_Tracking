@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+import tracking
 
 from flask import (Flask, abort, flash, redirect, render_template, request,
                    send_file, send_from_directory, url_for, jsonify)
@@ -66,6 +67,7 @@ def boxCoordinates():
         logging.info(from_js)
         data = json.loads(from_js)
         logging.info(data)
+        tracking.start_trackign(data)
         return jsonify({'status': 'OK', 'data': data})
 
 
