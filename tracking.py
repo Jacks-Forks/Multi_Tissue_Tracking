@@ -45,7 +45,7 @@ def start_trackig(unformated_points):
         trackers.add(tracker, images, box)
 
     count = 0
-    displacmet = []
+    displacement = []
 
     # fig = go.Figure()
     # trace = fig.add_trace(go.Scatter(x=xox, y=lists))
@@ -65,7 +65,10 @@ def start_trackig(unformated_points):
             break
         cv2.waitKey(20)
         '''
-
+        '''
+        if count >= 100:
+            break
+        '''
         if ret is False:
             break
         posts = trackers.update(image)[1]
@@ -108,8 +111,8 @@ def start_trackig(unformated_points):
             elif (objectID - 1) == evenID:
                 # Calculate tissue number based on object ID
                 reltissueID = int((objectID - 1) / 2)
-                if (len(displacmet) < reltissueID + 1):
-                    displacmet.append([])
+                if (len(displacement) < reltissueID + 1):
+                    displacement.append([])
                 # Save the x position of the odd post
                 oddX = centroid[0]
                 # Save the y position of the odd post
@@ -118,7 +121,8 @@ def start_trackig(unformated_points):
                 disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2))
                 count = count + 1
                 # logging.info(count)
-                displacmet[reltissueID].append(disp)
+                displacement[reltissueID].append(
+                    (disp, oddX, oddY, evenX, evenY))
 
     '''
     videostream.release()
@@ -126,8 +130,9 @@ def start_trackig(unformated_points):
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     '''
-    for i, an in enumerate(displacmet):
-        df = pd.DataFrame(an, columns=["Displacment"])
-        df.to_csv('displacmet{}.csv'.format(i), index=False)
+    for i, an in enumerate(displacement):
+        df = pd.DataFrame(
+            an, columns=["Displacment", "oddX", "oddY", "evenX", "evenY"])
+        df.to_csv('displacement{}.csv'.format(i), index=False)
     print("check CSV")
     return boxes
