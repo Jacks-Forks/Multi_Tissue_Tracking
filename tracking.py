@@ -3,6 +3,8 @@ import logging
 import cv2
 import numpy as np
 import pandas as pd
+import dashSelect as path
+import os
 
 logging.basicConfig(filename='tracking.log', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
@@ -20,8 +22,9 @@ def format_points(old_points):
 
 
 def start_trackig(unformated_points):
-    videostream = cv2.VideoCapture(
-        "/Users/brendanmurphy/Documents/Development/Multi_Tissue_Tracking/static/uploads/videofiles/Day_1/tester.mp4")
+    # logging.info(path.filer)
+    videostream = cv2.VideoCapture(path.filer)
+    splits = path.filer.split('/')
     images = videostream.read()[1]
 
     OPENCV_OBJECT_TRACKERS = {
@@ -43,8 +46,7 @@ def start_trackig(unformated_points):
         trackers.add(tracker, images, box)
 
     count = 0
-    xox = []
-    displacmet = []
+    displacement = []
 
     # fig = go.Figure()
     # trace = fig.add_trace(go.Scatter(x=xox, y=lists))
@@ -58,14 +60,17 @@ def start_trackig(unformated_points):
         """
         # TODO: need should this have ret and [1] seems to stop evntually
         # does 1489 in csv
-        image = videostream.read()[1]
+        successful, image = videostream.read()
         '''
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
         cv2.waitKey(20)
         '''
-
-        if image is None:
+        '''
+        if count >= 100:
+            break
+        '''
+        if successful is False:
             break
         posts = trackers.update(image)[1]
         postcords = []
@@ -73,9 +78,9 @@ def start_trackig(unformated_points):
         for post in posts:
             # Used float for more acuracy but rectangle needs int
             (x, y, w, h) = [float(i) for i in post]
-            (rx, ry, rw, rh) = [int(i) for i in (x, y, w, h)]
-            cv2.rectangle(image, (rx, ry),
-                          (rx + rw, ry + rh), (0, 255, 0), 2)
+            # (rx, ry, rw, rh) = [int(i) for i in (x, y, w, h)]
+            # cv2.rectangle(image, (rx, ry),
+            #              (rx + rw, ry + rh), (0, 255, 0), 2)
             # Populate list for centroid tracking
             postcords.append((x, y, x + w, y + h))
 
@@ -89,7 +94,7 @@ def start_trackig(unformated_points):
         for (objectID, centroid) in postio.items():
             """
             only for debugging showes image and draws boxes on image
-            text = "{}".format(objectID)
+            text = "{}".format(objectID)time = self.vs.get(cv2.CAP_PROP_POS_MSEC)/1000
             cv2.putText(image, text, (centroid[0] - 10, centroid[1] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             cv2.circle(image, (centroid[0], centroid[1]), 4, (0, 255, 0), -1)
@@ -107,15 +112,20 @@ def start_trackig(unformated_points):
             elif (objectID - 1) == evenID:
                 # Calculate tissue number based on object ID
                 reltissueID = int((objectID - 1) / 2)
+                if (len(displacement) < reltissueID + 1):
+                    displacement.append([])
                 # Save the x position of the odd post
                 oddX = centroid[0]
                 # Save the y position of the odd post
                 oddY = centroid[1]
 
+                time = videostream.get(cv2.CAP_PROP_POS_MSEC)/1000
+
                 disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2))
-                xox.append(count)
                 count = count + 1
-                displacmet.append(disp)
+                logging.info(count)
+                displacement[reltissueID].append(
+                    (time, disp, oddX, oddY, evenX, evenY))
 
     '''
     videostream.release()
@@ -123,7 +133,13 @@ def start_trackig(unformated_points):
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     '''
-    df = pd.DataFrame(displacmet, columns=["Displacment"])
-    df.to_csv('displacmet.csv', index=False)
+    if not os.path.exists('static/uploads/csvfiles/' + splits[3]):
+        os.mkdir('static/uploads/csvfiles/' + splits[3])
+
+    for i, an in enumerate(displacement):
+        df = pd.DataFrame(
+            an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
+        df.to_csv('static/uploads/csvfiles/' +
+                  splits[3] + '/displacement{}.csv'.format(i), index=False)
     print("check CSV")
     return boxes

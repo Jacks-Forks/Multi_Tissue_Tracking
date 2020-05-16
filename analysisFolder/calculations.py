@@ -20,8 +20,10 @@ Force Parameters
 def force(youngs, radius, l_r, a_r, l_l, a_l, deltaT):
     forceRatio = ((a_r**2) * ((3 * l_r) - a_r)) / \
         ((a_l**2) * ((3 * l_l) - a_l))
-    Lcoef = (3 * np.pi * youngs * (radius**4)) / \
-        (2 * (a_l**2) * ((3 * l_l) - a_l))
+    youngs = int(youngs)
+    Lcoef_t = (3 * np.pi * youngs * (radius**4))
+    Lcoef_b = (2 * (a_l**2) * ((3 * l_l) - a_l))
+    Lcoef = Lcoef_t / Lcoef_b
     Lforce = []
 
     for i in range(len(deltaT)):
