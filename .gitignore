@@ -1,6 +1,7 @@
 *.DS_Store
 *.csv
 *.mp4
+*.swp
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
