@@ -60,7 +60,7 @@ def start_trackig(unformated_points):
         """
         # TODO: need should this have ret and [1] seems to stop evntually
         # does 1489 in csv
-        ret, image = videostream.read()
+        successful, image = videostream.read()
         '''
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
@@ -70,7 +70,7 @@ def start_trackig(unformated_points):
         if count >= 100:
             break
         '''
-        if ret is False:
+        if successful is False:
             break
         posts = trackers.update(image)[1]
         postcords = []
@@ -78,9 +78,9 @@ def start_trackig(unformated_points):
         for post in posts:
             # Used float for more acuracy but rectangle needs int
             (x, y, w, h) = [float(i) for i in post]
-            (rx, ry, rw, rh) = [int(i) for i in (x, y, w, h)]
-            cv2.rectangle(image, (rx, ry),
-                          (rx + rw, ry + rh), (0, 255, 0), 2)
+            # (rx, ry, rw, rh) = [int(i) for i in (x, y, w, h)]
+            # cv2.rectangle(image, (rx, ry),
+            #              (rx + rw, ry + rh), (0, 255, 0), 2)
             # Populate list for centroid tracking
             postcords.append((x, y, x + w, y + h))
 
@@ -94,7 +94,7 @@ def start_trackig(unformated_points):
         for (objectID, centroid) in postio.items():
             """
             only for debugging showes image and draws boxes on image
-            text = "{}".format(objectID)
+            text = "{}".format(objectID)time = self.vs.get(cv2.CAP_PROP_POS_MSEC)/1000
             cv2.putText(image, text, (centroid[0] - 10, centroid[1] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             cv2.circle(image, (centroid[0], centroid[1]), 4, (0, 255, 0), -1)
