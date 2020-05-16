@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import pandas as pd
 import dashSelect as path
-
+import os
 
 logging.basicConfig(filename='tracking.log', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
@@ -24,6 +24,7 @@ def format_points(old_points):
 def start_trackig(unformated_points):
     # logging.info(path.filer)
     videostream = cv2.VideoCapture(path.filer)
+    splits = path.filer.split('/')
     images = videostream.read()[1]
 
     OPENCV_OBJECT_TRACKERS = {
@@ -120,7 +121,7 @@ def start_trackig(unformated_points):
 
                 disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2))
                 count = count + 1
-                # logging.info(count)
+                logging.info(count)
                 displacement[reltissueID].append(
                     (disp, oddX, oddY, evenX, evenY))
 
@@ -130,9 +131,13 @@ def start_trackig(unformated_points):
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     '''
+    if not os.path.exists('static/uploads/csvfiles/' + splits[3]):
+        os.mkdir('static/uploads/csvfiles/' + splits[3])
+
     for i, an in enumerate(displacement):
         df = pd.DataFrame(
             an, columns=["Displacment", "oddX", "oddY", "evenX", "evenY"])
-        df.to_csv('displacement{}.csv'.format(i), index=False)
+        df.to_csv('static/uploads/csvfiles/' +
+                  splits[3] + '/displacement{}.csv'.format(i), index=False)
     print("check CSV")
     return boxes
