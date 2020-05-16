@@ -119,11 +119,13 @@ def start_trackig(unformated_points):
                 # Save the y position of the odd post
                 oddY = centroid[1]
 
+                time = videostream.get(cv2.CAP_PROP_POS_MSEC)/1000
+
                 disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2))
                 count = count + 1
                 logging.info(count)
                 displacement[reltissueID].append(
-                    (disp, oddX, oddY, evenX, evenY))
+                    (time, disp, oddX, oddY, evenX, evenY))
 
     '''
     videostream.release()
@@ -136,7 +138,7 @@ def start_trackig(unformated_points):
 
     for i, an in enumerate(displacement):
         df = pd.DataFrame(
-            an, columns=["Displacment", "oddX", "oddY", "evenX", "evenY"])
+            an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
         df.to_csv('static/uploads/csvfiles/' +
                   splits[3] + '/displacement{}.csv'.format(i), index=False)
     print("check CSV")

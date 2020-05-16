@@ -103,7 +103,7 @@ dasher.layout = html.Div([
     dcc.Input(
         id='young',
         type='number',
-        value='133000'
+        value='1330000'
     ),
     html.Div(id='holder'),
     html.Div('Graphs:'),
