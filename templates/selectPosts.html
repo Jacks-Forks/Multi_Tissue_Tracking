@@ -2,12 +2,12 @@
 <html>
 
 <head>
+  <!-- TODO: should i put type> -->
 
   <title>Multi-Tissue-Tracking-Project</title>
-  <link rel="shortcut icon" href="">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="{{ url_for('static', filename='JS/boxes.js') }}"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='JS/boxes.js') }}"></script>
 
 </head>
 
@@ -17,11 +17,12 @@
 
   <form id="number_of_posts" action="#" onsubmit="getPostCount();return false">
     <label for="quantity">Number of posts (between 1 and 10):</label>
+    <!-- TODO: why is it propritory? -->
     <input type="number" id="numPosts" min="2" max="10" />
     <input type="submit" />
   </form>
 
-  <div id="canvas"><img id="pic" src="{{ path }}"></img></div>
+  <div id="canvas"><img id="pic" src="{{ path }}" alt="Heart Tissue" /></div>
 
   <div id="container"></div>
 
