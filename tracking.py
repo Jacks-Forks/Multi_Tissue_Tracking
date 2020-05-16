@@ -1,8 +1,8 @@
-import cv2
 import logging
+
+import cv2
 import numpy as np
 import pandas as pd
-
 
 logging.basicConfig(filename='tracking.log', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
@@ -19,7 +19,7 @@ def format_points(old_points):
     return result
 
 
-def start_trackign(unformated_points):
+def start_trackig(unformated_points):
     videostream = cv2.VideoCapture(
         "/Users/brendanmurphy/Documents/Development/Multi_Tissue_Tracking/static/uploads/videofiles/Day_1/tester.mp4")
     images = videostream.read()[1]
@@ -49,8 +49,15 @@ def start_trackign(unformated_points):
     # fig = go.Figure()
     # trace = fig.add_trace(go.Scatter(x=xox, y=lists))
     while True:
+        #    logging.info(count)
+
+        """
         if count >= 100:
             break
+
+        """
+        # TODO: need should this have ret and [1] seems to stop evntually
+        # does 1489 in csv
         image = videostream.read()[1]
         '''
         if cv2.waitKey(25) & 0xFF == ord('q'):
@@ -118,5 +125,5 @@ def start_trackign(unformated_points):
     '''
     df = pd.DataFrame(displacmet, columns=["Displacment"])
     df.to_csv('displacmet.csv', index=False)
-
+    print("check CSV")
     return boxes

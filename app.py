@@ -1,11 +1,13 @@
+import json
 import logging
 import os
-import json
-import tracking
+import threading
 
-from flask import (Flask, abort, flash, redirect, render_template, request,
-                   send_file, send_from_directory, url_for, jsonify)
 from werkzeug.utils import secure_filename
+
+import tracking
+from flask import (Flask, abort, flash, jsonify, redirect, render_template,
+                   request, send_file, send_from_directory, url_for)
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
@@ -43,12 +45,12 @@ app.config['CSV_FOLDER'] = CSV_UPLOAD_FOLDER
 
 
 def check_system():
-    if os.path.isdir(app.config['UPLOAD_FOLDER']) == False:
+    if os.path.isdir(app.config['UPLOAD_FOLDER']) is False:
         logging.info("no uploads folder")
         os.mkdir(app.config['UPLOAD_FOLDER'])
-    if os.path.isdir(app.config['VIDEO_FOLDER']) == False:
+    if os.path.isdir(app.config['VIDEO_FOLDER']) is False:
         os.mkdir(app.config['VIDEO_FOLDER'])
-    if os.path.isdir(app.config['CSV_FOLDER']) == False:
+    if os.path.isdir(app.config['CSV_FOLDER']) is False:
         os.mkdir(app.config['CSV_FOLDER'])
 
 
@@ -57,7 +59,8 @@ check_system()
 
 @app.route("/")
 def main():
-    return render_template('upload.html')
+    # return render_template('upload.html')
+    return redirect("/uploadFile")
 
 
 @app.route("/boxCoordinates", methods=['GET', 'POST'])
@@ -67,7 +70,10 @@ def boxCoordinates():
         logging.info(from_js)
         data = json.loads(from_js)
         logging.info(data)
-        tracking.start_trackign(data)
+        # tracking.start_trackign(data)
+        tracking_thread = threading.Thread(
+            target=tracking.start_trackig, args=(data,))
+        tracking_thread.start()
         return jsonify({'status': 'OK', 'data': data})
 
 
