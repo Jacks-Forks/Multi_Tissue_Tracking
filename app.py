@@ -59,8 +59,8 @@ check_system()
 
 @app.route("/")
 def main():
-    # return render_template('upload.html')
-    return redirect("/uploadFile")
+    return render_template('home.html')
+    # return redirect("/uploadFile")
 
 
 @app.route("/boxCoordinates", methods=['GET', 'POST'])
