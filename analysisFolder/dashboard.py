@@ -25,6 +25,10 @@ count = 0
 
 dates = glob.glob('static/uploads/csvfiles/*')
 
+summarys = []
+bioreactors = glob.glob('static/bioreactors/*')
+[summarys.append(pd.read_csv(bio)) for bio in bioreactors]
+
 dasher = dash.Dash(__name__, requests_pathname_prefix='/dash/')
 dasher.layout = html.Div([
     dcc.Link('Go to Upload', href='/uploadFile', refresh=True),
@@ -105,6 +109,13 @@ dasher.layout = html.Div([
         type='number',
         value='1330000'
     ),
+    dcc.Dropdown(
+        id='bio',
+        disabled=False,
+        options=[
+            {'label': i, 'value': i} for i in bioreactors
+        ],
+    ),
     html.Div(id='holder'),
     html.Div('Graphs:'),
     html.Div(id='graphs', children=[dcc.Graph(id='graph#{}'.format('1'))])
@@ -115,10 +126,15 @@ dasher.layout = html.Div([
     Input('radio', 'value'),
     Input('young', 'value')
 ])
-def consts(type, you):
+def consts(typer, you):
     global count, youngs
     youngs = you
+    print('syo')
     count = count + 1
+    if typer == 'EHT':
+        dis = True
+    else:
+        dis = False
     return count
 
 
@@ -169,7 +185,6 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
         peakdist = []
         basedist = []
         devdist = []
-
         for i in range(len(fifty)):
             for j in range(len(peaks[i])):
                 peakdist.append(7 + dataframeo[i]['disp'][peaks[i][j]])
@@ -179,6 +194,20 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             Add User Input
 
             '''
+            splitter = files[i].split('_')
+            if splitter[2] == 'M':
+                bio = int(splitter[3])
+                loc = int(splitter[4])
+                l_r = summarys[bio - 1]['RPostHt'][loc - 1]
+                l_l = summarys[bio - 1]['LPostHt'][loc - 1]
+                a_r = summarys[bio - 1]['RTissHt'][loc - 1]
+                a_l = summarys[bio - 1]['LTissHt'][loc - 1]
+            else:
+                l_r = .012
+                l_l = .012
+                a_r = .0115
+                a_l = .0115
+
             actforce.append(calc.force(
                 youngs, radius, l_r, a_r, l_l, a_l, peakdist))
             pasforce.append(calc.force(
