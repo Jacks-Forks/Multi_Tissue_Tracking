@@ -81,25 +81,27 @@ def boxCoordinates():
 def upload_file():
     if request.method == 'POST':
         foldr = request.form['folder']
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            where_to_save = where_to_upload(file.filename)
-            logging.info('Where does it save: ' + where_to_save)
-            filename = secure_filename(file.filename)
-            if not os.path.exists(os.path.join(where_to_save, foldr)):
-                os.mkdir(os.path.join(where_to_save, foldr))
-            file.save(os.path.join(where_to_save, foldr, filename))
-            return '''
-            <!DOCTYPE html>
-            <h1> uploaded </h1>
-            '''
+        # if 'file' not in request.files:
+        #    flash('No file part')
+        #    return redirect(request.url)
+        # file = request.files['file']
+        files = request.files.getlist("file")
+        # if file.filename == '':
+        #    flash('No selected file')
+        #    return redirect(request.url)
+        # if file and allowed_file(file.filename):
+        for file in files:
+            if file and allowed_file(file.filename):
+                where_to_save = where_to_upload(file.filename)
+                logging.info('Where does it save: ' + where_to_save)
+                filename = secure_filename(file.filename)
+                if not os.path.exists(os.path.join(where_to_save, foldr)):
+                    os.mkdir(os.path.join(where_to_save, foldr))
+                file.save(os.path.join(where_to_save, foldr, filename))
+        return '''
+        <!DOCTYPE html>
+        <h1> uploaded </h1>
+        '''
 
     return render_template('upload.html')
 
