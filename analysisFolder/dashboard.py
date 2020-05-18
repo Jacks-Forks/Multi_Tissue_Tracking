@@ -109,13 +109,6 @@ dasher.layout = html.Div([
         type='number',
         value='1330000'
     ),
-    dcc.Dropdown(
-        id='bio',
-        disabled=False,
-        options=[
-            {'label': i, 'value': i} for i in bioreactors
-        ],
-    ),
     html.Div(id='holder'),
     html.Div('Graphs:'),
     html.Div(id='graphs', children=[dcc.Graph(id='graph#{}'.format('1'))])
@@ -157,13 +150,10 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             dataframes.append(pd.read_csv(file))
         for i in range(len(dataframes)):
             dataframes[i]['time'] = dataframes[i]['time'] / 1000
-
         poly = smooth[0]
         window = smooth[1]
-
         dataframeo, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(
             dataframes, buff, poly, window, thresh, dist)
-
         t50 = []
         c50 = []
         r50 = []
@@ -190,6 +180,7 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
                 peakdist.append(7 + dataframeo[i]['disp'][peaks[i][j]])
                 basedist.append(7 + dataframeo[i]['disp'][basepoints[i][j]])
                 devdist.append(peakdist[j] - basedist[j])
+
             '''
             Add User Input
 
