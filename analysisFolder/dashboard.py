@@ -26,7 +26,7 @@ count = 0
 dates = glob.glob('static/uploads/csvfiles/*')
 
 summarys = []
-bioreactors = glob.glob('static/bioreactors/*')
+bioreactors = sorted(glob.glob('static/bioreactors/*'))
 [summarys.append(pd.read_csv(bio)) for bio in bioreactors]
 
 dasher = dash.Dash(__name__, requests_pathname_prefix='/dash/')
