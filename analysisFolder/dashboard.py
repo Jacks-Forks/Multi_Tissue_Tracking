@@ -94,15 +94,6 @@ dasher.layout = html.Div([
     dcc.Slider(id='dist', min=0, max=10, value=5),
     html.Div('BufferDist:'),
     dcc.Slider(id='buff', min=0, max=10, value=3),
-    dcc.RadioItems(
-        id='radio',
-        options=[
-            {'label': 'EHT', 'value': 'EHT'},
-            {'label': 'Multi Tissue', 'value': 'MT'}
-        ],
-        value='MT',
-        style={'width': 500}
-    ),
     html.Button(id='reload', n_clicks=0, hidden=True),
     dcc.Input(
         id='young',
@@ -116,18 +107,12 @@ dasher.layout = html.Div([
 
 
 @dasher.callback(Output('reload', 'n_clicks'), [
-    Input('radio', 'value'),
     Input('young', 'value')
 ])
-def consts(typer, you):
+def consts(you):
     global count, youngs
     youngs = you
-    print('syo')
     count = count + 1
-    if typer == 'EHT':
-        dis = True
-    else:
-        dis = False
     return count
 
 
