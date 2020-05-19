@@ -133,13 +133,23 @@ def start_trackig(unformated_points):
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     '''
+    splinter = path.filer.split('/')[4].split('_')
+    locs = splinter[2]
+    bio = splinter[3]
     if not os.path.exists('static/uploads/csvfiles/' + splits[3]):
         os.mkdir('static/uploads/csvfiles/' + splits[3])
 
     for i, an in enumerate(displacement):
+        locs = list(locs)
+        for j, k in enumerate(locs):
+            if k != '0':
+                locs[j] = '0'
+                spot = j + 1
+                break
+        locs = "".join(locs)
         df = pd.DataFrame(
             an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
         df.to_csv('static/uploads/csvfiles/' +
-                  splits[3] + '/displacement{}.csv'.format(i), index=False)
+                  splits[3] + '/T{0}_{1}_{2}_.csv'.format(i, bio, spot), index=False)
     print("check CSV")
     return boxes
