@@ -32,6 +32,7 @@ bioreactors = sorted(glob.glob('static/bioreactors/*'))
 dasher = dash.Dash(__name__, requests_pathname_prefix='/dash/')
 dasher.layout = html.Div([
     dcc.Link('Go to Upload', href='/uploadFile', refresh=True),
+    html.Button('Reload', id='button'),
     dcc.Dropdown(
         id="files",
         options=[
@@ -104,6 +105,15 @@ dasher.layout = html.Div([
     html.Div('Graphs:'),
     html.Div(id='graphs', children=[dcc.Graph(id='graph#{}'.format('1'))])
 ])
+
+
+@dasher.callback(
+    Output('files', 'options'),
+    [Input('button', 'n_clicks')]
+)
+def reload(button):
+    dates = glob.glob('static/uploads/csvfiles/*')
+    return [{'label': i, 'value': i} for i in dates]
 
 
 @dasher.callback(Output('reload', 'n_clicks'), [
