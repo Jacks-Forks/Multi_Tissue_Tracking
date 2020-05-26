@@ -15,7 +15,7 @@ filer = videostream = None
 
 app = dash.Dash(__name__, requests_pathname_prefix='/vidSelect/')
 app.layout = html.Div([
-    html.Div('I Hate Atom Beutify'),
+    html.Button('Reload', id='button'),
     dcc.Dropdown(
         id='folder',
         options=[
@@ -28,6 +28,15 @@ app.layout = html.Div([
     html.Div(id='fileselected'),
     dcc.Link('Navigate to "/page-2"', href='/vidSelect/post', refresh=True),
 ])
+
+
+@app.callback(
+    dash.dependencies.Output('folder', 'options'),
+    [dash.dependencies.Input('button', 'n_clicks')]
+)
+def reload(button):
+    folders = glob.glob('static/uploads/videofiles/*')
+    return [{'label': i, 'value': i} for i in folders]
 
 
 @app.callback(
