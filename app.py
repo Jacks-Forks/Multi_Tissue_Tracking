@@ -2,12 +2,14 @@ import json
 import logging
 import os
 import threading
-
-from werkzeug.utils import secure_filename
+from datetime import datetime
 
 import tracking
 from flask import (Flask, abort, flash, jsonify, redirect, render_template,
                    request, send_file, send_from_directory, url_for)
+from flask_sqlalchemy import SQLAlchemy
+from forms import upload_file_form
+from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
@@ -42,6 +44,22 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['VIDEO_FOLDER'] = VIDEO_UPLOAD_FOLDER
 app.config['CSV_FOLDER'] = CSV_UPLOAD_FOLDER
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+app.secret_key = 'development key'
+
+
+class Uploaded_file(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_recorded = db.Column(db.Date, nullable=False)
+    date_uploaded = db.Column(db.Date, nullable=False)
+    num_tissues = db.Column(db.Integer)
+    bio_reactor = db.Column(db.String(80))
+    file_location = db.Column(db.String(120))
+
+    def __repr__(self):
+        return '<Uploaded_file %r>' % self.id
 
 
 def check_system():
@@ -79,34 +97,27 @@ def boxCoordinates():
 
 @app.route('/uploadFile', methods=['GET', 'POST'])
 def upload_file():
+    form = upload_file_form()
+
     if request.method == 'POST':
-        foldr = request.form['folder']
-        # if 'file' not in request.files:
-        #    flash('No file part')
-        #    return redirect(request.url)
-        # file = request.files['file']
-        files = request.files.getlist("file")
-        # if file.filename == '':
-        #    flash('No selected file')
-        #    return redirect(request.url)
-        # if file and allowed_file(file.filename):
-        for file in files:
-            if file and allowed_file(file.filename):
-                where_to_save = where_to_upload(file.filename)
-                logging.info('Where does it save: ' + where_to_save)
-                filename = secure_filename(file.filename)
-                if not os.path.exists(os.path.join(where_to_save, foldr)):
-                    os.mkdir(os.path.join(where_to_save, foldr))
-                file.save(os.path.join(where_to_save, foldr, filename))
-        return '''
-        <!DOCTYPE html>
-        <h1> uploaded </h1>
-        '''
-
-    return render_template('upload.html')
-
-
-# error handling
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('fileNotFound.html'), 404
+        if form.validate() == False:
+            flash('All fields are required.')
+            print("Somthing is wrong")
+            return render_template('uploadFileWTF.html', form=form)
+        else:
+            where_to_save = where_to_upload(form.file.data.filename)
+            logging.info('Where does it save: ' + where_to_save)
+            filename = secure_filename(form.file.data.filename)
+            form.file.data.save(os.path.join(where_to_save, filename))
+            logging.info("After saved")
+            new_upload = Uploaded_file(date_recorded=form.date_recorded.data, date_uploaded=datetime.now(
+            ), num_tissues=form.num_tissues.data, bio_reactor=form.bio_reactor.data, file_location=where_to_save)
+            db.session.add(new_upload)
+            db.session.commit()
+            logging.info(Uploaded_file.query.all())
+            return '''
+            <!DOCTYPE html >
+            <h1 > uploaded </h1 >
+            '''
+    elif request.method == 'GET':
+        return render_template('uploadFileWTF.html', form=form)
