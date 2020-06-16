@@ -25,12 +25,17 @@ ALLOWED_EXTENSIONS = {'csv', 'mov', 'mp4'}
 video_file_extentions = {'mov', 'mp4'}
 
 
-def where_to_upload(filename):
+def where_to_upload(filename, date_recorded):
     result = ""
+    date_string = date_recorded.strftime('%m_%d_%Y')
+    logging.info(date_string)
     if filename.rsplit('.', 1)[1].lower() == 'csv':
-        result = app.config['CSV_FOLDER']
+        result = os.path.join(app.config['CSV_FOLDER'], date_string)
     elif filename.rsplit('.', 1)[1].lower() in video_file_extentions:
-        result = app.config['VIDEO_FOLDER']
+        result = os.path.join(app.config['VIDEO_FOLDER'], date_string)
+    if os.path.isdir(result) is False:
+        logging.info("no date folder")
+        os.mkdir(result)
     return result
 
 
@@ -88,7 +93,6 @@ def boxCoordinates():
         logging.info(from_js)
         data = json.loads(from_js)
         logging.info(data)
-        # tracking.start_trackign(data)
         tracking_thread = threading.Thread(
             target=tracking.start_trackig, args=(data,))
         tracking_thread.start()
@@ -105,11 +109,11 @@ def upload_file():
             print("Somthing is wrong")
             return render_template('uploadFileWTF.html', form=form)
         else:
-            where_to_save = where_to_upload(form.file.data.filename)
-            logging.info('Where does it save: ' + where_to_save)
+            where_to_save = where_to_upload(
+                form.file.data.filename, form.date_recorded.data)
             filename = secure_filename(form.file.data.filename)
             form.file.data.save(os.path.join(where_to_save, filename))
-            logging.info("After saved")
+
             new_upload = Uploaded_file(date_recorded=form.date_recorded.data, date_uploaded=datetime.now(
             ), num_tissues=form.num_tissues.data, bio_reactor=form.bio_reactor.data, file_location=where_to_save)
             db.session.add(new_upload)
@@ -117,7 +121,7 @@ def upload_file():
             logging.info(Uploaded_file.query.all())
             return '''
             <!DOCTYPE html >
-            <h1 > uploaded </h1 >
+            <h1> uploaded </h1 >
             '''
     elif request.method == 'GET':
         return render_template('uploadFileWTF.html', form=form)

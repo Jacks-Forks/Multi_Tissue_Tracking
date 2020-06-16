@@ -6,6 +6,12 @@ from wtforms import (FileField, IntegerField, RadioField, SelectField,
 from wtforms.fields.html5 import DateField
 
 
+'''
+Proablly a better way is one form to select whitch bio_reactor
+and a second to get the needed info
+'''
+
+
 class upload_file_form(FlaskForm):
     date_recorded = DateField('Date Recorded', [validators.Required()])
     num_tissues = IntegerField('Number Of Feilds')
