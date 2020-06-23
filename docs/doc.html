@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multi Tissue Tracking Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,600,700,800,900" rel="stylesheet">
+    <link rel="stylesheet" href="scribbler-global.css">
+    <link rel="stylesheet" href="scribbler-doc.css">
+  </head>
+  <body>
+    <div class="doc__bg"></div>
+    <nav class="header">
+      <h1 class="logo">Multi Tissue Tracking<span class="logo__thin"> Docs</span></h1>
+      <ul class="menu">
+        <div class="menu__item toggle"><span></span></div>
+        <li class="menu__item"><a href="https://github.com/Jack-alope/Multi_Tissue_Tracking" class="link link--dark"><i class="fa fa-github"></i> Github</a></li>
+        <li class="menu__item"><a href="index.html" class="link link--dark"><i class="fa fa-home"></i> Home</a></li>
+      </ul>
+    </nav>
+    <div class="wrapper">
+      <aside class="doc__nav">
+        <ul>
+          <li class="js-btn selected">Overview</li>
+          <li class="js-btn">Setup</li>
+          <li class="js-btn">Uploads</li>
+          <li class="js-btn">Tracking</li>
+          <li class="js-btn">Analysis</li>
+          <li class="js-btn">Deployment</li>
+        </ul>
+      </aside>
+      <article class="doc__content">
+        <section class="js-section">
+          <h3 class="section__title">Overview</h3>
+          <p>The goal of this project is to implement a system capable of recording, tracking, and analysis multiple sets of cardiac tissues remotely from within an incubator. </p>
+          <h5 class="section__title">Workflow:</h5>
+          <img src="img/flask_diagram.JPG" alt="Workflow" width="600" height="400">
+          <hr />
+        </section>
+        <section class="js-section">
+          <h3 class="section__title">Setup</h3>
+          <p>Simple setup guide. It is a docker image that can be deployed anywhere. For it to work properly with the recording hardware it is recommended that it be hosted on a remote VM. </p>
+          <h5 class="section__title">Pull the latest image:</h5>
+          <div class="code__block code__block--notabs">
+            <pre class="code code--block">
+              <code>
+                $ docker pull jackallope/tracking_docker:latest
+              </code>
+            </pre>
+          </div>
+          <h5 class="section__title">Deploy the image:</h5>
+          <div class="code__block code__block--notabs">
+            <pre class="code code--block">
+              <code>
+                $ docker run --rm -d -p 8080:8080 -v ~/shared:/app/static/uploads jackallope/tracking_docker:latest
+              </code>
+            </pre>
+          </div>
+          <h5 class="section__title">Access:</h5>
+          <div class="code__block code__block--notabs">
+            <pre class="code code--block">
+              <code>
+                http://ip-of-machine:8080
+              </code>
+            </pre>
+          </div>
+          <hr />
+        </section>
+        <section class="js-section">
+          <h3 class="section__title">Uploads</h3>
+          <p>Uploads should rarely be used. Videos should be passed remotely via scp from the raspberry pi.</p>
+
+        <hr />
+        </section>
+        <section class="js-section">
+          <h3 class="section__title">Tracking</h3>
+          <p>Uploads should rarely be used. Videos should be passed remotely via scp from the raspberry pi.</p>
+
+        <hr />
+        </section>
+        <section class="js-section">
+          <h3 class="section__title">Analysis</h3>
+          <table id="customers">
+            <tr>
+              <th>Options</th>
+              <th>Meaning</th>
+              <th>Restrictions</th>
+            </tr>
+            <tr>
+              <td>Polynomial</td>
+              <td>What degree polynomial should be used for the curve fitting.</td>
+              <td>Less than window length</td>
+            </tr>
+            <tr>
+              <td>Window Length</td>
+              <td>Number of coefficients used for smoothing.</td>
+              <td>Odd<br>Greater than polynomial</td>
+            </tr>
+            <tr>
+              <td>Peak Sensitivity</td>
+              <td>How sensitive it to finding peaks. Lower = More Sensitive.</td>
+              <td>(0, 1)</td>
+            </tr>
+            <tr>
+              <td>Buffer</td>
+              <td>Distance from peak before it starts looking for basepoints/frontpoints. </td>
+              <td>If too large will miss basepoints/frontpoints</td>
+            </tr>
+            <tr>
+              <td>Minimum Distance</td>
+              <td>Distance between peaks. Useful to ignore doublepeaks etc.</td>
+              <td>If too large will miss peaks</td>
+            </tr>
+          </table>
+          <hr />
+        </section>
+        <section class="js-section">
+          <h3 class="section__title">Deployment</h3>
+          <p>Lorem ipsum dolor sit amet, scripta tibique indoctum sit ei, mel inani aeterno ad. Facer oratio ex per. At eam movet verear, in sea brute patrioque disputando, usu nonumes torquatos an. Ex his quaerendum intellegebat, ut vel homero accusam. Eum at debet tibique, in vocibus temporibus adversarium sed. Porro verear eu vix, ne usu tation vituperata.</p>
+          <p>Malis percipitur an pro. Pro aperiam persequeris at, at sonet sensibus mei, id mea postulant definiebas concludaturque. Id qui malis abhorreant, mazim melius quo et. At eam altera dolorum, case dicant lobortis ius te, ad vel affert oportere reprehendunt. Quo no verterem deseruisse, mea brute postea te, ne per tacimates suavitate vituperatoribus.</p>
+        </section>
+      </article>
+    </div>
+
+    <footer class="footer">Website template provided by <a href="https://tympanus.net/codrops/2018/01/12/freebie-scribbler-website-template-html-sketch/" target="_blank" class="link link--light">Codrops</a>. Documentation written by <a href="https://jack.engineering" target="_blank" class="link link--light">Jack Murphy</a>.</footer>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="scribbler.js"></script>
+  </body>
+</html>
