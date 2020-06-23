@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <title>Upload To B</title>
+  <style>
+    input[type="checkbox"] {
+      horizonal-align: middle;
+    }
+  </style>
+
+</head>
+
+<body>
+  <h2 style="text-align: center;">Upload a File</h2>
+
+  <form method=post action="" enctype="multipart/form-data">
+    <fieldset>
+
+      <legend> Uplaod Form </legend>
+      {{ form.hidden_tag() }}
+
+      <div style=font-size:20px; font-weight:bold; margin-left:150px;>
+
+        {{ form.date_recorded.label }}<br>
+        {{ form.date_recorded }}
+        <br>
+
+        {{ form.post.label }}<br>
+        {{ form.post}}
+        <br>
+
+        {{ form.file.label }}<br>
+        {{ form.file }}
+        <br>
+
+        {{ form.submit }}
+
+      </div>
+    </fieldset>
+  </form>
+</body>
+
+</html>
