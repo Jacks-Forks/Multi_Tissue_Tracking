@@ -28,7 +28,7 @@
           <li class="js-btn">Uploads</li>
           <li class="js-btn">Tracking</li>
           <li class="js-btn">Analysis</li>
-          <li class="js-btn">Deployment</li>
+          <li class="js-btn">Data</li>
         </ul>
       </aside>
       <article class="doc__content">
@@ -37,11 +37,33 @@
           <p>The goal of this project is to implement a system capable of recording, tracking, and analysis multiple sets of cardiac tissues remotely from within an incubator. </p>
           <h5 class="section__title">Workflow:</h5>
           <img src="img/flask_diagram.JPG" alt="Workflow" width="600" height="400">
+
           <hr />
         </section>
         <section class="js-section">
           <h3 class="section__title">Setup</h3>
-          <p>Simple setup guide. It is a docker image that can be deployed anywhere. For it to work properly with the recording hardware it is recommended that it be hosted on a remote VM. </p>
+          <p>Simple setup guide. It is a docker image that can be deployed anywhere. For it to work properly with the recording hardware it is recommended that it be hosted on a remote VM.<br><br> These instruction are tested on an Ubuntu 18.04.3 (LTS) virtual machine hosted on <a href="https://digitalocean.com" target="_blank" class="link link--light">Digital Ocean.</a> </p>
+          <h5 class="section__title">SSH into virtual machine:</h5>
+          <div class="code__block code__block--notabs">
+            <pre class="code code--block">
+              <code>
+                $ ssh root@ip-of-machine
+              </code>
+            </pre>
+          </div>
+          <div class="installation">
+            <h5 class="section__title">Install docker:</h5>
+            <div class="tab__container">
+              <ul class="tab__menu">
+                <li class="tab active" data-tab="ubuntu">Ubuntu</li>
+                <li class="tab" data-tab="arch">Arch</li>
+              </ul>
+              <pre class="nohighlight code">
+                <code class="tab__pane active ubuntu">$ snap install docker</code>
+                <code class="tab__pane arch">$ pacman -Sy docker <br>
+                  $ systemctl start docker.service</code>
+              </pre>
+            </div>
           <h5 class="section__title">Pull the latest image:</h5>
           <div class="code__block code__block--notabs">
             <pre class="code code--block">
@@ -76,12 +98,29 @@
         </section>
         <section class="js-section">
           <h3 class="section__title">Tracking</h3>
-          <p>Uploads should rarely be used. Videos should be passed remotely via scp from the raspberry pi.</p>
+          <div class="installation">
+            <div class="tab__container">
+              <ul class="tab__menu">
+                <li class="tab active" data-tab="ubuntu">Calibration</li>
+                <li class="tab" data-tab="arch">Post Selection</li>
+              </ul>
+              <pre class="nohighlight code">
+                <code class="tab__pane active ubuntu">Calibration Coming Soon</code>
+                <code class="tab__pane arch">Enter the number of tissues and submit: <br> <img src="img/track1.png" alt="track1" width="500" height="300"><br>
+                    Select the top post for the left tissue: <br> <img src="img/track2.png" alt="track2" width="500" height="300"><br>
+                    Select the bottom post for the left tissue: <br> <img src="img/track3.png" alt="track3" width="500" height="300"><br>
+                    Continue to the right doing the same for each tissue: <br> <img src="img/track4.png" alt="track4" width="500" height="300"><br>
+                    Tracking will start automatically once the entered number of posts is reached.
+                </code>
+              </pre>
+            </div>
 
         <hr />
         </section>
         <section class="js-section">
           <h3 class="section__title">Analysis</h3>
+          <h5 class="section__title">Analysis Dashboard: </h5>
+          <img src="img/analysis.png" alt="analysis" width="700" height="400"><br>
           <table id="customers">
             <tr>
               <th>Options</th>
@@ -99,7 +138,7 @@
               <td>Odd<br>Greater than polynomial</td>
             </tr>
             <tr>
-              <td>Peak Sensitivity</td>
+              <td>Peak Sensitivity Threshold</td>
               <td>How sensitive it to finding peaks. Lower = More Sensitive.</td>
               <td>(0, 1)</td>
             </tr>
@@ -117,9 +156,8 @@
           <hr />
         </section>
         <section class="js-section">
-          <h3 class="section__title">Deployment</h3>
-          <p>Lorem ipsum dolor sit amet, scripta tibique indoctum sit ei, mel inani aeterno ad. Facer oratio ex per. At eam movet verear, in sea brute patrioque disputando, usu nonumes torquatos an. Ex his quaerendum intellegebat, ut vel homero accusam. Eum at debet tibique, in vocibus temporibus adversarium sed. Porro verear eu vix, ne usu tation vituperata.</p>
-          <p>Malis percipitur an pro. Pro aperiam persequeris at, at sonet sensibus mei, id mea postulant definiebas concludaturque. Id qui malis abhorreant, mazim melius quo et. At eam altera dolorum, case dicant lobortis ius te, ad vel affert oportere reprehendunt. Quo no verterem deseruisse, mea brute postea te, ne per tacimates suavitate vituperatoribus.</p>
+          <h3 class="section__title">Data</h3>
+          <p>Videos and other analyzed data can be stored temporarily on the server while analysis is being carried out. It is recommended that when a set of tissues is finished analysis their data be moved to a more suitible long term location (ie hard drive or NAS). </p>
         </section>
       </article>
     </div>
