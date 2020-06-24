@@ -42,7 +42,7 @@
         </section>
         <section class="js-section">
           <h3 class="section__title">Setup</h3>
-          <p>Simple setup guide. It is a docker image that can be deployed anywhere. For it to work properly with the recording hardware it is recommended that it be hosted on a remote VM.<br><br> These instruction are tested on an Ubuntu 18.04.3 (LTS) virtual machine hosted on <a href="https://digitalocean.com" target="_blank" class="link link--light">Digital Ocean.</a> </p>
+          <p>Simple setup guide. It is a docker image that can be deployed anywhere. For it to work properly with the recording hardware it is recommended that it be hosted on a remote VM.<br><br> For easiest setup use a <a href="https://digitalocean.com" target="_blank" class="link link--light">Digital Ocean</a> droplet running Docker on Ubuntu. See "Marketplace" tab when choosing image. </p>
           <h5 class="section__title">SSH into virtual machine:</h5>
           <div class="code__block code__block--notabs">
             <pre class="code code--block">
@@ -55,13 +55,16 @@
             <h5 class="section__title">Install docker:</h5>
             <div class="tab__container">
               <ul class="tab__menu">
-                <li class="tab active" data-tab="ubuntu">Ubuntu</li>
+                <li class="tab active" data-tab="docker">Docker</li>
+                <li class="tab" data-tab="ubuntu">Ubuntu</li>
                 <li class="tab" data-tab="arch">Arch</li>
+
               </ul>
               <pre class="nohighlight code">
-                <code class="tab__pane active ubuntu">$ snap install docker</code>
+                <code class="tab__pane ubuntu">$ snap install docker</code>
                 <code class="tab__pane arch">$ pacman -Sy docker <br>
                   $ systemctl start docker.service</code>
+                <code class="tab__pane active docker">Skip this step. </code>
               </pre>
             </div>
           <h5 class="section__title">Pull the latest image:</h5>
