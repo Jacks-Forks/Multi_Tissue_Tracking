@@ -15,6 +15,7 @@ class MultiCheckboxField(SelectMultipleField):
 
 class upload_to_a_form(FlaskForm):
     # date recorded , number of tissues
+    # for each tissue number and type
     date_recorded = DateField('Date Recorded', [validators.DataRequired()])
     num_tissues = IntegerField('Number Of Feilds')
     file = FileField('Upload a File', [validators.DataRequired()])
