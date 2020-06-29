@@ -4,11 +4,14 @@ import os
 import threading
 from datetime import datetime
 
+import models
 import tracking
 from flask import (Flask, abort, flash, jsonify, redirect, render_template,
                    request, send_file, send_from_directory, url_for)
-from flask_sqlalchemy import SQLAlchemy
-from forms import upload_to_a_form, upload_to_b_form, whitch_bio_reactor_form
+#from flask_sqlalchemy import SQLAlchemy
+from forms import upload_to_a_form, upload_to_b_form
+from models import db
+#from models import Bio_reactor_B_sample, db
 from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
@@ -16,7 +19,7 @@ logging.warning("New Run Starts Here")
 
 current_directory = os.getcwd()
 
-# change to where things should be stored
+# TODO: change to where things should be stored
 UPLOAD_FOLDER = current_directory + "/static/uploads"
 VIDEO_UPLOAD_FOLDER = UPLOAD_FOLDER + "/videofiles"
 CSV_UPLOAD_FOLDER = UPLOAD_FOLDER + "/csvfiles"
@@ -65,49 +68,30 @@ def get_post_info(wtforms_list):
     return (count, li)
 
 
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['VIDEO_FOLDER'] = VIDEO_UPLOAD_FOLDER
+    app.config['CSV_FOLDER'] = CSV_UPLOAD_FOLDER
+    # TODO: where do we wanna save this and name it
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # TODO: this needs to be changed
+    app.secret_key = 'development key'
+    db.init_app(app)
+    return app
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['VIDEO_FOLDER'] = VIDEO_UPLOAD_FOLDER
-app.config['CSV_FOLDER'] = CSV_UPLOAD_FOLDER
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+
+app = create_app()
+app.app_context().push()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-app.secret_key = 'development key'
+print(app.config['SQLALCHEMY_TRACK_MODIFICATIONS'])
+
 
 """
   TODO: would idelly like to have these classes in separe file
   having problem with circulare import
 """
-
-
-class Bio_reactor_A_sample(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    date_recorded = db.Column(db.Date, nullable=False)
-    date_uploaded = db.Column(db.Date, nullable=False)
-    num_tissues = db.Column(db.Integer)
-    file_location = db.Column(db.String(120))
-
-    def __repr__(self):
-        return '<Uploaded_file %r>' % self.id
-
-
-class Bio_reactor_B_sample(db.Model):
-    # for each post it it either string empty of a string with the format tissume_number , type_of_tissue
-    id = db.Column(db.Integer, primary_key=True)
-    date_recorded = db.Column(db.Date, nullable=False)
-    date_uploaded = db.Column(db.Date, nullable=False)
-    num_tissues = db.Column(db.Integer)
-    post_zero = db.Column(db.String(120))
-    post_one = db.Column(db.String(120))
-    post_two = db.Column(db.String(120))
-    post_three = db.Column(db.String(120))
-    post_four = db.Column(db.String(120))
-    post_five = db.Column(db.String(120))
-    file_location = db.Column(db.String(120))
-
-    def __repr__(self):
-        return '<Uploaded_file %r>' % self.id + str(self.date_recorded) + str(self.date_uploaded) + str(self.num_tissues) + self.post_zero + self.post_one + self.post_two + self.post_three + self.post_four + self.post_five + self.file_location
 
 
 def check_system():
@@ -127,7 +111,6 @@ check_system()
 def main():
     logging.info(Bio_reactor_B_sample.query.all())
     return render_template('home.html')
-    # return redirect("/uploadFile")
 
 
 @ app.route("/boxCoordinates", methods=['GET', 'POST'])
@@ -145,22 +128,7 @@ def boxCoordinates():
 
 @ app.route('/uploadFile', methods=['GET', 'POST'])
 def upload_file():
-    form = whitch_bio_reactor_form()
-
-    if request.method == 'POST':
-        if form.validate() == False:
-            flash('All fields are required.')
-            return render_template('uploadFileWTF.html', form=form)
-        else:
-            if form.bio_reactor.data == 'a':
-                return redirect(url_for('upload_to_a'))
-            elif form.bio_reactor.data == 'b':
-                return redirect(url_for('upload_to_b'))
-            else:
-                logging.info("something went wrong")
-
-    else:
-        return render_template('whitchBioReactor.html', form=form)
+    return render_template('uploadFile.html')
 
 
 @ app.route('/uploadFile/reactorA',  methods=['GET', 'POST'])
@@ -174,10 +142,15 @@ def upload_to_a():
         else:
             where_it_saved = save_file(form)
 
-            new_upload = Bio_reactor_A_sample(date_recorded=form.date_recorded.data, date_uploaded=datetime.now(
+            new_upload = models.Bio_reactor_A_sample(date_recorded=form.date_recorded.data, date_uploaded=datetime.now(
             ), num_tissues=form.num_tissues.data, file_location=where_it_saved)
+
+            models.insert_bio_sample(new_upload)
+            '''
             db.session.add(new_upload)
             db.session.commit()
+            '''
+            # TODO:  where do we want to redirect to
             return '''
                     <!DOCTYPE html >
                     <h1> uploaded </h1 >
@@ -195,15 +168,18 @@ def upload_to_b():
             flash('All fields are required.')
             return render_template('uploadToB.html', form=form)
         else:
+            #  TODO: clean up and comment this its confusing
             where_it_saved = save_file(form)
             tup_post_info = get_post_info(form.post.entries)
             li_of_post_info = tup_post_info[1]
             logging.info(li_of_post_info)
 
-            new_upload = Bio_reactor_B_sample(date_recorded=form.date_recorded.data, date_uploaded=datetime.now(
+            new_upload = models.Bio_reactor_B_sample(date_recorded=form.date_recorded.data, date_uploaded=datetime.now(
             ), num_tissues=tup_post_info[0], post_zero=li_of_post_info[0], post_one=li_of_post_info[1], post_two=li_of_post_info[2], post_three=li_of_post_info[3], post_four=li_of_post_info[4], post_five=li_of_post_info[5], file_location=where_it_saved)
-            db.session.add(new_upload)
-            db.session.commit()
+
+            models.insert_bio_sample(new_upload)
+
+            # TODO:  where do we want to redirect to
             return '''
                     <!DOCTYPE html >
                     <h1> uploaded </h1 >

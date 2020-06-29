@@ -8,20 +8,9 @@ from wtforms import (BooleanField, FieldList, FileField, FormField,
 from wtforms.fields.html5 import DateField
 
 
-'''
-Proablly a better way is one form to select whitch bio_reactor
-and a second to get the needed info
-'''
-
-
 class MultiCheckboxField(SelectMultipleField):
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
-
-
-class whitch_bio_reactor_form(FlaskForm):
-    bio_reactor = SelectField('Reactor', choices=[('a', 'a'), ('b', 'b')])
-    submit = SubmitField('Submit')
 
 
 class upload_to_a_form(FlaskForm):
