@@ -8,10 +8,8 @@ import models
 import tracking
 from flask import (Flask, abort, flash, jsonify, redirect, render_template,
                    request, send_file, send_from_directory, url_for)
-#from flask_sqlalchemy import SQLAlchemy
 from forms import upload_to_a_form, upload_to_b_form
 from models import db
-#from models import Bio_reactor_B_sample, db
 from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
@@ -109,7 +107,6 @@ check_system()
 
 @ app.route("/")
 def main():
-    logging.info(Bio_reactor_B_sample.query.all())
     return render_template('home.html')
 
 
