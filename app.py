@@ -8,7 +8,7 @@ import tracking
 from flask import (Flask, abort, flash, jsonify, redirect, render_template,
                    request, send_file, send_from_directory, url_for)
 from flask_sqlalchemy import SQLAlchemy
-from forms import upload_to_a_form, upload_to_b_form, whitch_bio_reactor_form
+from forms import upload_to_a_form, upload_to_b_form
 from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
@@ -16,7 +16,7 @@ logging.warning("New Run Starts Here")
 
 current_directory = os.getcwd()
 
-# change to where things should be stored
+# TODO: change to where things should be stored
 UPLOAD_FOLDER = current_directory + "/static/uploads"
 VIDEO_UPLOAD_FOLDER = UPLOAD_FOLDER + "/videofiles"
 CSV_UPLOAD_FOLDER = UPLOAD_FOLDER + "/csvfiles"
@@ -70,9 +70,11 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['VIDEO_FOLDER'] = VIDEO_UPLOAD_FOLDER
 app.config['CSV_FOLDER'] = CSV_UPLOAD_FOLDER
+# TODO: where do we wanna save this and name it
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+# TODO: this needs to be changed
 app.secret_key = 'development key'
 
 """
@@ -82,6 +84,7 @@ app.secret_key = 'development key'
 
 
 class Bio_reactor_A_sample(db.Model):
+    # TODO: this need to be reforated to actally match reactor
     id = db.Column(db.Integer, primary_key=True)
     date_recorded = db.Column(db.Date, nullable=False)
     date_uploaded = db.Column(db.Date, nullable=False)
@@ -104,6 +107,7 @@ class Bio_reactor_B_sample(db.Model):
     post_three = db.Column(db.String(120))
     post_four = db.Column(db.String(120))
     post_five = db.Column(db.String(120))
+    #  TODO: does this need to be saved and is it a good formant
     file_location = db.Column(db.String(120))
 
     def __repr__(self):
@@ -127,7 +131,6 @@ check_system()
 def main():
     logging.info(Bio_reactor_B_sample.query.all())
     return render_template('home.html')
-    # return redirect("/uploadFile")
 
 
 @ app.route("/boxCoordinates", methods=['GET', 'POST'])
@@ -145,22 +148,7 @@ def boxCoordinates():
 
 @ app.route('/uploadFile', methods=['GET', 'POST'])
 def upload_file():
-    form = whitch_bio_reactor_form()
-
-    if request.method == 'POST':
-        if form.validate() == False:
-            flash('All fields are required.')
-            return render_template('uploadFileWTF.html', form=form)
-        else:
-            if form.bio_reactor.data == 'a':
-                return redirect(url_for('upload_to_a'))
-            elif form.bio_reactor.data == 'b':
-                return redirect(url_for('upload_to_b'))
-            else:
-                logging.info("something went wrong")
-
-    else:
-        return render_template('whitchBioReactor.html', form=form)
+    return render_template('uploadFile.html')
 
 
 @ app.route('/uploadFile/reactorA',  methods=['GET', 'POST'])
@@ -178,6 +166,7 @@ def upload_to_a():
             ), num_tissues=form.num_tissues.data, file_location=where_it_saved)
             db.session.add(new_upload)
             db.session.commit()
+            # TODO:  where do we want to redirect to
             return '''
                     <!DOCTYPE html >
                     <h1> uploaded </h1 >
@@ -204,6 +193,7 @@ def upload_to_b():
             ), num_tissues=tup_post_info[0], post_zero=li_of_post_info[0], post_one=li_of_post_info[1], post_two=li_of_post_info[2], post_three=li_of_post_info[3], post_four=li_of_post_info[4], post_five=li_of_post_info[5], file_location=where_it_saved)
             db.session.add(new_upload)
             db.session.commit()
+            # TODO:  where do we want to redirect to
             return '''
                     <!DOCTYPE html >
                     <h1> uploaded </h1 >
