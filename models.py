@@ -4,75 +4,17 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-'''
-class Bio_reactor_A_sample(db.Model):
-    # TODO: this need to be reforated to actally match reactor
-    id = db.Column(db.Integer, primary_key=True)
-    date_recorded = db.Column(db.Date, nullable=False)
-    date_uploaded = db.Column(db.Date, nullable=False)
-    num_tissues = db.Column(db.Integer)
-    file_location = db.Column(db.String(120))
-
-    def __repr__(self):
-        return '<Uploaded_file %r>' % self.id
-
-
-class Bio_reactor_B_sample(db.Model):
-    # for each post it it either string empty of a string with the format tissume_number , type_of_tissue
-    id = db.Column(db.Integer, primary_key=True)
-    date_recorded = db.Column(db.Date, nullable=False)
-    date_uploaded = db.Column(db.Date, nullable=False)
-    num_tissues = db.Column(db.Integer)
-    post_zero = db.Column(db.String(120))
-    post_one = db.Column(db.String(120))
-    post_two = db.Column(db.String(120))
-    post_three = db.Column(db.String(120))
-    post_four = db.Column(db.String(120))
-    post_five = db.Column(db.String(120))
-    #  TODO: does this need to be saved and is it a good formant
-    file_location = db.Column(db.String(120))
-
-    def __repr__(self):
-        return '<Uploaded_file %r>' % self.id + str(self.date_recorded) + str(self.date_uploaded) + str(self.num_tissues) + self.post_zero + self.post_one + self.post_two + self.post_three + self.post_four + self.post_five + self.file_location
-'''
-
-
-def insert_bio_sample(bio_sample):
-    db.session.add(bio_sample)
-    db.session.commit()
-
-
-def insert_tissue_sample(tissue_sample):
-    #    experimentTest = Experiment()
-    #    tissue_sample.experiment.append(experimentTest)
-    db.session.add(tissue_sample)
-    db.session.commit()
-    print('added')
+# TODO: need to do more robust test to esure realtionships are working but appears to be
+# TODO: ensure adding process works
+# TODO: what hnappens when get fails check that work flow
 
 
 class Experiment(db.Model):
+    # TODO: can i get ride of number just use id?
     id = db.Column(db.Integer, primary_key=True)
+    num = db.Column(db.Integer, nullable=False)
     tissues = db.relationship('Tissue', back_populates='experiment')
     vids = db.relationship('Video', back_populates='experiment')
-
-
-class Tissue(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    tissue_number = db.Column(db.Integer, nullable=False)
-    tissue_type = db.Column(db.String(120), nullable=False)
-    experiment_id = db.Column(db.Integer, db.ForeignKey(
-        'experiment.id'), nullable=False)
-    experiment = db.relationship('Experiment', back_populates='tissues')
-
-    bio_reactor_id = db.Column(db.Integer, db.ForeignKey(
-        'bio_reactor.id'), nullable=False)
-    bio_reactor = db.relationship('Bio_reactor', back_populates='tissues')
-    post = db.Column(db.Integer, nullable=False)
-
-    video_id = db.Column(db.Integer, db.ForeignKey('video.id'), nullable=False)
-    video = db.relationship('Video', back_populates='tissues')
-
-# TODO: video and csv separe or not
 
 
 class Video(db.Model):
@@ -83,14 +25,97 @@ class Video(db.Model):
                               default=datetime.now())
     date_recorded = db.Column(db.Date, nullable=False)
 
-    experiment_id = db.Column(db.Integer, db.ForeignKey(
-        'experiment.id'), nullable=False)
+    experiment_num = db.Column(db.Integer, db.ForeignKey(
+        'experiment.num'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='vids')
 
     tissues = db.relationship('Tissue', back_populates='video')
+
+
+class Tissue(db.Model):
+    # TODO: pk maybe should be combo between tissue number and expirment number
+    id = db.Column(db.Integer, primary_key=True)
+    tissue_number = db.Column(db.Integer, nullable=False)
+    tissue_type = db.Column(db.String(120), nullable=False)
+    post = db.Column(db.Integer, nullable=False)
+
+    experiment_num = db.Column(db.Integer, db.ForeignKey(
+        'experiment.num'), nullable=False)
+    experiment = db.relationship('Experiment', back_populates='tissues')
+
+    bio_reactor_id = db.Column(db.Integer, db.ForeignKey(
+        'bio_reactor.id'), nullable=False)
+    bio_reactor = db.relationship('Bio_reactor', back_populates='tissues')
+
+    video_id = db.Column(db.Integer, db.ForeignKey('video.id'), nullable=False)
+    video = db.relationship('Video', back_populates='tissues')
+
+    def __repr__(self):
+        return '<UTissue %r>' % self.tissue_number
+
+# TODO: video and csv separe or not
 
 
 class Bio_reactor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tissues = db.relationship('Tissue', back_populates='bio_reactor')
     # TODO:put actual stuff here
+
+
+def insert_experiment(num_passed):
+    new_expirment = Experiment(num=num_passed)
+    db.session.add(new_expirment)
+    db.session.commit()
+
+
+def get_experiment(experiment_num_passed):
+    # TODO: get expirenmeint if one does not exist call create expirment
+    # TODO: adderror handling
+    expirment = Experiment.query.filter_by(num=experiment_num_passed).first()
+    if expirment is None:
+        insert_experiment(experiment_num_passed)
+    return expirment
+
+
+def insert_video(date_recorded_passed, experiment_num_passed):
+    # TODO: add bio reactior
+    new_video = Video(date_recorded=date_recorded_passed,
+                      experiment_num=experiment_num_passed)
+    new_video.expirment = get_experiment(experiment_num_passed)
+    db.session.add(new_video)
+    db.session.commit()
+    return new_video
+
+
+def get_bio_reactor(bio_reactor_id_passed):
+    bio_reactor = Bio_reactor.query.filter_by(id=bio_reactor_id_passed).first()
+    return bio_reactor
+
+
+def insert_tissue_sample(tissue_number_passed, tissue_type_passed, experiment_num_passed, bio_reactor_id_passed, post_passed, video_id_passed):
+    new_tissue = Tissue(
+        tissue_number=tissue_number_passed, tissue_type=tissue_type_passed, post=post_passed, experiment_num=experiment_num_passed, video_id=video_id_passed, bio_reactor_id=bio_reactor_id_passed)
+    new_tissue.experiment = get_experiment(experiment_num_passed)
+    new_tissue.bio_reactor = get_bio_reactor(bio_reactor_id_passed)
+    new_tissue.video = get_video(video_id_passed)
+    db.session.add(new_tissue)
+    db.session.commit()
+
+
+def insert_bio_reactor():
+    new_bio_reactor = Bio_reactor()
+    db.session.add(new_bio_reactor)
+    db.session.commit()
+    return new_bio_reactor
+
+
+def get_tissue(tissue_id_passed):
+    tissue = Tissue.query.filter_by(id=tissue_id_passed).first()
+    return tissue
+
+
+def get_video(video_id_passed):
+    video = Video.query.filter_by(id=video_id_passed).first()
+    if video is None:
+        video = insert_video(video_id_passed)
+    return video

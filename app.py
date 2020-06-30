@@ -106,12 +106,13 @@ check_system()
 
 @ app.route("/")
 def main():
-    new_tissue = models.Tissue(
-        tissue_number=2, tissue_type='idk',  experiment_id=1, bio_reactor_id=2, post=4, video_id=1)
-    new_video = models.Video(
-        experiment_id=1, date_recorded=datetime.datetime.now())
-    models.insert_tissue_sample(new_tissue)
-    models.insert_tissue_sample(new_video)
+    models.insert_experiment(1)
+    models.insert_video(datetime.datetime.now(), 1)
+    models.insert_bio_reactor()
+    models.insert_tissue_sample(42, 'idk', 1, 1, 55, 1)
+    # models.insert_bio_reactor()
+    # print(models.get_bio_reactor(1))
+    #models.insert_tissue_sample(42, 'idk', 1, 1, 8, 99)
     return render_template('home.html')
 
 
