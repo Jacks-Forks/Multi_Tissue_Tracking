@@ -8,6 +8,9 @@ services:
     restart: always
     expose:
       - 8080
+    volumes:
+      - ~/Desktop/something:/something
+
 
   nginx:
     image: jackallope/tracking_docker:nginxs
@@ -15,3 +18,4 @@ services:
     restart: always
     ports:
       - "80:80"
+
