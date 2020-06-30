@@ -3,7 +3,7 @@ version: "3.8"
 services:
 
   flask:
-    image: jackallope/tracking_docker:flasks
+    image: jackallope/tracking_docker:flask
     container_name: flask
     restart: always
     expose:
@@ -13,7 +13,7 @@ services:
 
 
   nginx:
-    image: jackallope/tracking_docker:nginxs
+    image: jackallope/tracking_docker:nginx
     container_name: nginx
     restart: always
     ports:
