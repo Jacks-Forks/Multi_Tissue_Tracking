@@ -42,12 +42,18 @@ def insert_bio_sample(bio_sample):
     db.session.commit()
 
 
+def insert_tissue_sample(tissue_sample):
+    #    experimentTest = Experiment()
+    #    tissue_sample.experiment.append(experimentTest)
+    db.session.add(tissue_sample)
+    db.session.commit()
+    print('added')
+
+
 class Experiment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    tissue_id = db.Column(db.Integer, db.ForeignKey(
-        'tissue.id'), nullable=False)
-    tissue = db.relationship(
-        'Tissue', backref=db.backref('tissue', lazy=True))
+    tissues = db.relationship('Tissue', back_populates='experiment')
+    vids = db.relationship('Video', back_populates='experiment')
 
 
 class Tissue(db.Model):
@@ -56,13 +62,15 @@ class Tissue(db.Model):
     tissue_type = db.Column(db.String(120), nullable=False)
     experiment_id = db.Column(db.Integer, db.ForeignKey(
         'experiment.id'), nullable=False)
+    experiment = db.relationship('Experiment', back_populates='tissues')
+
     bio_reactor_id = db.Column(db.Integer, db.ForeignKey(
         'bio_reactor.id'), nullable=False)
-    bio_reactor = db.relationship(
-        'Bio_reactor', backref=db.backref('bio_reactor', lazy=True))
+    bio_reactor = db.relationship('Bio_reactor', back_populates='tissues')
     post = db.Column(db.Integer, nullable=False)
+
     video_id = db.Column(db.Integer, db.ForeignKey('video.id'), nullable=False)
-    video = db.relationship("Video", backref=db.backref('video', lazy=True))
+    video = db.relationship('Video', back_populates='tissues')
 
 # TODO: video and csv separe or not
 
@@ -71,13 +79,18 @@ class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # TODO: change to eastern time????
     # TODO: datetime vs date proablly only need date
-    date_uploaded = db.Column(db.DateTime, nullable=False,
-                              default=datetime.utcnow)
-    date_recorded = db.Column(db.DateTime, nullable=False)
+    date_uploaded = db.Column(db.Date, nullable=False,
+                              default=datetime.now())
+    date_recorded = db.Column(db.Date, nullable=False)
+
     experiment_id = db.Column(db.Integer, db.ForeignKey(
         'experiment.id'), nullable=False)
+    experiment = db.relationship('Experiment', back_populates='vids')
+
+    tissues = db.relationship('Tissue', back_populates='video')
 
 
 class Bio_reactor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    tissues = db.relationship('Tissue', back_populates='bio_reactor')
     # TODO:put actual stuff here

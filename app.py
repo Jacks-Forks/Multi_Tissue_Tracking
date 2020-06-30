@@ -1,8 +1,8 @@
+import datetime
 import json
 import logging
 import os
 import threading
-from datetime import datetime
 
 import models
 import tracking
@@ -83,7 +83,6 @@ def create_app():
 app = create_app()
 app.app_context().push()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-print(app.config['SQLALCHEMY_TRACK_MODIFICATIONS'])
 
 
 """
@@ -107,6 +106,12 @@ check_system()
 
 @ app.route("/")
 def main():
+    new_tissue = models.Tissue(
+        tissue_number=2, tissue_type='idk',  experiment_id=1, bio_reactor_id=2, post=4, video_id=1)
+    new_video = models.Video(
+        experiment_id=1, date_recorded=datetime.datetime.now())
+    models.insert_tissue_sample(new_tissue)
+    models.insert_tissue_sample(new_video)
     return render_template('home.html')
 
 
