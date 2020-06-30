@@ -5,7 +5,7 @@ function getPostCount() {
 
 
 function initDraw(canvas, post_count) {
-  var boxes = new Array()
+  var boxes = []
   //  var boxCordinates = new List()
 
 
@@ -18,7 +18,7 @@ function initDraw(canvas, post_count) {
       mouse.x = ev.clientX + document.body.scrollLeft;
       mouse.y = ev.clientY + document.body.scrollTop;
     }
-  };
+  }
 
 
   var mouse = {
@@ -100,9 +100,7 @@ function FindPosition(oElement) {
 
 
 function GetCoordinates(e) {
-  var PosX = 0;
-  var PosY = 0;
-  var ImgPos;
+  var PosX = 0, PosY = 0, ImgPos;
   ImgPos = FindPosition(canvas);
   if (!e) var e = window.event;
   if (e.pageX || e.pageY) {

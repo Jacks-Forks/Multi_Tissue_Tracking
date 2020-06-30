@@ -63,7 +63,7 @@ def get_post_info(wtforms_list):
                 entry.data['tissue_num'] + "," + entry.data['type_of_tissue'])
         else:
             li.append("empty")
-    return (count, li)
+    return count, li
 
 
 def create_app():
@@ -117,7 +117,7 @@ def main():
 
 
 @ app.route("/boxCoordinates", methods=['GET', 'POST'])
-def boxCoordinates():
+def boxcoordinates():
     if request.method == "POST":
         from_js = request.get_data()
         logging.info(from_js)
