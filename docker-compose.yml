@@ -3,16 +3,14 @@ version: "3.8"
 services:
 
   flask:
-    build: ./flask
+    image: jackallope/tracking_docker:flasks
     container_name: flask
     restart: always
-    environment:
-      - APP_NAME=MyFlaskApp
     expose:
       - 8080
 
   nginx:
-    build: ./nginx
+    image: jackallope/tracking_docker:nginxs
     container_name: nginx
     restart: always
     ports:
