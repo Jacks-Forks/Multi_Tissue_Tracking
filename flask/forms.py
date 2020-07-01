@@ -32,6 +32,8 @@ class Tissue_Samples(FlaskForm):
 class upload_to_b_form(FlaskForm):
     date_recorded = DateField('Date Recorded', [validators.Required()])
     post = FieldList(FormField(Tissue_Samples), min_entries=6)
-    bio_reactor_id = IntegerField('Number Of Feilds')
+    bio_reactor_num = IntegerField('Enter Bio Reactor Number')
+    experiment_num = IntegerField('Enter Experiment number')
+    video_num = IntegerField('Enter video number')
     file = FileField('Upload a File', [validators.Required()])
     submit = SubmitField('Upload')

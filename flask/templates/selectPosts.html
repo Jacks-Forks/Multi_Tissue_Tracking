@@ -2,7 +2,6 @@
 <html>
 
 <head>
-  <!-- TODO: should i put type> -->
 
   <title>Multi-Tissue-Tracking-Project</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
@@ -17,7 +16,6 @@
 
   <form id="number_of_posts" action="#" onsubmit="getPostCount();return false">
     <label for="quantity">Number of posts (between 1 and 10):</label>
-    <!-- TODO: why is it propritory? -->
     <input type="number" id="numPosts" min="2" max="10" />
     <input type="submit" />
   </form>
