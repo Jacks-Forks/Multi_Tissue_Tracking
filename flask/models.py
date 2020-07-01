@@ -10,7 +10,6 @@ db = SQLAlchemy()
 
 
 class Experiment(db.Model):
-    # TODO: can i get ride of number just use id?
     id = db.Column(db.Integer, primary_key=True)
     num = db.Column(db.Integer, unique=True, nullable=False)
     tissues = db.relationship('Tissue', back_populates='experiment')
@@ -19,9 +18,8 @@ class Experiment(db.Model):
 
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # TODO: change to eastern time????
+    # REVIEW: change to eastern time????
     # TODO: add call factor float
-    # TODO: datetime vs date proablly only need date
     date_uploaded = db.Column(db.Date, nullable=False,
                               default=datetime.now())
     date_recorded = db.Column(db.Date, nullable=False)
@@ -78,7 +76,6 @@ def insert_experiment(num_passed):
 
 
 def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_passed):
-    # TODO: add bio reactior
     new_video = Video(date_recorded=date_recorded_passed,
                       experiment_num=experiment_num_passed, bio_reactor_num=bio_reactor_num_passed)
     new_video.expirment = get_experiment(experiment_num_passed)

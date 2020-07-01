@@ -17,7 +17,7 @@ logging.warning("New Run Starts Here")
 
 current_directory = os.getcwd()
 
-# TODO: change to where things should be stored
+
 UPLOAD_FOLDER = current_directory + "/static/uploads"
 VIDEO_UPLOAD_FOLDER = UPLOAD_FOLDER + "/videofiles"
 CSV_UPLOAD_FOLDER = UPLOAD_FOLDER + "/csvfiles"
@@ -52,6 +52,8 @@ def save_file(form):
     form.file.data.save(os.path.join(where_to_save, filename))
     return where_to_save
 
+# REVIEW: can proablly combine these too functions
+
 
 def get_post_info(wtforms_list):
     count = 0
@@ -66,15 +68,27 @@ def get_post_info(wtforms_list):
     return count, li
 
 
+def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_id_passed):
+    for post, info in enumerate(li_of_post_info):
+        # check is there is a tissue on post
+        if info != 'empty':
+            # splits so tissue num is in [0] and type in [1]
+            split_list = info.split(',')
+            tissue_num = split_list[0]
+            tissue_type = split_list[1]
+            models.insert_tissue_sample(
+                tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_id_passed)
+
+
 def create_app():
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['VIDEO_FOLDER'] = VIDEO_UPLOAD_FOLDER
     app.config['CSV_FOLDER'] = CSV_UPLOAD_FOLDER
-    # TODO: where do we wanna save this and name it
+    #  REVIEW: : where do we wanna save this and name it
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    # TODO: this needs to be changed
+    #  REVIEW: : this needs to be changed
     app.secret_key = 'development key'
     db.init_app(app)
     return app
@@ -83,12 +97,6 @@ def create_app():
 app = create_app()
 app.app_context().push()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-
-"""
-  TODO: would idelly like to have these classes in separe file
-  having problem with circulare import
-"""
 
 
 def check_system():
@@ -157,25 +165,6 @@ def upload_to_a():
                     '''
     elif request.method == 'GET':
         return render_template('uploadToA.html', form=form)
-
-
-def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_id_passed):
-    for post, info in enumerate(li_of_post_info):
-        # check is there is a tissue on post
-        if info != 'empty':
-            # splits so tissue num is in [0] and type in [1]
-            split_list = info.split(',')
-            tissue_num = split_list[0]
-            tissue_type = split_list[1]
-            models.insert_tissue_sample(
-                tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_id_passed)
-
-
-'''
-
-
-print('added i hope')
-'''
 
 
 @ app.route('/uploadFile/reactorB',  methods=['GET', 'POST'])
