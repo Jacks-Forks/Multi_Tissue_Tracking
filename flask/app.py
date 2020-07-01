@@ -67,7 +67,6 @@ def get_post_info(wtforms_list):
 
 
 def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_id_passed):
-    logging.info('here')
     for post, info in enumerate(li_of_post_info):
         # check is there is a tissue on post
         if info != 'empty':
@@ -188,7 +187,6 @@ def upload_to_b():
             # checks if experiment exsits if it does makes it
             experiment_num = form.experiment_num.data
             if models.get_experiment(experiment_num) is None:
-                # print(experiment_num)
                 models.insert_experiment(experiment_num)
 
             # checks if experiment exsits if it does makes it

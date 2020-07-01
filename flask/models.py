@@ -73,8 +73,6 @@ class Bio_reactor(db.Model):
 
 
 def insert_experiment(num_passed):
-    print('num_passed')
-    print(num_passed)
     new_expirment = Experiment(num=num_passed)
     db.session.add(new_expirment)
     db.session.commit()
@@ -92,11 +90,8 @@ def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_pa
 
 
 def insert_tissue_sample(tissue_number_passed, tissue_type_passed, experiment_num_passed, bio_reactor_num_passed, post_passed, video_num_passed):
-    #print('insert tissue')
-    # print(experiment_num_passed)
     new_tissue = Tissue(
         tissue_number=tissue_number_passed, tissue_type=tissue_type_passed, post=post_passed, experiment_num=experiment_num_passed, video_num=video_num_passed, bio_reactor_num=bio_reactor_num_passed)
-    # print(get_experiment(experiment_num_passed))
     new_tissue.experiment = get_experiment(experiment_num_passed)
     new_tissue.bio_reactor = get_bio_reactor(bio_reactor_num_passed)
     new_tissue.video = get_video(video_num_passed)
