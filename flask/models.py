@@ -31,7 +31,7 @@ class Video(db.Model):
     experiment = db.relationship('Experiment', back_populates='vids')
 
     bio_reactor_num = db.Column(db.Integer, db.ForeignKey(
-        'bio_reactor.id'), nullable=False)
+        'bio_reactor.num'), nullable=False)
     bio_reactor = db.relationship('Bio_reactor', back_populates='vids')
 
     tissues = db.relationship('Tissue', back_populates='video')
@@ -49,10 +49,11 @@ class Tissue(db.Model):
     experiment = db.relationship('Experiment', back_populates='tissues')
 
     bio_reactor_num = db.Column(db.Integer, db.ForeignKey(
-        'bio_reactor.id'), nullable=False)
+        'bio_reactor.num'), nullable=False)
     bio_reactor = db.relationship('Bio_reactor', back_populates='tissues')
 
-    video_id = db.Column(db.Integer, db.ForeignKey('video.id'), nullable=False)
+    video_num = db.Column(
+        db.Integer, db.ForeignKey('video.num'), nullable=False)
     video = db.relationship('Video', back_populates='tissues')
 
     def __repr__(self):
@@ -90,15 +91,15 @@ def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_pa
     db.session.commit()
 
 
-def insert_tissue_sample(tissue_number_passed, tissue_type_passed, experiment_num_passed, bio_reactor_num_passed, post_passed, video_id_passed):
+def insert_tissue_sample(tissue_number_passed, tissue_type_passed, experiment_num_passed, bio_reactor_num_passed, post_passed, video_num_passed):
     #print('insert tissue')
     # print(experiment_num_passed)
     new_tissue = Tissue(
-        tissue_number=tissue_number_passed, tissue_type=tissue_type_passed, post=post_passed, experiment_num=experiment_num_passed, video_id=video_id_passed, bio_reactor_num=bio_reactor_num_passed)
+        tissue_number=tissue_number_passed, tissue_type=tissue_type_passed, post=post_passed, experiment_num=experiment_num_passed, video_num=video_num_passed, bio_reactor_num=bio_reactor_num_passed)
     # print(get_experiment(experiment_num_passed))
     new_tissue.experiment = get_experiment(experiment_num_passed)
     new_tissue.bio_reactor = get_bio_reactor(bio_reactor_num_passed)
-    new_tissue.video = get_video(video_id_passed)
+    new_tissue.video = get_video(video_num_passed)
     db.session.add(new_tissue)
     db.session.commit()
 
