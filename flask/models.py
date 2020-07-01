@@ -11,7 +11,7 @@ db = SQLAlchemy()
 
 class Experiment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    num = db.Column(db.Integer, unique=True, nullable=False)
+    num = db.Column(db.Integer, nullable=False)
     tissues = db.relationship('Tissue', back_populates='experiment')
     vids = db.relationship('Video', back_populates='experiment')
 
@@ -23,6 +23,8 @@ class Video(db.Model):
     date_uploaded = db.Column(db.Date, nullable=False,
                               default=datetime.now())
     date_recorded = db.Column(db.Date, nullable=False)
+
+    num = db.Column(db.Integer, nullable=False)
 
     experiment_num = db.Column(db.Integer, db.ForeignKey(
         'experiment.num'), nullable=False)
@@ -70,14 +72,17 @@ class Bio_reactor(db.Model):
 
 
 def insert_experiment(num_passed):
+    print('num_passed')
+    print(num_passed)
     new_expirment = Experiment(num=num_passed)
     db.session.add(new_expirment)
     db.session.commit()
 
 
-def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_passed):
+def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_passed, video_num_passed):
+
     new_video = Video(date_recorded=date_recorded_passed,
-                      experiment_num=experiment_num_passed, bio_reactor_num=bio_reactor_num_passed)
+                      experiment_num=experiment_num_passed, bio_reactor_num=bio_reactor_num_passed, num=video_num_passed)
     new_video.expirment = get_experiment(experiment_num_passed)
     new_video.bio_reactor = get_bio_reactor(bio_reactor_num_passed)
 
@@ -86,8 +91,11 @@ def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_pa
 
 
 def insert_tissue_sample(tissue_number_passed, tissue_type_passed, experiment_num_passed, bio_reactor_num_passed, post_passed, video_id_passed):
+    #print('insert tissue')
+    # print(experiment_num_passed)
     new_tissue = Tissue(
         tissue_number=tissue_number_passed, tissue_type=tissue_type_passed, post=post_passed, experiment_num=experiment_num_passed, video_id=video_id_passed, bio_reactor_num=bio_reactor_num_passed)
+    # print(get_experiment(experiment_num_passed))
     new_tissue.experiment = get_experiment(experiment_num_passed)
     new_tissue.bio_reactor = get_bio_reactor(bio_reactor_num_passed)
     new_tissue.video = get_video(video_id_passed)
@@ -105,13 +113,13 @@ def insert_bio_reactor(num_passed):
 
 def get_experiment(experiment_num_passed):
     # TODO: get expirenmeint if one does not exist call create expirment
-    expirment = Experiment.query.filter_by(id=experiment_num_passed).first()
+    expirment = Experiment.query.filter_by(num=experiment_num_passed).first()
     return expirment
 
 
 def get_bio_reactor(bio_reactor_num_passed):
     bio_reactor = Bio_reactor.query.filter_by(
-        id=bio_reactor_num_passed).first()
+        num=bio_reactor_num_passed).first()
     return bio_reactor
 
 
@@ -121,6 +129,6 @@ def get_tissue(tissue_id_passed):
     return tissue
 
 
-def get_video(video_id_passed):
-    video = Video.query.filter_by(id=video_id_passed).first()
+def get_video(video_num_passed):
+    video = Video.query.filter_by(num=video_num_passed).first()
     return video

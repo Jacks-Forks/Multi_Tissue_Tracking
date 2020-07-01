@@ -29,13 +29,11 @@ video_file_extentions = {'mov', 'mp4'}
 def where_to_upload(filename, date_recorded):
     result = ""
     date_string = date_recorded.strftime('%m_%d_%Y')
-    logging.info(date_string)
     if filename.rsplit('.', 1)[1].lower() == 'csv':
         result = os.path.join(app.config['CSV_FOLDER'], date_string)
     elif filename.rsplit('.', 1)[1].lower() in video_file_extentions:
         result = os.path.join(app.config['VIDEO_FOLDER'], date_string)
     if os.path.isdir(result) is False:
-        logging.info("no date folder")
         os.mkdir(result)
     return result
 
@@ -69,6 +67,7 @@ def get_post_info(wtforms_list):
 
 
 def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_id_passed):
+    logging.info('here')
     for post, info in enumerate(li_of_post_info):
         # check is there is a tissue on post
         if info != 'empty':
@@ -96,7 +95,6 @@ def create_app():
 
 app = create_app()
 app.app_context().push()
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
 def check_system():
@@ -111,13 +109,14 @@ def check_system():
 
 check_system()
 
+'''
+models.insert_experiment(1)
+models.insert_bio_reactor(1)
+'''
+
 
 @ app.route("/")
 def main():
-    models.insert_experiment(1)
-    models.insert_bio_reactor(1)
-    models.insert_video(datetime.datetime.now(), 1, 1)
-    models.insert_tissue_sample(42, 'idk', 1, 1, 55, 1)
     return render_template('home.html')
 
 
@@ -169,8 +168,6 @@ def upload_to_a():
 
 @ app.route('/uploadFile/reactorB',  methods=['GET', 'POST'])
 def upload_to_b():
-    li = ['0,idk', 'empty', '2,other', 'empty', 'empty', 'empty']
-    add_tissues(li, 1, 1, 1)
     form = upload_to_b_form()
 
     if request.method == 'POST':
@@ -185,9 +182,26 @@ def upload_to_b():
             tup_post_info = get_post_info(form.post.entries)
             li_of_post_info = tup_post_info[1]
             logging.info(li_of_post_info)
-            add_tissues(li_of_post_info, form.experiment_num.data,
-                        form.bio_reactor_num.data, form.video_id.data)
-            # add_tissues(li_of_post_info, ex)
+
+            # REVIEW: ideally would like to make these drop downs
+
+            # checks if experiment exsits if it does makes it
+            experiment_num = form.experiment_num.data
+            if models.get_experiment(experiment_num) is None:
+                # print(experiment_num)
+                models.insert_experiment(experiment_num)
+
+            # checks if experiment exsits if it does makes it
+            bio_reactor_num = form.bio_reactor_num.data
+            if models.get_bio_reactor(bio_reactor_num) is None:
+                models.insert_bio_reactor(bio_reactor_num)
+
+            models.insert_video(form.date_recorded.data,
+                                experiment_num, bio_reactor_num, form.video_num.data)
+
+            add_tissues(li_of_post_info, experiment_num,
+                        bio_reactor_num, form.video_num.data)
+
             # TODO:  where do we want to redirect to
             return '''
                     <!DOCTYPE html >
