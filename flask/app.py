@@ -172,6 +172,7 @@ def upload_to_b():
             return render_template('uploadToB.html', form=form)
         else:
             #  TODO: clean up and comment this its confusing
+            # tissie num and type are recored and place in list can be converted to type
             where_it_saved = save_file(form)
             tup_post_info = get_post_info(form.post.entries)
             li_of_post_info = tup_post_info[1]

@@ -29,6 +29,10 @@ class Video(db.Model):
         'experiment.num'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='vids')
 
+    bio_reactor_id = db.Column(db.Integer, db.ForeignKey(
+        'bio_reactor.id'), nullable=False)
+    bio_reactor = db.relationship('Bio_reactor', back_populates='vids')
+
     tissues = db.relationship('Tissue', back_populates='video')
 
 
@@ -59,7 +63,10 @@ class Tissue(db.Model):
 class Bio_reactor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tissues = db.relationship('Tissue', back_populates='bio_reactor')
+    vids = db.relationship('Video', back_populates='bio_reactor')
     # TODO:put actual stuff here
+
+# TODO: what happens if already exsits?
 
 
 def insert_experiment(num_passed):
@@ -68,28 +75,15 @@ def insert_experiment(num_passed):
     db.session.commit()
 
 
-def get_experiment(experiment_num_passed):
-    # TODO: get expirenmeint if one does not exist call create expirment
-    # TODO: adderror handling
-    expirment = Experiment.query.filter_by(num=experiment_num_passed).first()
-    if expirment is None:
-        insert_experiment(experiment_num_passed)
-    return expirment
-
-
 def insert_video(date_recorded_passed, experiment_num_passed):
     # TODO: add bio reactior
     new_video = Video(date_recorded=date_recorded_passed,
                       experiment_num=experiment_num_passed)
     new_video.expirment = get_experiment(experiment_num_passed)
+
     db.session.add(new_video)
     db.session.commit()
     return new_video
-
-
-def get_bio_reactor(bio_reactor_id_passed):
-    bio_reactor = Bio_reactor.query.filter_by(id=bio_reactor_id_passed).first()
-    return bio_reactor
 
 
 def insert_tissue_sample(tissue_number_passed, tissue_type_passed, experiment_num_passed, bio_reactor_id_passed, post_passed, video_id_passed):
@@ -108,14 +102,26 @@ def insert_bio_reactor():
     db.session.commit()
     return new_bio_reactor
 
+# TODO: add error handling for all get functions
+
+
+def get_experiment(experiment_num_passed):
+    # TODO: get expirenmeint if one does not exist call create expirment
+    expirment = Experiment.query.filter_by(num=experiment_num_passed).first()
+    return expirment
+
+
+def get_bio_reactor(bio_reactor_id_passed):
+    bio_reactor = Bio_reactor.query.filter_by(id=bio_reactor_id_passed).first()
+    return bio_reactor
+
 
 def get_tissue(tissue_id_passed):
+    # gets tissue by the tissue id
     tissue = Tissue.query.filter_by(id=tissue_id_passed).first()
     return tissue
 
 
 def get_video(video_id_passed):
     video = Video.query.filter_by(id=video_id_passed).first()
-    if video is None:
-        video = insert_video(video_id_passed)
     return video
