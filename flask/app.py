@@ -107,12 +107,9 @@ check_system()
 @ app.route("/")
 def main():
     models.insert_experiment(1)
-    models.insert_video(datetime.datetime.now(), 1)
-    models.insert_bio_reactor()
+    models.insert_bio_reactor(1)
+    models.insert_video(datetime.datetime.now(), 1, 1)
     models.insert_tissue_sample(42, 'idk', 1, 1, 55, 1)
-    # models.insert_bio_reactor()
-    # print(models.get_bio_reactor(1))
-    #models.insert_tissue_sample(42, 'idk', 1, 1, 8, 99)
     return render_template('home.html')
 
 
@@ -156,14 +153,35 @@ def upload_to_a():
             # TODO:  where do we want to redirect to
             return '''
                     <!DOCTYPE html >
-                    <h1> uploaded </h1 >
+                    <h1 > uploaded < /h1 >
                     '''
     elif request.method == 'GET':
         return render_template('uploadToA.html', form=form)
 
 
+def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_id_passed):
+    for post, info in enumerate(li_of_post_info):
+        # check is there is a tissue on post
+        if info != 'empty':
+            # splits so tissue num is in [0] and type in [1]
+            split_list = info.split(',')
+            tissue_num = split_list[0]
+            tissue_type = split_list[1]
+            models.insert_tissue_sample(
+                tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_id_passed)
+
+
+'''
+
+
+print('added i hope')
+'''
+
+
 @ app.route('/uploadFile/reactorB',  methods=['GET', 'POST'])
 def upload_to_b():
+    li = ['0,idk', 'empty', '2,other', 'empty', 'empty', 'empty']
+    add_tissues(li, 1, 1, 1)
     form = upload_to_b_form()
 
     if request.method == 'POST':
@@ -172,21 +190,19 @@ def upload_to_b():
             return render_template('uploadToB.html', form=form)
         else:
             #  TODO: clean up and comment this its confusing
+            #  TODO: get expirment number, bio reactior is and vid id
             # tissie num and type are recored and place in list can be converted to type
             where_it_saved = save_file(form)
             tup_post_info = get_post_info(form.post.entries)
             li_of_post_info = tup_post_info[1]
             logging.info(li_of_post_info)
-
-            new_upload = models.Bio_reactor_B_sample(date_recorded=form.date_recorded.data, date_uploaded=datetime.now(
-            ), num_tissues=tup_post_info[0], post_zero=li_of_post_info[0], post_one=li_of_post_info[1], post_two=li_of_post_info[2], post_three=li_of_post_info[3], post_four=li_of_post_info[4], post_five=li_of_post_info[5], file_location=where_it_saved)
-
-            models.insert_bio_sample(new_upload)
-
+            add_tissues(li_of_post_info, form.experiment_num.data,
+                        form.bio_reactor_num.data, form.video_id.data)
+            # add_tissues(li_of_post_info, ex)
             # TODO:  where do we want to redirect to
             return '''
                     <!DOCTYPE html >
-                    <h1> uploaded </h1 >
+                    <h1 > uploaded </h1 >
                     '''
     else:
         return render_template('uploadToB.html', form=form)
