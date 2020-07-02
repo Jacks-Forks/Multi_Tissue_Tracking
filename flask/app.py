@@ -195,7 +195,7 @@ def upload_to_b():
                 models.insert_bio_reactor(bio_reactor_num)
 
             models.insert_video(form.date_recorded.data,
-                                experiment_num, bio_reactor_num, form.video_num.data, form.frequency.data)
+                                experiment_num, bio_reactor_num, form.video_num.data, form.frequency.data, where_it_saved)
 
             add_tissues(li_of_post_info, experiment_num,
                         bio_reactor_num, form.video_num.data)

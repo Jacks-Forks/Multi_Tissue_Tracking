@@ -29,13 +29,16 @@ class Video(db.Model):
 
     num = db.Column(db.Integer, nullable=False)
 
+    save_location = db.Column(db.String, nullable=False)
+
     experiment_num = db.Column(db.Integer, db.ForeignKey(
         'experiment.num'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='vids')
 
     bio_reactor_num = db.Column(db.Integer, db.ForeignKey(
         'bio_reactor.num'), nullable=False)
-    bio_reactor = db.relationship('Bio_reactor', back_populates='vids')
+    bio_reactor = db.relationship('Bio_reactor', back_populates='vids')\
+
 
     tissues = db.relationship('Tissue', back_populates='video')
 
@@ -81,10 +84,10 @@ def insert_experiment(num_passed):
     db.session.commit()
 
 
-def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_passed, video_num_passed, frequency_passed):
+def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_passed, video_num_passed, frequency_passed, save_path_passed):
 
     new_video = Video(date_recorded=date_recorded_passed,
-                      experiment_num=experiment_num_passed, bio_reactor_num=bio_reactor_num_passed, num=video_num_passed, frequency=frequency_passed)
+                      experiment_num=experiment_num_passed, bio_reactor_num=bio_reactor_num_passed, num=video_num_passed, frequency=frequency_passed, save_location=save_path_passed)
     new_video.expirment = get_experiment(experiment_num_passed)
     new_video.bio_reactor = get_bio_reactor(bio_reactor_num_passed)
 
