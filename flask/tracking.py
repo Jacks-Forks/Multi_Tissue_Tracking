@@ -133,6 +133,9 @@ def start_trackig(unformated_points):
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     '''
+    # TODO: DATABASE. Need date
+    # TODO: DATABASE. Needfreq.
+    # TODO: DATABASE. Need tissue numbers for tissues in video.
     splinter = path.filer.split('/')[4].split('_')
     locs = splinter[2]
     bio = splinter[3]
