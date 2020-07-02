@@ -1,4 +1,4 @@
-<!DOCTYPE>
+<!doctype html>
 
 <head>
   <title>
@@ -48,11 +48,13 @@
               );
             });
             dropdown.dates.removeAttr('disabled');
+            updateVideo();
           });
         }
 
         function updateVideo() {
           var send = {
+            experiment: dropdown.experiment.val(),
             dates: dropdown.dates.val()
           };
           dropdown.video.attr('disabled', 'disabled');
@@ -76,6 +78,7 @@
 
         dropdown.experiment.on('change', function() {
           updateDates();
+          updateVideo();
         });
 
       });

@@ -207,10 +207,14 @@ def upload_to_b():
 @app.route('/pick_video', methods=['GET', 'POST'])
 def pick_video():
     form = PickVid()
-    form.experiment.choices = [(row.id, row.num)
+    form.experiment.choices = [(row.num, row.num)
                                for row in models.Experiment.query.all()]
-    form.date.choices = [(row.id, row.num)
+    form.date.choices = [(row.date_recorded, row.date_recorded)
                          for row in models.Video.query.all()]
+    first = models.Video.query.first()
+    form.vids.choices = [(first.frequency, first.frequency)]
+    # form.vids.choices = [(row.frequency, row.frequency)
+    #                     for row in models.Video.query.all()]
     if request.method == 'GET':
         print('get')
         return render_template('pick_video.html', form=form)
@@ -233,8 +237,12 @@ def get_dates():
     print('wtf')
     print(experiment)
     print(models.Video.query.filter_by(experiment_num=experiment).all())
-    dates = [(row.date_recorded, row.date_recorded)
-             for row in models.Video.query.filter_by(experiment_num=experiment).all()]
+
+    dates = []
+    for row in models.Video.query.filter_by(experiment_num=experiment).all():
+        next_choice = (row.date_recorded, row.date_recorded)
+        if next_choice not in dates:
+            dates.append(next_choice)
     # dates = [('a', 'a'), ('b', 'b'), ('c', 'c')]
     return jsonify(dates)
 
@@ -243,15 +251,18 @@ def get_dates():
 def get_video():
     print('get vids')
     date = request.args.get('dates', '01', type=str)
-    date = datetime.datetime.strptime(date, '%a, %d %b %Y %H:%M:%S %Z')
-    date = date.date()
-    print(type(date))
+    experiment = request.args.get('experiment', '01', type=str)
+    try:
+        date = datetime.datetime.strptime(date, '%a, %d %b %Y %H:%M:%S %Z')
+        date = date.date()
+    except:
+        print('whatever')
+    print(models.Video.query.filter_by(
+        date_recorded=date, experiment_num=experiment).all())
     print(date)
-    print(models.Video.query.first())
-    for i in models.Video.query.all():
-        print(type(i.date_recorded))
-    vids = [(row.id, row.frequency)
-            for row in models.Video.query.filter_by(date_recorded=date).all()]
+    print(experiment)
+    vids = [(row.frequency, row.frequency)
+            for row in models.Video.query.filter_by(date_recorded=date, experiment_num=experiment).all()]
     print('what vids')
     print(vids)
     # vids = [('a', 'a'), ('b', 'b'), ('c', 'c')]
