@@ -8,7 +8,7 @@ import models
 import tracking
 from flask import (Flask, abort, flash, jsonify, redirect, render_template,
                    request, send_file, send_from_directory, url_for)
-from forms import upload_to_a_form, upload_to_b_form
+from forms import PickVid, upload_to_a_form, upload_to_b_form
 from models import db
 from werkzeug.utils import secure_filename
 
@@ -108,11 +108,6 @@ def check_system():
 
 check_system()
 
-'''
-models.insert_experiment(1)
-models.insert_bio_reactor(1)
-'''
-
 
 @ app.route("/")
 def main():
@@ -207,3 +202,58 @@ def upload_to_b():
                     '''
     else:
         return render_template('uploadToB.html', form=form)
+
+
+@app.route('/pick_video', methods=['GET', 'POST'])
+def pick_video():
+    form = PickVid()
+    form.experiment.choices = [(row.id, row.num)
+                               for row in models.Experiment.query.all()]
+    form.date.choices = [(row.id, row.num)
+                         for row in models.Video.query.all()]
+    if request.method == 'GET':
+        print('get')
+        return render_template('pick_video.html', form=form)
+
+    if request.method == 'POST':
+        flash('Hi')
+        print('post')
+        return'''
+        <h1>hell</h1>
+        '''
+    return redirect(url_for('get_dates'))
+
+
+@app.route('/get_dates')
+def get_dates():
+    print('gother')
+
+    # filter by date
+    experiment = request.args.get('experiment', '01', type=str)
+    print('wtf')
+    print(experiment)
+    print(models.Video.query.filter_by(experiment_num=experiment).all())
+    dates = [(row.date_recorded, row.date_recorded)
+             for row in models.Video.query.filter_by(experiment_num=experiment).all()]
+    # dates = [('a', 'a'), ('b', 'b'), ('c', 'c')]
+    return jsonify(dates)
+
+
+@ app.route('/get_video')
+def get_video():
+    print('get vids')
+    date = request.args.get('dates', '01', type=str)
+    date = datetime.datetime.strptime(date, '%a, %d %b %Y %H:%M:%S %Z')
+    date = date.date()
+    print(type(date))
+    print(date)
+    print(models.Video.query.first())
+    for i in models.Video.query.all():
+        print(type(i.date_recorded))
+    vids = [(row.id, row.frequency)
+            for row in models.Video.query.filter_by(date_recorded=date).all()]
+    print('what vids')
+    print(vids)
+    # vids = [('a', 'a'), ('b', 'b'), ('c', 'c')]
+    # vids = [('a', 'b')]
+    return jsonify(vids)

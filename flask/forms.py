@@ -1,10 +1,10 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
 from wtforms import (BooleanField, DecimalField, FieldList, FileField,
-                     FormField, IntegerField, RadioField, SelectField,
-                     SelectMultipleField, StringField, SubmitField,
-                     TextAreaField, TextField, ValidationError, validators,
-                     widgets)
+                     FormField, HiddenField, IntegerField, RadioField,
+                     SelectField, SelectMultipleField, StringField,
+                     SubmitField, TextAreaField, TextField, ValidationError,
+                     validators, widgets)
 from wtforms.fields.html5 import DateField
 
 
@@ -38,3 +38,11 @@ class upload_to_b_form(FlaskForm):
     video_num = IntegerField('Enter video number')
     file = FileField('Upload a File', [validators.Required()])
     submit = SubmitField('Upload')
+
+
+class PickVid(FlaskForm):
+    form_name = HiddenField('Form Name')
+    experiment = SelectField('Experiment', id='select_experiment')
+    date = SelectField('Date', id='select_date')
+    vids = SelectField('Vids', id='select_vids')
+    submit = SubmitField('Select Video')
