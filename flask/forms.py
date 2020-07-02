@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
-from wtforms import (BooleanField, FieldList, FileField, FormField,
-                     IntegerField, RadioField, SelectField,
+from wtforms import (BooleanField, DecimalField, FieldList, FileField,
+                     FormField, IntegerField, RadioField, SelectField,
                      SelectMultipleField, StringField, SubmitField,
                      TextAreaField, TextField, ValidationError, validators,
                      widgets)
@@ -32,6 +32,7 @@ class Tissue_Samples(FlaskForm):
 class upload_to_b_form(FlaskForm):
     date_recorded = DateField('Date Recorded', [validators.Required()])
     post = FieldList(FormField(Tissue_Samples), min_entries=6)
+    frequency = DecimalField('Enter the Frequency')
     bio_reactor_num = IntegerField('Enter Bio Reactor Number')
     experiment_num = IntegerField('Enter Experiment number')
     video_num = IntegerField('Enter video number')

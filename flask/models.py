@@ -20,9 +20,12 @@ class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # REVIEW: change to eastern time????
     # TODO: add call factor float
+    # TODO: freq hertz
     date_uploaded = db.Column(db.Date, nullable=False,
                               default=datetime.now())
     date_recorded = db.Column(db.Date, nullable=False)
+
+    frequency = db.Column(db.Float, nullable=False)
 
     num = db.Column(db.Integer, nullable=False)
 
@@ -45,7 +48,7 @@ class Tissue(db.Model):
     post = db.Column(db.Integer, nullable=False)
 
     experiment_num = db.Column(db.Integer, db.ForeignKey(
-        'experiment.id'), nullable=False)
+        'experiment.num'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='tissues')
 
     bio_reactor_num = db.Column(db.Integer, db.ForeignKey(
@@ -78,10 +81,10 @@ def insert_experiment(num_passed):
     db.session.commit()
 
 
-def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_passed, video_num_passed):
+def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_passed, video_num_passed, frequency_passed):
 
     new_video = Video(date_recorded=date_recorded_passed,
-                      experiment_num=experiment_num_passed, bio_reactor_num=bio_reactor_num_passed, num=video_num_passed)
+                      experiment_num=experiment_num_passed, bio_reactor_num=bio_reactor_num_passed, num=video_num_passed, frequency=frequency_passed)
     new_video.expirment = get_experiment(experiment_num_passed)
     new_video.bio_reactor = get_bio_reactor(bio_reactor_num_passed)
 
@@ -108,7 +111,6 @@ def insert_bio_reactor(num_passed):
 
 
 def get_experiment(experiment_num_passed):
-    # TODO: get expirenmeint if one does not exist call create expirment
     expirment = Experiment.query.filter_by(num=experiment_num_passed).first()
     return expirment
 
