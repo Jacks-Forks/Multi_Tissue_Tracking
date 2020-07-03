@@ -63,7 +63,7 @@ class Tissue(db.Model):
     video = db.relationship('Video', back_populates='tissues')
 
     def __repr__(self):
-        return '<UTissue %r>' % self.tissue_number
+        return '<Tissue %r>' % self.id
 
 # TODO: video and csv separe or not
 

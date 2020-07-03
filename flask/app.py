@@ -68,7 +68,7 @@ def get_post_info(wtforms_list):
     return count, li
 
 
-def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_id_passed):
+def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_num_passed):
     for post, info in enumerate(li_of_post_info):
         # check is there is a tissue on post
         if info != 'empty':
@@ -77,7 +77,7 @@ def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, 
             tissue_num = split_list[0]
             tissue_type = split_list[1]
             models.insert_tissue_sample(
-                tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_id_passed)
+                tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_num_passed)
 
 
 def get_post_locations(vid_id):
@@ -104,6 +104,7 @@ def create_app():
     return app
 
 
+# TODO: put create in wsgi anf then import to both app.py and tracking and app.push???
 app = create_app()
 app.app_context().push()
 
@@ -128,17 +129,28 @@ def main():
 
 @ app.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():
+    # TODO: comment all of this so it makes tissue_number_passed
+    # TODO: delete image
     if request.method == "POST":
         from_js = request.get_data()
-        logging.info(from_js)
         data = json.loads(from_js)
-        logging.info(data)
-        logging.info(data['boxes'])
         box_coords = data['boxes']
         video_id = int(data['video_id'])
-        file_path = models.get_video(video_id).save_location
+        video_object = models.get_video(video_id)
+        file_path = video_object.save_location
+        date_recorded = video_object.date_recorded
+        frequency = video_object.frequency
+        experiment_num = video_object.experiment_num
+        # need tissues in vid
+        # need location of each tissue
+        tissues_object_list = video_object.tissues
+        li_tissues_numbers = [
+            tissue.tissue_number for tissue in tissues_object_list]
+        logging.info(tissues_object_list)
+        logging.info(li_tissues_numbers)
+
         tracking_thread = threading.Thread(
-            target=tracking.start_trackig, args=(box_coords, file_path,))
+            target=tracking.start_trackig, args=(box_coords, file_path, experiment_num, date_recorded, frequency, li_tissues_numbers))
         tracking_thread.start()
         return jsonify({'status': 'OK', 'data': box_coords})
 
@@ -207,7 +219,7 @@ def upload_to_b():
 
             models.insert_video(form.date_recorded.data,
                                 experiment_num, bio_reactor_num, form.video_num.data, form.frequency.data, where_it_saved)
-
+            print(form.video_num.data)
             add_tissues(li_of_post_info, experiment_num,
                         bio_reactor_num, form.video_num.data)
 

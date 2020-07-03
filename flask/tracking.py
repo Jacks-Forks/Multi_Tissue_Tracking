@@ -6,7 +6,6 @@ import dashSelect as path
 import models
 import numpy as np
 import pandas as pd
-from models import db
 
 logging.basicConfig(filename='tracking.log', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
@@ -23,7 +22,7 @@ def format_points(old_points):
     return result
 
 
-def start_trackig(unformated_points, file_path):
+def start_trackig(unformated_points, file_path, experiment_num_passed, date_recorded_passed, frequency_passed, li_tissue_nums_passed):
     # logging.info(path.filer)
     logging.info('start_trackig')
     logging.info(unformated_points)
@@ -126,7 +125,6 @@ def start_trackig(unformated_points, file_path):
                 oddY = centroid[1]
 
                 time = videostream.get(cv2.CAP_PROP_POS_MSEC) / 1000
-
                 disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2))
                 count = count + 1
                 logging.info(count)
@@ -142,23 +140,19 @@ def start_trackig(unformated_points, file_path):
     # TODO: DATABASE. Need date
     # TODO: DATABASE. Needfreq.
     # TODO: DATABASE. Need tissue numbers for tissues in video.
-    splinter = file_path.split('/')[4].split('_')
-    locs = splinter[2]
-    bio = splinter[3]
-    if not os.path.exists('static/uploads/csvfiles/' + splits[3]):
-        os.mkdir('static/uploads/csvfiles/' + splits[3])
+    #splinter = file_path.split('/')[4].split('_')
+    #locs = splinter[2]
+    #bio = splinter[3]
+    date_as_string = date_recorded_passed.strftime('%m_%d_%Y')
+    directory_to_save_path = 'static/uploads/' + \
+        str(experiment_num_passed) + '/csvfiles/' + date_as_string + "/"
+    if not os.path.exists(directory_to_save_path):
+        os.makedirs(directory_to_save_path)
 
     for i, an in enumerate(displacement):
-        locs = list(locs)
-        for j, k in enumerate(locs):
-            if k != '0':
-                locs[j] = '0'
-                spot = j + 1
-                break
-        locs = "".join(locs)
         df = pd.DataFrame(
             an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
-        df.to_csv('static/uploads/csvfiles/' +
-                  splits[3] + '/T{0}_{1}_{2}_.csv'.format(i, bio, spot), index=False)
+        df.to_csv(directory_to_save_path + 'T{0}_{1}_{2}_.csv'.format(
+            date_recorded_passed, li_tissue_nums_passed[i],  frequency_passed), index=False)
     print("check CSV")
     return boxes
