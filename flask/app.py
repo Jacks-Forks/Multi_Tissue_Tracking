@@ -118,6 +118,9 @@ def check_system():
     if os.path.isdir(app.config['CSV_FOLDER']) is False:
         os.mkdir(app.config['CSV_FOLDER'])
 
+    if os.path.isdir(current_directory + '/static/img') is False:
+        os.mkdir(current_directory + '/static/img')
+
 
 check_system()
 
@@ -136,7 +139,9 @@ def boxcoordinates():
         data = json.loads(from_js)
         box_coords = data['boxes']
         video_id = int(data['video_id'])
+
         video_object = models.get_video(video_id)
+
         file_path = video_object.save_location
         date_recorded = video_object.date_recorded
         frequency = video_object.frequency
