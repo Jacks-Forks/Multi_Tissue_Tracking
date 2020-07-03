@@ -7,7 +7,8 @@ import models
 import numpy as np
 import pandas as pd
 
-logging.basicConfig(filename='tracking.log', level=logging.DEBUG)
+logging.basicConfig(filename='tracking.log',
+                    format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
 
 

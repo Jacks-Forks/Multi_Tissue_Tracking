@@ -13,7 +13,8 @@ from forms import PickVid, upload_to_a_form, upload_to_b_form
 from models import db
 from werkzeug.utils import secure_filename
 
-logging.basicConfig(filename='app.log', level=logging.DEBUG)
+logging.basicConfig(filename='app.log',
+                    format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
 
 current_directory = os.getcwd()
@@ -68,7 +69,7 @@ def get_post_info(wtforms_list):
     return count, li
 
 
-def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_num_passed):
+def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_id_passed):
     for post, info in enumerate(li_of_post_info):
         # check is there is a tissue on post
         if info != 'empty':
@@ -77,7 +78,7 @@ def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, 
             tissue_num = split_list[0]
             tissue_type = split_list[1]
             models.insert_tissue_sample(
-                tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_num_passed)
+                tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_id_passed)
 
 
 def get_post_locations(vid_id):
@@ -222,13 +223,12 @@ def upload_to_b():
             if models.get_bio_reactor(bio_reactor_num) is None:
                 models.insert_bio_reactor(bio_reactor_num)
 
-            models.insert_video(form.date_recorded.data,
-                                experiment_num, bio_reactor_num, form.video_num.data, form.frequency.data, where_it_saved)
-            print(form.video_num.data)
+            new_video_id = models.insert_video(form.date_recorded.data,
+                                               experiment_num, bio_reactor_num, form.frequency.data, where_it_saved)
+            # print(form.video_num.data)
             add_tissues(li_of_post_info, experiment_num,
-                        bio_reactor_num, form.video_num.data)
+                        bio_reactor_num, new_video_id)
 
-            # TODO:  where do we want to redirect to
             return redirect('/pick_video')
     else:
         return render_template('uploadToB.html', form=form)

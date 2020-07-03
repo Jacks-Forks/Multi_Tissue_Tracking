@@ -1,3 +1,4 @@
+# TODO: delete this file
 import glob
 import os
 
@@ -70,7 +71,7 @@ def postselect():
     # filer needs to be the location of the vid
     videostream = cv2.VideoCapture(filer)
     # gets the first frame of image
-    # TODO: check spot zero
+    # REVIEW: : check spot zero
     images = videostream.read()[1]
     # creates folder to save img and write the first frame as image
     # can we do this in mem

@@ -35,7 +35,7 @@ class upload_to_b_form(FlaskForm):
     frequency = DecimalField('Enter the Frequency')
     bio_reactor_num = IntegerField('Enter Bio Reactor Number')
     experiment_num = IntegerField('Enter Experiment number')
-    video_num = IntegerField('Enter video number')
+    #video_num = IntegerField('Enter video number')
     file = FileField('Upload a File', [validators.Required()])
     submit = SubmitField('Upload')
 
