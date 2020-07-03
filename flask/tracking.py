@@ -1,10 +1,12 @@
 import logging
+import os
 
 import cv2
+import dashSelect as path
+import models
 import numpy as np
 import pandas as pd
-import dashSelect as path
-import os
+from models import db
 
 logging.basicConfig(filename='tracking.log', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
@@ -21,10 +23,14 @@ def format_points(old_points):
     return result
 
 
-def start_trackig(unformated_points):
+def start_trackig(unformated_points, file_path):
     # logging.info(path.filer)
-    videostream = cv2.VideoCapture(path.filer)
-    splits = path.filer.split('/')
+    logging.info('start_trackig')
+    logging.info(unformated_points)
+    logging.info(file_path)
+
+    videostream = cv2.VideoCapture(file_path)
+    splits = file_path.split('/')
     images = videostream.read()[1]
 
     OPENCV_OBJECT_TRACKERS = {
@@ -119,7 +125,7 @@ def start_trackig(unformated_points):
                 # Save the y position of the odd post
                 oddY = centroid[1]
 
-                time = videostream.get(cv2.CAP_PROP_POS_MSEC)/1000
+                time = videostream.get(cv2.CAP_PROP_POS_MSEC) / 1000
 
                 disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2))
                 count = count + 1
@@ -136,7 +142,7 @@ def start_trackig(unformated_points):
     # TODO: DATABASE. Need date
     # TODO: DATABASE. Needfreq.
     # TODO: DATABASE. Need tissue numbers for tissues in video.
-    splinter = path.filer.split('/')[4].split('_')
+    splinter = file_path.split('/')[4].split('_')
     locs = splinter[2]
     bio = splinter[3]
     if not os.path.exists('static/uploads/csvfiles/' + splits[3]):

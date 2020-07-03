@@ -130,6 +130,6 @@ def get_tissue(tissue_id_passed):
     return tissue
 
 
-def get_video(video_num_passed):
-    video = Video.query.filter_by(num=video_num_passed).first()
+def get_video(video_id_passed):
+    video = Video.query.filter_by(id=video_id_passed).first()
     return video

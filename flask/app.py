@@ -4,6 +4,7 @@ import os
 import threading
 from datetime import datetime
 
+import cv2
 import models
 import tracking
 from flask import (Flask, abort, flash, jsonify, redirect, render_template,
@@ -48,6 +49,7 @@ def save_file(form):
         form.file.data.filename, form.date_recorded.data)
     filename = secure_filename(form.file.data.filename)
     form.file.data.save(os.path.join(where_to_save, filename))
+    where_to_save = where_to_save + "/" + filename
     return where_to_save
 
 # REVIEW: can proablly combine these too functions
@@ -79,7 +81,13 @@ def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, 
 
 
 def get_post_locations(vid_id):
-    pass
+    file_path = models.get_video(vid_id).save_location
+    videostream = cv2.VideoCapture(file_path)
+    image = videostream.read()[1]
+    image_path = 'static/img/' + str(vid_id) + '.jpg'
+    cv2.imwrite(image_path, image)
+    return image_path
+    # return render_template("selectPosts.html", path=image_path)
 
 
 def create_app():
@@ -125,10 +133,14 @@ def boxcoordinates():
         logging.info(from_js)
         data = json.loads(from_js)
         logging.info(data)
+        logging.info(data['boxes'])
+        box_coords = data['boxes']
+        video_id = int(data['video_id'])
+        file_path = models.get_video(video_id).save_location
         tracking_thread = threading.Thread(
-            target=tracking.start_trackig, args=(data,))
+            target=tracking.start_trackig, args=(box_coords, file_path,))
         tracking_thread.start()
-        return jsonify({'status': 'OK', 'data': data})
+        return jsonify({'status': 'OK', 'data': box_coords})
 
 
 @ app.route('/uploadFile', methods=['GET', 'POST'])
@@ -222,10 +234,10 @@ def pick_video():
         # is the vid id
         print(form.vids.data)
         video_id = form.vids.data
-        get_post_info(video_id)
-        return'''
-        <h1>hell</h1>
-        '''
+        image_path = get_post_locations(video_id)
+
+        return (render_template("selectPosts.html", path=image_path, vid_id=video_id))
+
     return redirect(url_for('get_dates'))
 
 
