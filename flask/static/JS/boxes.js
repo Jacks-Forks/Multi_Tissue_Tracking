@@ -1,5 +1,5 @@
 function getPostCount() {
-  var post_count = document.getElementById("numPosts").value
+  var post_count = document.getElementById("numTissues").value * 2
   var video_id = document.getElementById("videoId").value
   initDraw(document.getElementById('canvas'), post_count, video_id);
 }

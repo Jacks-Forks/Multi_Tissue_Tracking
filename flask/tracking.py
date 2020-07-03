@@ -151,4 +151,10 @@ def start_trackig(unformated_points, file_path, experiment_num_passed, date_reco
         df.to_csv(directory_to_save_path + '{0}_T{1}_{2}_.csv'.format(
             date_recorded_passed, li_tissue_nums_passed[i],  frequency_passed), index=False)
     print("check CSV")
+
+    # deltes files in img folder
+    # REVIEW: this can probally be done better
+    for file in os.listdir(os.getcwd() + '/static/img'):
+        os.remove(os.getcwd() + '/static/img/' + file)
+
     return boxes

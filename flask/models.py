@@ -43,7 +43,7 @@ class Video(db.Model):
 
 
 class Tissue(db.Model):
-    # REVIEW:  pk maybe should be combo between tissue number and expirment number
+    # REVIEW: pk maybe should be combo between tissue number and expirment number
     id = db.Column(db.Integer, primary_key=True)
     tissue_number = db.Column(db.Integer, nullable=False)
     tissue_type = db.Column(db.String(120), nullable=False)

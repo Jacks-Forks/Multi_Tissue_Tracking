@@ -10,17 +10,15 @@
 
 </head>
 
-<body>
+<body onload="getPostCount();">
 
   <h1>Multi Tissue Tracking</h1>
+  <h5> Please select posts for {{ number_tissues }} tissues</h5>
 
   <form id="number_of_posts" action="#" onsubmit="getPostCount();return false">
-    <label for="quantity">Number of posts (between 1 and 10):</label>
-    <input type="number" id="numPosts" min="2" max="10" />
     <input type="hidden" id="videoId" name="videoId" value="{{ vid_id }}" />
-    <input type="submit" />
+    <input type="hidden" id="numTissues" name="numTissues" value="{{ number_tissues }}" />
   </form>
-
   <div id="canvas"><img id="pic" src="{{ path }}" alt="Heart Tissue" /></div>
 
   <div id="container"></div>

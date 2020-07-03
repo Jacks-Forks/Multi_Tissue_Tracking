@@ -1,4 +1,4 @@
-# TODO: delete this file
+
 import glob
 import os
 
@@ -9,7 +9,7 @@ import dash_html_components as html
 from flask import Flask, Response, make_response, render_template
 
 folders = glob.glob('static/uploads/videofiles/*')
-
+# TODO: delete this file
 filer = videostream = None
 
 app = dash.Dash(__name__, requests_pathname_prefix='/vidSelect/')

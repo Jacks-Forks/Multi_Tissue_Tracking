@@ -44,6 +44,8 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit(
         '.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# TODO:  change where the vid is fave
+
 
 def save_file(form):
     where_to_save = where_to_upload(
@@ -82,12 +84,15 @@ def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, 
 
 
 def get_post_locations(vid_id):
-    file_path = models.get_video(vid_id).save_location
+    video_object = models.get_video(vid_id)
+    file_path = video_object.save_location
+    number_of_tisues = len(video_object.tissues)
+    logging.info(number_of_tisues)
     videostream = cv2.VideoCapture(file_path)
     image = videostream.read()[1]
     image_path = 'static/img/' + str(vid_id) + '.jpg'
     cv2.imwrite(image_path, image)
-    return image_path
+    return (image_path, number_of_tisues)
     # return render_template("selectPosts.html", path=image_path)
 
 
@@ -248,9 +253,11 @@ def pick_video():
         # is the vid id
         print(form.vids.data)
         video_id = form.vids.data
-        image_path = get_post_locations(video_id)
+        tup_path_numTissues = get_post_locations(video_id)
+        image_path = tup_path_numTissues[0]
+        num_tissues = tup_path_numTissues[1]
 
-        return (render_template("selectPosts.html", path=image_path, vid_id=video_id))
+        return (render_template("selectPosts.html", path=image_path, vid_id=video_id, number_tissues=num_tissues))
 
     return redirect(url_for('get_dates'))
 
