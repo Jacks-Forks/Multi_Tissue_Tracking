@@ -268,7 +268,7 @@ def get_video():
         date_recorded=date, experiment_num=experiment).all())
     print(date)
     print(experiment)
-    vids = [(row.id, row.frequency)
+    vids = [(row.id, "bio" + str(row.bio_reactor_num) + " " + 'freq:' + str(row.frequency))
             for row in models.Video.query.filter_by(date_recorded=date, experiment_num=experiment).all()]
     print('what vids')
     print(vids)
