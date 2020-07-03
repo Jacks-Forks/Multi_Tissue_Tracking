@@ -152,7 +152,7 @@ def start_trackig(unformated_points, file_path, experiment_num_passed, date_reco
     for i, an in enumerate(displacement):
         df = pd.DataFrame(
             an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
-        df.to_csv(directory_to_save_path + 'T{0}_{1}_{2}_.csv'.format(
+        df.to_csv(directory_to_save_path + '{0}_T{1}_{2}_.csv'.format(
             date_recorded_passed, li_tissue_nums_passed[i],  frequency_passed), index=False)
     print("check CSV")
     return boxes
