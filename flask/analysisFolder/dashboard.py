@@ -182,6 +182,8 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             '''
             splitter = files[i].split('_')
             if splitter[2] == 'M':
+				#TODO: DATABASE. Need Bioreactor number.
+                #TODO: DATABASE. Need tissue location.
                 bio = int(splitter[3])
                 loc = int(splitter[4])
                 l_r = summarys[bio - 1]['RPostHt'][loc - 1]

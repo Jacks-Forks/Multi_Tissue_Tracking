@@ -1,18 +1,20 @@
-import datetime
 import json
 import logging
 import os
 import threading
+from datetime import datetime
 
+import cv2
 import models
 import tracking
 from flask import (Flask, abort, flash, jsonify, redirect, render_template,
                    request, send_file, send_from_directory, url_for)
-from forms import upload_to_a_form, upload_to_b_form
+from forms import PickVid, upload_to_a_form, upload_to_b_form
 from models import db
 from werkzeug.utils import secure_filename
 
-logging.basicConfig(filename='app.log', level=logging.DEBUG)
+logging.basicConfig(filename='app.log',
+                    format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
 
 current_directory = os.getcwd()
@@ -42,12 +44,15 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit(
         '.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# TODO:  change where the vid is fave
+
 
 def save_file(form):
     where_to_save = where_to_upload(
         form.file.data.filename, form.date_recorded.data)
     filename = secure_filename(form.file.data.filename)
     form.file.data.save(os.path.join(where_to_save, filename))
+    where_to_save = where_to_save + "/" + filename
     return where_to_save
 
 # REVIEW: can proablly combine these too functions
@@ -78,6 +83,19 @@ def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, 
                 tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_id_passed)
 
 
+def get_post_locations(vid_id):
+    video_object = models.get_video(vid_id)
+    file_path = video_object.save_location
+    number_of_tisues = len(video_object.tissues)
+    logging.info(number_of_tisues)
+    videostream = cv2.VideoCapture(file_path)
+    image = videostream.read()[1]
+    image_path = 'static/img/' + str(vid_id) + '.jpg'
+    cv2.imwrite(image_path, image)
+    return (image_path, number_of_tisues)
+    # return render_template("selectPosts.html", path=image_path)
+
+
 def create_app():
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -92,6 +110,7 @@ def create_app():
     return app
 
 
+# TODO: put create in wsgi anf then import to both app.py and tracking and app.push???
 app = create_app()
 app.app_context().push()
 
@@ -105,13 +124,11 @@ def check_system():
     if os.path.isdir(app.config['CSV_FOLDER']) is False:
         os.mkdir(app.config['CSV_FOLDER'])
 
+    if os.path.isdir(current_directory + '/static/img') is False:
+        os.mkdir(current_directory + '/static/img')
+
 
 check_system()
-
-'''
-models.insert_experiment(1)
-models.insert_bio_reactor(1)
-'''
 
 
 @ app.route("/")
@@ -121,15 +138,32 @@ def main():
 
 @ app.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():
+    # TODO: comment all of this so it makes tissue_number_passed
+    # TODO: delete image
     if request.method == "POST":
         from_js = request.get_data()
-        logging.info(from_js)
         data = json.loads(from_js)
-        logging.info(data)
+        box_coords = data['boxes']
+        video_id = int(data['video_id'])
+
+        video_object = models.get_video(video_id)
+
+        file_path = video_object.save_location
+        date_recorded = video_object.date_recorded
+        frequency = video_object.frequency
+        experiment_num = video_object.experiment_num
+
+        # list of tissue objecjs that are childeren of the vid
+        tissues_object_list = video_object.tissues
+        li_tissues_numbers = [
+            tissue.tissue_number for tissue in tissues_object_list]
+        logging.info(tissues_object_list)
+        logging.info(li_tissues_numbers)
+
         tracking_thread = threading.Thread(
-            target=tracking.start_trackig, args=(data,))
+            target=tracking.start_trackig, args=(box_coords, file_path, experiment_num, date_recorded, frequency, li_tissues_numbers))
         tracking_thread.start()
-        return jsonify({'status': 'OK', 'data': data})
+        return jsonify({'status': 'OK', 'data': box_coords})
 
 
 @ app.route('/uploadFile', methods=['GET', 'POST'])
@@ -194,16 +228,63 @@ def upload_to_b():
             if models.get_bio_reactor(bio_reactor_num) is None:
                 models.insert_bio_reactor(bio_reactor_num)
 
-            models.insert_video(form.date_recorded.data,
-                                experiment_num, bio_reactor_num, form.video_num.data)
-
+            new_video_id = models.insert_video(form.date_recorded.data,
+                                               experiment_num, bio_reactor_num, form.frequency.data, where_it_saved)
+            # print(form.video_num.data)
             add_tissues(li_of_post_info, experiment_num,
-                        bio_reactor_num, form.video_num.data)
+                        bio_reactor_num, new_video_id)
 
-            # TODO:  where do we want to redirect to
-            return '''
-                    <!DOCTYPE html >
-                    <h1 > uploaded </h1 >
-                    '''
+            return redirect('/pick_video')
     else:
         return render_template('uploadToB.html', form=form)
+
+# REVIEW:  this works well but no without slections first
+
+
+@app.route('/pick_video', methods=['GET', 'POST'])
+def pick_video():
+    form = PickVid()
+    form.experiment.choices = [(row.num, row.num)
+                               for row in models.Experiment.query.all()]
+    if request.method == 'GET':
+        return render_template('pick_video.html', form=form)
+
+    if request.method == 'POST':
+        # is the vid id
+        print(form.vids.data)
+        video_id = form.vids.data
+        tup_path_numTissues = get_post_locations(video_id)
+        image_path = tup_path_numTissues[0]
+        num_tissues = tup_path_numTissues[1]
+
+        return (render_template("selectPosts.html", path=image_path, vid_id=video_id, number_tissues=num_tissues))
+
+    return redirect(url_for('get_dates'))
+
+
+@ app.route('/get_dates')
+def get_dates():
+
+    experiment = request.args.get('experiment', '01', type=str)
+    dates = []
+    for row in models.Video.query.filter_by(experiment_num=experiment).all():
+        date_as_string = row.date_recorded.strftime('%m/%d/%Y')
+        next_choice = (date_as_string, date_as_string)
+        if next_choice not in dates:
+            dates.append(next_choice)
+
+    return jsonify(dates)
+
+
+@ app.route('/get_video')
+def get_video():
+
+    date = request.args.get('dates', '01', type=str)
+    experiment = request.args.get('experiment', '01', type=str)
+    date = datetime.strptime(date, '%m/%d/%Y')
+    date = date.date()
+
+    vids = [(row.id, "bio" + str(row.bio_reactor_num) + " " + 'freq:' + str(row.frequency))
+            for row in models.Video.query.filter_by(date_recorded=date, experiment_num=experiment).all()]
+
+    return jsonify(vids)

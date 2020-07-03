@@ -1,10 +1,11 @@
 function getPostCount() {
-  var post_count = document.getElementById("numPosts").value
-  initDraw(document.getElementById('canvas'), post_count);
+  var post_count = document.getElementById("numTissues").value * 2
+  var video_id = document.getElementById("videoId").value
+  initDraw(document.getElementById('canvas'), post_count, video_id);
 }
 
 
-function initDraw(canvas, post_count) {
+function initDraw(canvas, post_count, video_id) {
   var boxes = []
   //  var boxCordinates = new List()
 
@@ -52,12 +53,22 @@ function initDraw(canvas, post_count) {
         console.log("stop here");
         console.log(boxes);
 
-        var boxes_as_json = JSON.stringify(boxes)
+        var boxes_as_json = JSON.stringify(boxes);
+        console.log(boxes_as_json)
+        var video_id_json = JSON.stringify(video_id);
+        console.log(video_id)
+
+        const boxes_and_id = {
+          boxes,
+          video_id
+        }
+        boxes_id_asJson = JSON.stringify(boxes_and_id);
+        console.log(boxes_id_asJson);
 
         $.ajax({
           type: 'POST',
           url: "/boxCoordinates",
-          data: boxes_as_json,
+          data: boxes_id_asJson,
           processData: false,
           contentType: false,
           success: function(response) {
@@ -100,7 +111,9 @@ function FindPosition(oElement) {
 
 
 function GetCoordinates(e) {
-  var PosX = 0, PosY = 0, ImgPos;
+  var PosX = 0,
+    PosY = 0,
+    ImgPos;
   ImgPos = FindPosition(canvas);
   if (!e) var e = window.event;
   if (e.pageX || e.pageY) {

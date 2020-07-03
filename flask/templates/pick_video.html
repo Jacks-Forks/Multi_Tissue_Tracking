@@ -1,0 +1,91 @@
+<!doctype html>
+
+<head>
+  <title>
+  </title>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <h1> test </h1>
+
+  <form method=post action="" enctype="multipart/form-data">
+    {{ form.experiment}}
+    {{ form.date }}
+    {{ form.vids }}
+
+    {{ form.submit }}
+  </form>
+
+  <!-- TODO: put this in a new files -->
+  <script charset="utf-8" type="text/javascript">
+    $(document).ready(function() {
+
+
+      $(function() {
+        $("#select_experiment").prop("selectedIndex", -1);
+        var dropdown = {
+          experiment: $('#select_experiment'),
+          dates: $('#select_date'),
+          video: $('#select_vids')
+        };
+
+        // TODO: make this into one fuction that takes an argument
+        function updateDates() {
+          var send = {
+            experiment: dropdown.experiment.val()
+          };
+          dropdown.dates.attr('disabled', 'disabled');
+          dropdown.dates.empty();
+          $.getJSON("{{ url_for('get_dates') }}", send, function(data) {
+            data.forEach(function(item) {
+              dropdown.dates.append(
+                $('<option>', {
+                  value: item[0],
+                  text: item[1]
+                })
+              );
+            });
+            dropdown.dates.removeAttr('disabled');
+            updateVideo();
+          });
+
+        }
+
+        function updateVideo() {
+          var send = {
+            experiment: dropdown.experiment.val(),
+            dates: dropdown.dates.val()
+          };
+          dropdown.video.attr('disabled', 'disabled');
+          dropdown.video.empty();
+          $.getJSON("{{ url_for('get_video') }}", send, function(data) {
+            data.forEach(function(item) {
+              dropdown.video.append(
+                $('<option>', {
+                  value: item[0],
+                  text: item[1]
+                })
+              );
+            });
+            dropdown.video.removeAttr('disabled');
+          });
+        }
+
+        dropdown.dates.on('change', function() {
+          updateVideo();
+        });
+
+        dropdown.experiment.on('change', function() {
+          updateDates();
+        });
+
+      });
+
+    });
+  </script>
+
+</body>
+
+</html

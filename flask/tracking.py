@@ -1,12 +1,14 @@
 import logging
-
-import cv2
-import numpy as np
-import pandas as pd
-import dashSelect as path
 import os
 
-logging.basicConfig(filename='tracking.log', level=logging.DEBUG)
+import cv2
+import dashSelect as path
+import models
+import numpy as np
+import pandas as pd
+
+logging.basicConfig(filename='tracking.log',
+                    format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
 
 
@@ -21,10 +23,14 @@ def format_points(old_points):
     return result
 
 
-def start_trackig(unformated_points):
+def start_trackig(unformated_points, file_path, experiment_num_passed, date_recorded_passed, frequency_passed, li_tissue_nums_passed):
     # logging.info(path.filer)
-    videostream = cv2.VideoCapture(path.filer)
-    splits = path.filer.split('/')
+    logging.info('start_trackig')
+    logging.info(unformated_points)
+    logging.info(file_path)
+
+    videostream = cv2.VideoCapture(file_path)
+    splits = file_path.split('/')
     images = videostream.read()[1]
 
     OPENCV_OBJECT_TRACKERS = {
@@ -119,8 +125,7 @@ def start_trackig(unformated_points):
                 # Save the y position of the odd post
                 oddY = centroid[1]
 
-                time = videostream.get(cv2.CAP_PROP_POS_MSEC)/1000
-
+                time = videostream.get(cv2.CAP_PROP_POS_MSEC) / 1000
                 disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2))
                 count = count + 1
                 logging.info(count)
@@ -133,23 +138,23 @@ def start_trackig(unformated_points):
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     '''
-    splinter = path.filer.split('/')[4].split('_')
-    locs = splinter[2]
-    bio = splinter[3]
-    if not os.path.exists('static/uploads/csvfiles/' + splits[3]):
-        os.mkdir('static/uploads/csvfiles/' + splits[3])
+
+    date_as_string = date_recorded_passed.strftime('%m_%d_%Y')
+    directory_to_save_path = 'static/uploads/' + \
+        str(experiment_num_passed) + '/csvfiles/' + date_as_string + "/"
+    if not os.path.exists(directory_to_save_path):
+        os.makedirs(directory_to_save_path)
 
     for i, an in enumerate(displacement):
-        locs = list(locs)
-        for j, k in enumerate(locs):
-            if k != '0':
-                locs[j] = '0'
-                spot = j + 1
-                break
-        locs = "".join(locs)
         df = pd.DataFrame(
             an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
-        df.to_csv('static/uploads/csvfiles/' +
-                  splits[3] + '/T{0}_{1}_{2}_.csv'.format(i, bio, spot), index=False)
+        df.to_csv(directory_to_save_path + '{0}_T{1}_{2}_.csv'.format(
+            date_recorded_passed, li_tissue_nums_passed[i],  frequency_passed), index=False)
     print("check CSV")
+
+    # deltes files in img folder
+    # REVIEW: this can probally be done better
+    for file in os.listdir(os.getcwd() + '/static/img'):
+        os.remove(os.getcwd() + '/static/img/' + file)
+
     return boxes
