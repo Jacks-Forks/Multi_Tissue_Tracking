@@ -146,8 +146,8 @@ def boxcoordinates():
         date_recorded = video_object.date_recorded
         frequency = video_object.frequency
         experiment_num = video_object.experiment_num
-        # need tissues in vid
-        # need location of each tissue
+
+        # list of tissue objecjs that are childeren of the vid
         tissues_object_list = video_object.tissues
         li_tissues_numbers = [
             tissue.tissue_number for tissue in tissues_object_list]
@@ -229,10 +229,7 @@ def upload_to_b():
                         bio_reactor_num, form.video_num.data)
 
             # TODO:  where do we want to redirect to
-            return '''
-                    <!DOCTYPE html >
-                    <h1 > uploaded </h1 >
-                    '''
+            return redirect('/pick_video')
     else:
         return render_template('uploadToB.html', form=form)
 

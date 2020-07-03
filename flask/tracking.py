@@ -137,12 +137,7 @@ def start_trackig(unformated_points, file_path, experiment_num_passed, date_reco
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     '''
-    # TODO: DATABASE. Need date
-    # TODO: DATABASE. Needfreq.
-    # TODO: DATABASE. Need tissue numbers for tissues in video.
-    #splinter = file_path.split('/')[4].split('_')
-    #locs = splinter[2]
-    #bio = splinter[3]
+
     date_as_string = date_recorded_passed.strftime('%m_%d_%Y')
     directory_to_save_path = 'static/uploads/' + \
         str(experiment_num_passed) + '/csvfiles/' + date_as_string + "/"
