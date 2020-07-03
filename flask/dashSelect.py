@@ -1,13 +1,11 @@
 import glob
+import os
 
+import cv2
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-
-from flask import render_template
-from flask import Flask, make_response, render_template, Response
-import os
-import cv2
+from flask import Flask, Response, make_response, render_template
 
 folders = glob.glob('static/uploads/videofiles/*')
 
@@ -62,13 +60,20 @@ def selected_file(file):
 
 @app.server.route('/post')
 def postselect():
+    # get the first frame of vid and pass that to JS select posts
     global filer, videostream
 
     splits = filer.split('/')
     base = splits[4].split('.')[0]
 
+    # puts as opencs
+    # filer needs to be the location of the vid
     videostream = cv2.VideoCapture(filer)
+    # gets the first frame of image
+    # TODO: check spot zero
     images = videostream.read()[1]
+    # creates folder to save img and write the first frame as image
+    # can we do this in mem
     if not os.path.exists('static/img/' + splits[3]):
         os.mkdir('static/img/' + splits[3])
     cv2.imwrite('static/img/' + splits

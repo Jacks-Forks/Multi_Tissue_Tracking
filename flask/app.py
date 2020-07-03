@@ -78,6 +78,10 @@ def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, 
                 tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_id_passed)
 
 
+def get_post_locations(vid_id):
+    pass
+
+
 def create_app():
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -217,6 +221,8 @@ def pick_video():
     if request.method == 'POST':
         # is the vid id
         print(form.vids.data)
+        video_id = form.vids.data
+        get_post_info(video_id)
         return'''
         <h1>hell</h1>
         '''
