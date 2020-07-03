@@ -1,8 +1,8 @@
-import datetime
 import json
 import logging
 import os
 import threading
+from datetime import datetime
 
 import models
 import tracking
@@ -203,44 +203,51 @@ def upload_to_b():
     else:
         return render_template('uploadToB.html', form=form)
 
+# TODO: this works well but no without slections first
+
 
 @app.route('/pick_video', methods=['GET', 'POST'])
 def pick_video():
     form = PickVid()
     form.experiment.choices = [(row.num, row.num)
                                for row in models.Experiment.query.all()]
-    form.date.choices = [(row.date_recorded, row.date_recorded)
-                         for row in models.Video.query.all()]
-    first = models.Video.query.first()
-    form.vids.choices = [(first.frequency, first.frequency)]
+    # form.date.choices = [(row.date_recorded, row.date_recorded)
+    #                     for row in models.Video.query.all()]
+    # first = models.Video.query.first()
+    # form.vids.choices = [(first.frequency, first.frequency)]
     # form.vids.choices = [(row.frequency, row.frequency)
     #                     for row in models.Video.query.all()]
+
     if request.method == 'GET':
         print('get')
         return render_template('pick_video.html', form=form)
 
     if request.method == 'POST':
-        flash('Hi')
-        print('post')
+        print('Hi')
+        print(form.vids.data)
         return'''
         <h1>hell</h1>
         '''
     return redirect(url_for('get_dates'))
 
+# TODO: format dates better
 
-@app.route('/get_dates')
+
+@ app.route('/get_dates')
 def get_dates():
-    print('gother')
+    # print('gother')
 
     # filter by date
     experiment = request.args.get('experiment', '01', type=str)
+    '''
     print('wtf')
     print(experiment)
     print(models.Video.query.filter_by(experiment_num=experiment).all())
-
+    '''
     dates = []
     for row in models.Video.query.filter_by(experiment_num=experiment).all():
-        next_choice = (row.date_recorded, row.date_recorded)
+        date_as_string = row.date_recorded.strftime('%m/%d/%Y')
+        next_choice = (date_as_string, date_as_string)
         if next_choice not in dates:
             dates.append(next_choice)
     # dates = [('a', 'a'), ('b', 'b'), ('c', 'c')]
@@ -252,16 +259,16 @@ def get_video():
     print('get vids')
     date = request.args.get('dates', '01', type=str)
     experiment = request.args.get('experiment', '01', type=str)
-    try:
-        date = datetime.datetime.strptime(date, '%a, %d %b %Y %H:%M:%S %Z')
-        date = date.date()
-    except:
-        print('whatever')
+    print(date)
+    print(models.Video.query.first().date_recorded)
+    date = datetime.strptime(date, '%m/%d/%Y')
+    date = date.date()
+    print(date)
     print(models.Video.query.filter_by(
         date_recorded=date, experiment_num=experiment).all())
     print(date)
     print(experiment)
-    vids = [(row.frequency, row.frequency)
+    vids = [(row.id, row.frequency)
             for row in models.Video.query.filter_by(date_recorded=date, experiment_num=experiment).all()]
     print('what vids')
     print(vids)
