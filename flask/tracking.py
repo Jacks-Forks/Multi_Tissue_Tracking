@@ -140,8 +140,10 @@ def start_trackig(unformated_points, file_path, experiment_num_passed, date_reco
     '''
 
     date_as_string = date_recorded_passed.strftime('%m_%d_%Y')
+
     directory_to_save_path = 'static/uploads/' + \
-        str(experiment_num_passed) + '/csvfiles/' + date_as_string + "/"
+        str(experiment_num_passed) + "/" + date_as_string + '/csvfiles/'
+
     if not os.path.exists(directory_to_save_path):
         os.makedirs(directory_to_save_path)
 
@@ -149,8 +151,8 @@ def start_trackig(unformated_points, file_path, experiment_num_passed, date_reco
         df = pd.DataFrame(
             an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
         df.to_csv(directory_to_save_path + '{0}_T{1}_{2}_.csv'.format(
-            date_recorded_passed, li_tissue_nums_passed[i],  frequency_passed), index=False)
-    print("check CSV")
+            date_as_string, li_tissue_nums_passed[i],  frequency_passed), index=False)
+    logging.info("check csv")
 
     # deltes files in img folder
     # REVIEW: this can probally be done better
