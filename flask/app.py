@@ -21,9 +21,6 @@ current_directory = os.getcwd()
 
 
 UPLOAD_FOLDER = current_directory + "/static/uploads"
-VIDEO_UPLOAD_FOLDER = UPLOAD_FOLDER + "/videofiles"
-CSV_UPLOAD_FOLDER = UPLOAD_FOLDER + "/csvfiles"
-
 ALLOWED_EXTENSIONS = {'csv', 'mov', 'mp4'}
 video_file_extentions = {'mov', 'mp4'}
 
@@ -42,8 +39,8 @@ def save_video_file(form_passed):
     extenstion = orginal_filename.rsplit('.', 1)[1].lower()
 
     new_filename = date_string + "_" + \
-        str(form_passed.frequency.data) + "_" + \
-        str(bio_reactor_num) + "." + extenstion
+        "Freq" + str(form_passed.frequency.data) + "_" + \
+        "Bio" + str(bio_reactor_num) + "." + extenstion
 
     safe_filename = secure_filename(new_filename)
     form_passed.file.data.save(os.path.join(where_to_save, safe_filename))
@@ -130,8 +127,6 @@ def get_post_locations(vid_id):
 def create_app():
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-    app.config['VIDEO_FOLDER'] = VIDEO_UPLOAD_FOLDER
-    app.config['CSV_FOLDER'] = CSV_UPLOAD_FOLDER
     #  REVIEW: : where do we wanna save this and name it
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -150,11 +145,6 @@ def check_system():
     if os.path.isdir(app.config['UPLOAD_FOLDER']) is False:
         logging.info("no uploads folder")
         os.mkdir(app.config['UPLOAD_FOLDER'])
-    if os.path.isdir(app.config['VIDEO_FOLDER']) is False:
-        os.mkdir(app.config['VIDEO_FOLDER'])
-    if os.path.isdir(app.config['CSV_FOLDER']) is False:
-        os.mkdir(app.config['CSV_FOLDER'])
-
     if os.path.isdir(current_directory + '/static/img') is False:
         os.mkdir(current_directory + '/static/img')
 
