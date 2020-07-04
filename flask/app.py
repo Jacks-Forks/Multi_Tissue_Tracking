@@ -28,6 +28,31 @@ ALLOWED_EXTENSIONS = {'csv', 'mov', 'mp4'}
 video_file_extentions = {'mov', 'mp4'}
 
 
+def save_video_file(form_passed):
+    # REVIEW: do we need year??
+    date_string = form_passed.date_recorded.data.strftime('%m_%d_%Y')
+    # gets saves in experment folder
+    experiment_num = str(form_passed.experiment_num.data)
+    bio_reactor_num = form_passed.bio_reactor_num.data
+    where_to_save = os.path.join(
+        app.config['UPLOAD_FOLDER'], experiment_num, 'videoFiles')
+    if not os.path.exists(where_to_save):
+        os.makedirs(where_to_save)
+
+    filename = secure_filename(form_passed.file.data.filename)
+    form_passed.file.data.save(os.path.join(where_to_save, filename))
+
+    logging.info(where_to_save)
+
+    path_to_file = os.path.join(where_to_save, filename)
+    logging.info(path_to_file)
+
+    vid_id = models.insert_video(form_passed.date_recorded.data,
+                                 form_passed.experiment_num.data, bio_reactor_num, form_passed.frequency.data, path_to_file)
+    print('after insert vid')
+    return vid_id
+
+
 def where_to_upload(filename, date_recorded):
     result = ""
     date_string = date_recorded.strftime('%m_%d_%Y')
@@ -211,7 +236,10 @@ def upload_to_b():
             #  TODO: clean up and comment this its confusing
             #  TODO: get expirment number, bio reactior is and vid id
             # tissie num and type are recored and place in list can be converted to type
-            where_it_saved = save_file(form)
+            #where_it_saved = save_file(form)
+
+            # save_video_file(form)
+
             tup_post_info = get_post_info(form.post.entries)
             li_of_post_info = tup_post_info[1]
             logging.info(li_of_post_info)
@@ -228,8 +256,8 @@ def upload_to_b():
             if models.get_bio_reactor(bio_reactor_num) is None:
                 models.insert_bio_reactor(bio_reactor_num)
 
-            new_video_id = models.insert_video(form.date_recorded.data,
-                                               experiment_num, bio_reactor_num, form.frequency.data, where_it_saved)
+            new_video_id = save_video_file(form)
+            print(new_video_id)
             # print(form.video_num.data)
             add_tissues(li_of_post_info, experiment_num,
                         bio_reactor_num, new_video_id)
