@@ -26,62 +26,48 @@ video_file_extentions = {'mov', 'mp4'}
 
 
 def save_video_file(form_passed):
-    # REVIEW: do we need year??
     date_string = form_passed.date_recorded.data.strftime('%m_%d_%Y')
     # gets saves in experment folder
     experiment_num = str(form_passed.experiment_num.data)
     bio_reactor_num = form_passed.bio_reactor_num.data
+
+    # gets save loaction uploadfolder/expermentnum/date/vid
     where_to_save = os.path.join(
         app.config['UPLOAD_FOLDER'], experiment_num, date_string, 'videoFiles')
+
+    # cheacks to make sure the save location exists if not exists
     if not os.path.exists(where_to_save):
         os.makedirs(where_to_save)
+
     orginal_filename = form_passed.file.data.filename
     extenstion = orginal_filename.rsplit('.', 1)[1].lower()
 
+    # makes new file name for the vid format date_frewnum_bionum.ext
     new_filename = date_string + "_" + \
         "Freq" + str(form_passed.frequency.data) + "_" + \
         "Bio" + str(bio_reactor_num) + "." + extenstion
 
+    # makes sure file name is crrect formats
     safe_filename = secure_filename(new_filename)
-    form_passed.file.data.save(os.path.join(where_to_save, safe_filename))
 
-    logging.info(where_to_save)
-
+    # creates path to file
     path_to_file = os.path.join(where_to_save, safe_filename)
-    logging.info(path_to_file)
 
+    # saves the file
+    form_passed.file.data.save(path_to_file)
+
+    # records vid rto databse
     vid_id = models.insert_video(form_passed.date_recorded.data,
                                  form_passed.experiment_num.data, bio_reactor_num, form_passed.frequency.data, path_to_file)
-    print('after insert vid')
     return vid_id
 
-
-def where_to_upload(filename, date_recorded):
-    result = ""
-    date_string = date_recorded.strftime('%m_%d_%Y')
-    if filename.rsplit('.', 1)[1].lower() == 'csv':
-        result = os.path.join(app.config['CSV_FOLDER'], date_string)
-    elif filename.rsplit('.', 1)[1].lower() in video_file_extentions:
-        result = os.path.join(app.config['VIDEO_FOLDER'], date_string)
-    if os.path.isdir(result) is False:
-        os.mkdir(result)
-    return result
+# REVIEW: check allowed
 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit(
         '.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# TODO:  change where the vid is fave
-
-
-def save_file(form):
-    where_to_save = where_to_upload(
-        form.file.data.filename, form.date_recorded.data)
-    filename = secure_filename(form.file.data.filename)
-    form.file.data.save(os.path.join(where_to_save, filename))
-    where_to_save = where_to_save + "/" + filename
-    return where_to_save
 
 # REVIEW: can proablly combine these too functions
 
@@ -125,6 +111,7 @@ def get_post_locations(vid_id):
 
 
 def create_app():
+    # TODO: move to wsgi??
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     #  REVIEW: : where do we wanna save this and name it
@@ -252,9 +239,10 @@ def upload_to_b():
             if models.get_bio_reactor(bio_reactor_num) is None:
                 models.insert_bio_reactor(bio_reactor_num)
 
+            # TODO: if uplad a csv
+
             new_video_id = save_video_file(form)
-            print(new_video_id)
-            # print(form.video_num.data)
+
             add_tissues(li_of_post_info, experiment_num,
                         bio_reactor_num, new_video_id)
 
@@ -274,10 +262,9 @@ def pick_video():
         return render_template('pick_video.html', form=form)
 
     if request.method == 'POST':
-        # is the vid id
-        print(form.vids.data)
         video_id = form.vids.data
         tup_path_numTissues = get_post_locations(video_id)
+
         image_path = tup_path_numTissues[0]
         num_tissues = tup_path_numTissues[1]
 
