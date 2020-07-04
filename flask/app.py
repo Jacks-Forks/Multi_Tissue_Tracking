@@ -35,16 +35,22 @@ def save_video_file(form_passed):
     experiment_num = str(form_passed.experiment_num.data)
     bio_reactor_num = form_passed.bio_reactor_num.data
     where_to_save = os.path.join(
-        app.config['UPLOAD_FOLDER'], experiment_num, 'videoFiles')
+        app.config['UPLOAD_FOLDER'], experiment_num, date_string, 'videoFiles')
     if not os.path.exists(where_to_save):
         os.makedirs(where_to_save)
+    orginal_filename = form_passed.file.data.filename
+    extenstion = orginal_filename.rsplit('.', 1)[1].lower()
 
-    filename = secure_filename(form_passed.file.data.filename)
-    form_passed.file.data.save(os.path.join(where_to_save, filename))
+    new_filename = date_string + "_" + \
+        str(form_passed.frequency.data) + "_" + \
+        str(bio_reactor_num) + "." + extenstion
+
+    safe_filename = secure_filename(new_filename)
+    form_passed.file.data.save(os.path.join(where_to_save, safe_filename))
 
     logging.info(where_to_save)
 
-    path_to_file = os.path.join(where_to_save, filename)
+    path_to_file = os.path.join(where_to_save, safe_filename)
     logging.info(path_to_file)
 
     vid_id = models.insert_video(form_passed.date_recorded.data,
