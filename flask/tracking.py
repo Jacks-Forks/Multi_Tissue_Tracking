@@ -2,10 +2,12 @@ import logging
 import os
 
 import cv2
-import dashSelect as path
+#import dashSelect as path
 import models
 import numpy as np
 import pandas as pd
+#from app import app
+from models import db
 
 logging.basicConfig(filename='tracking.log',
                     format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
@@ -24,7 +26,6 @@ def format_points(old_points):
 
 
 def start_trackig(unformated_points, file_path, experiment_num_passed, date_recorded_passed, frequency_passed, li_tissue_nums_passed):
-    # logging.info(path.filer)
     logging.info('start_trackig')
     logging.info(unformated_points)
     logging.info(file_path)

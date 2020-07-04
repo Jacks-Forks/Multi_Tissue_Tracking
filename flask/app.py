@@ -5,14 +5,11 @@ import threading
 from datetime import datetime
 
 import cv2
-import models
-import routes
 from flask import (Flask, abort, flash, jsonify, redirect, render_template,
                    request, send_file, send_from_directory, url_for)
 from forms import PickVid, upload_to_a_form, upload_to_b_form
 from models import db
 from routes import routes_for_flask
-from werkzeug.utils import secure_filename
 
 logging.basicConfig(filename='app.log',
                     format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)

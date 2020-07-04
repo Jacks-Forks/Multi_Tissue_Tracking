@@ -1,16 +1,26 @@
-import urllib.parse
 import base64
-import io
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-import pandas as pd
 import glob
-from dash.dependencies import Input, Output, State
+import io
+import urllib.parse
 
 import analysisFolder.analysis as analysis
 import analysisFolder.calculations as calc
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+# import the models of the data base
+import models
+import pandas as pd
+# this import import the app
+from app import app
+from dash.dependencies import Input, Output, State
 
+# creates an app context for the database
+app.app_context().push()
+
+# just to show models can be acessed
+print('tissues')
+print(models.Tissue.query.all())
 
 '''
 These Should Be User Editable
@@ -182,8 +192,8 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             '''
             splitter = files[i].split('_')
             if splitter[2] == 'M':
-				#TODO: DATABASE. Need Bioreactor number.
-                #TODO: DATABASE. Need tissue location.
+                # TODO: DATABASE. Need Bioreactor number.
+                # TODO: DATABASE. Need tissue location.
                 bio = int(splitter[3])
                 loc = int(splitter[4])
                 l_r = summarys[bio - 1]['RPostHt'][loc - 1]
