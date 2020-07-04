@@ -23,22 +23,32 @@ l_l = .012
 a_l = .0115
 count = 0
 
+# Grabs a list of all the dates in csvfiles
+# TODO: File Structure
 dates = glob.glob('static/uploads/csvfiles/*')
+# dates = glob.glob('static/uploads/experiment
+# Going to need an extra dropdown
 
+# Finds all the stored bioreactor post heights and stores them in a list of dataframes
 summarys = []
 bioreactors = sorted(glob.glob('static/bioreactors/*'))
 [summarys.append(pd.read_csv(bio)) for bio in bioreactors]
 
+# Create dash app (renders the webpage)
 dasher = dash.Dash(__name__, requests_pathname_prefix='/dash/')
 dasher.layout = html.Div([
+    # Button to take you to upload files
     dcc.Link('Go to Upload', href='/uploadFile', refresh=True),
+    # Button to reload the page in case it doesnt see all the files it should
     html.Button('Reload', id='button'),
+    # A dropdown of all the dates there are csv files available for
     dcc.Dropdown(
         id="files",
         options=[
             {'label': i, 'value': i} for i in dates
         ]
     ),
+    # Curve fitting stuff
     html.Div('[Polynomial Value, Window]:'),
     dcc.RangeSlider(id='smoothing',
                     min=0,
@@ -96,6 +106,7 @@ dasher.layout = html.Div([
     html.Div('BufferDist:'),
     dcc.Slider(id='buff', min=0, max=10, value=3),
     html.Button(id='reload', n_clicks=0, hidden=True),
+    # TODO: Take out youngs I think
     dcc.Input(
         id='young',
         type='number',
@@ -106,7 +117,7 @@ dasher.layout = html.Div([
     html.Div(id='graphs', children=[dcc.Graph(id='graph#{}'.format('1'))])
 ])
 
-
+# Gets called when reload is clicked. Returns a new list of dates
 @dasher.callback(
     Output('files', 'options'),
     [Input('button', 'n_clicks')]
@@ -115,7 +126,8 @@ def reload(button):
     dates = glob.glob('static/uploads/csvfiles/*')
     return [{'label': i, 'value': i} for i in dates]
 
-
+# Updates youngs
+# TODO: Can probably be removed. Store in database or file or something
 @dasher.callback(Output('reload', 'n_clicks'), [
     Input('young', 'value')
 ])
@@ -125,7 +137,7 @@ def consts(you):
     count = count + 1
     return count
 
-
+# The main graphing function. Gets called whenever on of the parameters changes
 @dasher.callback(Output('graphs', 'children'), [
     Input('files', 'value'),
     Input('smoothing', 'value'),
@@ -135,20 +147,28 @@ def consts(you):
     Input('reload', 'n_clicks')
 ])
 def storedFiles(folder, smooth, thresh, buff, dist, but):
-    print(but)
-    print(youngs)
+	# Create a list to store the dataframes in.
     dataframes = []
 
     if folder is not None:
+        # Reads the files in the selected folder
         files = glob.glob(folder + '/*')
         for file in files:
+            # Reads each file in as a dataframe
             dataframes.append(pd.read_csv(file))
         for i in range(len(dataframes)):
+            # Converts time to seconds
+            # TODO: Check this conversion
             dataframes[i]['time'] = dataframes[i]['time'] / 1000
+
         poly = smooth[0]
         window = smooth[1]
+
+        # Calls the findpoints function which returns all the points of interest.
         dataframeo, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(
             dataframes, buff, poly, window, thresh, dist)
+
+        # Create a list for each parameter, can maybe be better handled
         t50 = []
         c50 = []
         r50 = []
@@ -170,32 +190,38 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
         peakdist = []
         basedist = []
         devdist = []
+
+        # For each dataframe
         for i in range(len(fifty)):
+            #For each contraction
             for j in range(len(peaks[i])):
+                # Find the distances for sys, dias, and dev force
+                # TODO: IMPORTANT, SHOULD THIS BE peakdist[i] etc...
                 peakdist.append(7 + dataframeo[i]['disp'][peaks[i][j]])
                 basedist.append(7 + dataframeo[i]['disp'][basepoints[i][j]])
                 devdist.append(peakdist[j] - basedist[j])
 
-            '''
-            Add User Input
-
-            '''
             splitter = files[i].split('_')
+
+			# If it is multi tissue,
             if splitter[2] == 'M':
 				#TODO: DATABASE. Need Bioreactor number.
                 #TODO: DATABASE. Need tissue location.
                 bio = int(splitter[3])
                 loc = int(splitter[4])
+                # Read in post heights from csv values (imported into database earlier)
                 l_r = summarys[bio - 1]['RPostHt'][loc - 1]
                 l_l = summarys[bio - 1]['LPostHt'][loc - 1]
                 a_r = summarys[bio - 1]['RTissHt'][loc - 1]
                 a_l = summarys[bio - 1]['LTissHt'][loc - 1]
             else:
+                # If other system, set these as heights
                 l_r = .012
                 l_l = .012
                 a_r = .0115
                 a_l = .0115
 
+            # Call functions for each calculation. Functions found in calculations.py
             actforce.append(calc.force(
                 youngs, radius, l_r, a_r, l_l, a_l, peakdist))
             pasforce.append(calc.force(
@@ -215,6 +241,8 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             dfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
             negdfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
 
+        # Print out calculated values
+        # TODO: Change to store and download data
         print(str(t50) + '\n')
         print(str(r50) + '\n')
         print(str(c50) + '\n')
@@ -233,6 +261,7 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
         print(str(pasforce) + '\n')
         print(str(devforce) + '\n')
 
+        #Returns the graph with all the points of interest graphed.
         return ([
             dcc.Graph(id='graph#{}'.format(i),
                       figure={

@@ -15,7 +15,7 @@ import numpy as np
 '''
 Force Parameters
 '''
-
+# TODO: Add explanations for each. Also go through and verify
 
 def force(youngs, radius, l_r, a_r, l_l, a_l, deltaT):
     forceRatio = ((a_r**2) * ((3 * l_r) - a_r)) / \
