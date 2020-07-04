@@ -38,7 +38,7 @@
           };
           dropdown.dates.attr('disabled', 'disabled');
           dropdown.dates.empty();
-          $.getJSON("{{ url_for('get_dates') }}", send, function(data) {
+          $.getJSON("{{ url_for('routes_for_flask.get_dates') }}", send, function(data) {
             data.forEach(function(item) {
               dropdown.dates.append(
                 $('<option>', {
@@ -60,7 +60,7 @@
           };
           dropdown.video.attr('disabled', 'disabled');
           dropdown.video.empty();
-          $.getJSON("{{ url_for('get_video') }}", send, function(data) {
+          $.getJSON("{{ url_for('routes_for_flask.get_video') }}", send, function(data) {
             data.forEach(function(item) {
               dropdown.video.append(
                 $('<option>', {
