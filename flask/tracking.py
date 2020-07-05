@@ -2,11 +2,9 @@ import logging
 import os
 
 import cv2
-#import dashSelect as path
 import models
 import numpy as np
 import pandas as pd
-#from app import app
 from models import db
 
 logging.basicConfig(filename='tracking.log',

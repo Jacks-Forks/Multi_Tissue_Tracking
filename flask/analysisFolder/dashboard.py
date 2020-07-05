@@ -192,6 +192,7 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             '''
             splitter = files[i].split('_')
             if splitter[2] == 'M':
+                # TODO: we need to know whitch csv is selected the id or sothing else to look it up
                 # TODO: DATABASE. Need Bioreactor number.
                 # TODO: DATABASE. Need tissue location.
                 bio = int(splitter[3])

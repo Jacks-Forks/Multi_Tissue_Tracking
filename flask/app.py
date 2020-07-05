@@ -34,12 +34,14 @@ def create_app():
     app.secret_key = 'development key'
     app.register_blueprint(routes_for_flask)
     db.init_app(app)
+
     return app
 
 
-# TODO: put create in wsgi anf then import to both app.py and tracking and app.push???
+#  REVIEW: is having this here correct
 app = create_app()
 app.app_context().push()
+db.create_all()
 
 
 def check_system():
