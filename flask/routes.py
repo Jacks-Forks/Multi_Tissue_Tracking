@@ -123,24 +123,8 @@ def boxcoordinates():
         box_coords = data['boxes']
         video_id = int(data['video_id'])
 
-        # gets the videio object from the db using the id from the ajax request
-        video_object = models.get_video(video_id)
-
-        # gets needed info about the video for tacking from the db
-        file_path = video_object.save_location
-        date_recorded = video_object.date_recorded
-        frequency = video_object.frequency
-        experiment_num = video_object.experiment_num
-
-        # list of tissue objects that are childeren of the vid
-        tissues_object_list = video_object.tissues
-        # gets the id and numbers of the tissues from db
-        li_tissues_ids = [tissue.id for tissue in tissues_object_list]
-        li_tissues_numbers = [
-            tissue.tissue_number for tissue in tissues_object_list]
-
         tracking_thread = threading.Thread(
-            target=tracking.start_trackig, args=(box_coords, file_path, experiment_num, date_recorded, frequency, li_tissues_numbers, li_tissues_ids))
+            target=tracking.start_trackig, args=(box_coords, video_id))
         tracking_thread.start()
         return jsonify({'status': 'OK', 'data': box_coords})
 
