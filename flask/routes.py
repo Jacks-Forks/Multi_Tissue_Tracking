@@ -5,10 +5,10 @@ import threading
 from datetime import datetime
 
 import cv2
+import forms
 import models
 import tracking
 from flask import Blueprint, jsonify, redirect, render_template, request
-from forms import PickVid, upload_to_a_form, upload_to_b_form
 from werkzeug.utils import secure_filename
 
 current_directory = os.getcwd()
@@ -65,6 +65,7 @@ def allowed_file(filename):
 
 
 def get_post_info(wtforms_list):
+    # converts the list of form data in list of number and type or empty if that post is not in use
     count = 0
     li = []
     for entry in wtforms_list:
@@ -114,29 +115,32 @@ def main():
 @ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():
     # TODO: comment all of this so it makes tissue_number_passed
-    # TODO: delete image
     if request.method == "POST":
+        # gets data from js ajax requests
+        # data is in a dic format ['boxes':[[]],'video_id':'x']
         from_js = request.get_data()
         data = json.loads(from_js)
         box_coords = data['boxes']
         video_id = int(data['video_id'])
 
+        # gets the videio object from the db using the id from the ajax request
         video_object = models.get_video(video_id)
 
+        # gets needed info about the video for tacking from the db
         file_path = video_object.save_location
         date_recorded = video_object.date_recorded
         frequency = video_object.frequency
         experiment_num = video_object.experiment_num
 
-        # list of tissue objecjs that are childeren of the vid
+        # list of tissue objects that are childeren of the vid
         tissues_object_list = video_object.tissues
+        # gets the id and numbers of the tissues from db
+        li_tissues_ids = [tissue.id for tissue in tissues_object_list]
         li_tissues_numbers = [
             tissue.tissue_number for tissue in tissues_object_list]
-        logging.info(tissues_object_list)
-        logging.info(li_tissues_numbers)
 
         tracking_thread = threading.Thread(
-            target=tracking.start_trackig, args=(box_coords, file_path, experiment_num, date_recorded, frequency, li_tissues_numbers))
+            target=tracking.start_trackig, args=(box_coords, file_path, experiment_num, date_recorded, frequency, li_tissues_numbers, li_tissues_ids))
         tracking_thread.start()
         return jsonify({'status': 'OK', 'data': box_coords})
 
@@ -148,7 +152,7 @@ def upload_file():
 
 @ routes_for_flask.route('/uploadFile/reactorA',  methods=['GET', 'POST'])
 def upload_to_a():
-    form = upload_to_a_form()
+    form = forms.upload_to_a_form()
 
     if request.method == 'POST':
         if form.validate() == False:
@@ -170,7 +174,7 @@ def upload_to_a():
 
 @ routes_for_flask.route('/uploadFile/reactorB',  methods=['GET', 'POST'])
 def upload_to_b():
-    form = upload_to_b_form()
+    form = forms.upload_to_b_form()
 
     if request.method == 'POST':
         if form.validate() == False:
@@ -178,11 +182,6 @@ def upload_to_b():
             return render_template('uploadToB.html', form=form)
         else:
             #  TODO: clean up and comment this its confusing
-            #  TODO: get expirment number, bio reactior is and vid id
-            # tissie num and type are recored and place in list can be converted to type
-            #where_it_saved = save_file(form)
-
-            # save_video_file(form)
 
             tup_post_info = get_post_info(form.post.entries)
             li_of_post_info = tup_post_info[1]
@@ -200,10 +199,12 @@ def upload_to_b():
             if models.get_bio_reactor(bio_reactor_num) is None:
                 models.insert_bio_reactor(bio_reactor_num)
 
-            # TODO: if uplad a csv
-
+            # TODO: if upload a csv
+            # adds the viedio to the db and saves the file
+            # retuens the id of the vid
             new_video_id = save_video_file(form)
 
+            # add the tissues to the databse as children of the vid, experiment and bio reactor
             add_tissues(li_of_post_info, experiment_num,
                         bio_reactor_num, new_video_id)
 
@@ -211,12 +212,10 @@ def upload_to_b():
     else:
         return render_template('uploadToB.html', form=form)
 
-# REVIEW:  this works well but no without slections first
-
 
 @routes_for_flask.route('/pick_video', methods=['GET', 'POST'])
 def pick_video():
-    form = PickVid()
+    form = forms.PickVid()
     form.experiment.choices = [(row.num, row.num)
                                for row in models.Experiment.query.all()]
     if request.method == 'GET':

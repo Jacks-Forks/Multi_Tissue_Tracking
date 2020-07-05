@@ -23,10 +23,15 @@ def format_points(old_points):
     return result
 
 
-def start_trackig(unformated_points, file_path, experiment_num_passed, date_recorded_passed, frequency_passed, li_tissue_nums_passed):
+def start_trackig(unformated_points, file_path, experiment_num_passed, date_recorded_passed, frequency_passed, li_tissue_nums_passed, li_tissues_ids_passed):
     logging.info('start_trackig')
     logging.info(unformated_points)
     logging.info(file_path)
+    # allows acess to the databse avoding circular imports
+    # REVIEW: there might be a better way to do this
+    from app import app
+    app.app_context().push()
+    import models
 
     videostream = cv2.VideoCapture(file_path)
     splits = file_path.split('/')
@@ -145,12 +150,14 @@ def start_trackig(unformated_points, file_path, experiment_num_passed, date_reco
 
     if not os.path.exists(directory_to_save_path):
         os.makedirs(directory_to_save_path)
-
+# REVIEW: vid save loaction to full path csv save loaction is from static
     for i, an in enumerate(displacement):
         df = pd.DataFrame(
             an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
-        df.to_csv(directory_to_save_path + '{0}_T{1}_{2}_.csv'.format(
-            date_as_string, li_tissue_nums_passed[i],  frequency_passed), index=False)
+        path_to_csv = directory_to_save_path + '{0}_T{1}_{2}.csv'.format(
+            date_as_string, li_tissue_nums_passed[i],  frequency_passed)
+        df.to_csv(path_to_csv, index=False)
+        models.add_tissue_csv(li_tissues_ids_passed[i], path_to_csv)
     logging.info("check csv")
 
     # deltes files in img folder

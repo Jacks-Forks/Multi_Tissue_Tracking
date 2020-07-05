@@ -15,6 +15,7 @@ import pandas as pd
 from app import app
 from dash.dependencies import Input, Output, State
 
+# TODO: looks for csv in wrong spot do it from db???
 # creates an app context for the database
 app.app_context().push()
 
@@ -225,7 +226,7 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             t2pks.append(calc.time2pk(ten[i], peaks[i], dataframeo[i]['time']))
             dfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
             negdfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
-
+            # TODO: clea up these prints
         print(str(t50) + '\n')
         print(str(r50) + '\n')
         print(str(c50) + '\n')
