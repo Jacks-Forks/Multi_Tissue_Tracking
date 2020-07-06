@@ -48,6 +48,7 @@ class Tissue(db.Model):
     tissue_number = db.Column(db.Integer, nullable=False)
     tissue_type = db.Column(db.String(120), nullable=False)
     post = db.Column(db.Integer, nullable=False)
+    csv_path = db.Column(db.String, nullable=True)
 
     experiment_num = db.Column(db.Integer, db.ForeignKey(
         'experiment.num'), nullable=False)
@@ -133,3 +134,9 @@ def get_tissue(tissue_id_passed):
 def get_video(video_id_passed):
     video = Video.query.filter_by(id=video_id_passed).first()
     return video
+
+
+def add_tissue_csv(id_passed, path_passed):
+    tissue = get_tissue(id_passed)
+    tissue.csv_path = path_passed
+    db.session.commit()
