@@ -130,6 +130,20 @@ def get_tissue(tissue_id_passed):
     tissue = Tissue.query.filter_by(id=tissue_id_passed).first()
     return tissue
 
+def get_dates_list(experiment_num_passed):
+    experiment = get_experiment(experiment_num_passed)
+    videos_list = experiment.vids
+    dates = []
+    for video in videos_list:
+        if video.date_recorded not in dates:
+            dates.append(video.date_recorded)
+    return dates
+
+def get_tissue_by_csv(csv_filepath):
+    # gets tissue by the tissue id
+    tissue = Tissue.query.filter_by(csv_path=csv_filepath).first()
+    return tissue
+
 
 def get_video(video_id_passed):
     video = Video.query.filter_by(id=video_id_passed).first()

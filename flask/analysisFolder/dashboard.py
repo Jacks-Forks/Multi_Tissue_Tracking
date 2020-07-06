@@ -13,14 +13,10 @@ import pandas as pd
 from app import app
 from dash.dependencies import Input, Output, State
 
-# TODO: looks for csv in wrong spot do it from db???
 # creates an app context for the database
 app.app_context().push()
 
-# just to show models can be acessed
-print('tissues')
-print(models.Tissue.query.all())
-
+experiments =  models.Experiment.query.all()
 '''
 These Should Be User Editable
 '''
@@ -33,10 +29,7 @@ a_l = .0115
 count = 0
 
 # Grabs a list of all the dates in csvfiles
-# TODO: File Structure
-dates = glob.glob('static/uploads/csvfiles/*')
-# dates = glob.glob('static/uploads/experiment
-# Going to need an extra dropdown
+# TODO: Options for single folder, experiment, or single tissue
 
 # Finds all the stored bioreactor post heights and stores them in a list of dataframes
 summarys = []
@@ -52,11 +45,12 @@ dasher.layout = html.Div([
     html.Button('Reload', id='button'),
     # A dropdown of all the dates there are csv files available for
     dcc.Dropdown(
-        id="files",
+        id="exper",
         options=[
-            {'label': i, 'value': i} for i in dates
+            {'label': i.num, 'value': i.num} for i in experiments
         ]
     ),
+    dcc.Dropdown(id="dates"),
     # Curve fitting stuff
     html.Div('[Polynomial Value, Window]:'),
     dcc.RangeSlider(id='smoothing',
@@ -128,12 +122,25 @@ dasher.layout = html.Div([
 
 # Gets called when reload is clicked. Returns a new list of dates
 @dasher.callback(
-    Output('files', 'options'),
+    Output('exper', 'options'),
     [Input('button', 'n_clicks')]
 )
 def reload(button):
-    dates = glob.glob('static/uploads/csvfiles/*')
-    return [{'label': i, 'value': i} for i in dates]
+    #experiments = glob.glob('static/uploads/*')
+    experiments = models.Experiment.query.all()
+    return [{'label': i.num, 'value': i.num} for i in experiments]
+
+@dasher.callback(
+    Output('dates', 'options'),
+    [Input('exper', 'value')]
+)
+def dateselect(experiment):
+    if experiment is not None:
+        dates_list = models.get_dates_list(experiment)
+        dates_string = [i.strftime('%m_%d_%Y') for i in dates_list]
+        return [{'label': i, 'value': (str(experiment), i)} for i in dates_string]
+    else:
+        return []
 
 # Updates youngs
 # TODO: Can probably be removed. Store in database or file or something
@@ -148,7 +155,7 @@ def consts(you):
 
 # The main graphing function. Gets called whenever on of the parameters changes
 @dasher.callback(Output('graphs', 'children'), [
-    Input('files', 'value'),
+    Input('dates', 'value'),
     Input('smoothing', 'value'),
     Input('thresh', 'value'),
     Input('buff', 'value'),
@@ -158,10 +165,9 @@ def consts(you):
 def storedFiles(folder, smooth, thresh, buff, dist, but):
 	# Create a list to store the dataframes in.
     dataframes = []
-
     if folder is not None:
         # Reads the files in the selected folder
-        files = glob.glob(folder + '/*')
+        files = glob.glob('static/uploads/' + folder[0] + '/' + folder[1] + '/csvfiles/*')
         for file in files:
             # Reads each file in as a dataframe
             dataframes.append(pd.read_csv(file))
@@ -210,20 +216,16 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
                 basedist.append(7 + dataframeo[i]['disp'][basepoints[i][j]])
                 devdist.append(peakdist[j] - basedist[j])
 
-            splitter = files[i].split('_')
-
+            tissue_object = models.get_tissue_by_csv(files[i])
 			# If it is multi tissue,
-            if splitter[2] == 'M':
-                # TODO: we need to know whitch csv is selected the id or sothing else to look it up
-                # TODO: DATABASE. Need Bioreactor number.
-                # TODO: DATABASE. Need tissue location.
-                bio = int(splitter[3])
-                loc = int(splitter[4])
+            if tissue_object.bio_reactor_num != 0:
+                loc = tissue_object.post
+                bio = tissue_object.bio_reactor_num
                 # Read in post heights from csv values (imported into database earlier)
-                l_r = summarys[bio - 1]['RPostHt'][loc - 1]
-                l_l = summarys[bio - 1]['LPostHt'][loc - 1]
-                a_r = summarys[bio - 1]['RTissHt'][loc - 1]
-                a_l = summarys[bio - 1]['LTissHt'][loc - 1]
+                l_r = summarys[bio - 1]['RPostHt'][loc]
+                l_l = summarys[bio - 1]['LPostHt'][loc]
+                a_r = summarys[bio - 1]['RTissHt'][loc]
+                a_l = summarys[bio - 1]['LTissHt'][loc]
             else:
                 # If other system, set these as heights
                 l_r = .012
