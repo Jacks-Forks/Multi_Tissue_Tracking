@@ -1,16 +1,25 @@
-import urllib.parse
 import base64
-import io
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-import pandas as pd
 import glob
-from dash.dependencies import Input, Output, State
+import io
+import urllib.parse
 
 import analysisFolder.analysis as analysis
 import analysisFolder.calculations as calc
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import models
+import pandas as pd
+from app import app
+from dash.dependencies import Input, Output, State
 
+# TODO: looks for csv in wrong spot do it from db???
+# creates an app context for the database
+app.app_context().push()
+
+# just to show models can be acessed
+print('tissues')
+print(models.Tissue.query.all())
 
 '''
 These Should Be User Editable
@@ -205,8 +214,9 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
 
 			# If it is multi tissue,
             if splitter[2] == 'M':
-				#TODO: DATABASE. Need Bioreactor number.
-                #TODO: DATABASE. Need tissue location.
+                # TODO: we need to know whitch csv is selected the id or sothing else to look it up
+                # TODO: DATABASE. Need Bioreactor number.
+                # TODO: DATABASE. Need tissue location.
                 bio = int(splitter[3])
                 loc = int(splitter[4])
                 # Read in post heights from csv values (imported into database earlier)
@@ -241,8 +251,11 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             dfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
             negdfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
 
+            # TODO: clea up these prints
+
         # Print out calculated values
         # TODO: Change to store and download data
+
         print(str(t50) + '\n')
         print(str(r50) + '\n')
         print(str(c50) + '\n')

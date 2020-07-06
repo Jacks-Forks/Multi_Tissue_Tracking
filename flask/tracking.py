@@ -2,10 +2,10 @@ import logging
 import os
 
 import cv2
-import dashSelect as path
 import models
 import numpy as np
 import pandas as pd
+from models import db
 
 logging.basicConfig(filename='tracking.log',
                     format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
@@ -23,14 +23,23 @@ def format_points(old_points):
     return result
 
 
-def start_trackig(unformated_points, file_path, experiment_num_passed, date_recorded_passed, frequency_passed, li_tissue_nums_passed):
-    # logging.info(path.filer)
+def start_trackig(unformated_points, video_id_passed):
     logging.info('start_trackig')
     logging.info(unformated_points)
-    logging.info(file_path)
+    # allows acess to the databse avoding circular imports
+    # REVIEW: there might be a better way to do this
+    from app import app
+    app.app_context().push()
+    import models
 
-    videostream = cv2.VideoCapture(file_path)
-    splits = file_path.split('/')
+    # gets the videio object from the db using the id from the ajax request
+    video_object = models.get_video(video_id_passed)
+
+    # getsvidio file path from vid object
+    video_file_path = video_object.save_location
+
+    videostream = cv2.VideoCapture(video_file_path)
+    splits = video_file_path.split('/')
     images = videostream.read()[1]
 
     OPENCV_OBJECT_TRACKERS = {
@@ -138,20 +147,33 @@ def start_trackig(unformated_points, file_path, experiment_num_passed, date_reco
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     '''
+    # gets other needed info from tissue object
+    date_recorded = video_object.date_recorded
+    frequency = video_object.frequency
+    experiment_num = video_object.experiment_num
 
-    date_as_string = date_recorded_passed.strftime('%m_%d_%Y')
+    # list of tissue objects that are childeren of the vid
+    tissue_object_list = video_object.tissues
+    # gets the id and numbers of the tissues from db
+    li_tissue_ids = [tissue.id for tissue in tissue_object_list]
+    li_tissue_numbers = [
+        tissue.tissue_number for tissue in tissue_object_list]
+
+    date_as_string = date_recorded.strftime('%m_%d_%Y')
 
     directory_to_save_path = 'static/uploads/' + \
-        str(experiment_num_passed) + "/" + date_as_string + '/csvfiles/'
+        str(experiment_num) + "/" + date_as_string + '/csvfiles/'
 
     if not os.path.exists(directory_to_save_path):
         os.makedirs(directory_to_save_path)
-
+# REVIEW: vid save loaction to full path csv save loaction is from static
     for i, an in enumerate(displacement):
         df = pd.DataFrame(
             an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
-        df.to_csv(directory_to_save_path + '{0}_T{1}_{2}_.csv'.format(
-            date_as_string, li_tissue_nums_passed[i],  frequency_passed), index=False)
+        path_to_csv = directory_to_save_path + '{0}_T{1}_F{2}.csv'.format(
+            date_as_string, li_tissue_numbers[i],  frequency)
+        df.to_csv(path_to_csv, index=False)
+        models.add_tissue_csv(li_tissue_ids[i], path_to_csv)
     logging.info("check csv")
 
     # deltes files in img folder
