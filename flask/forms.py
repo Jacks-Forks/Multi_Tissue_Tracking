@@ -1,9 +1,7 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField
 from wtforms import (BooleanField, DecimalField, FieldList, FileField,
-                     FormField, HiddenField, IntegerField, RadioField,
-                     SelectField, SelectMultipleField, StringField,
-                     SubmitField, TextAreaField, TextField, ValidationError,
+                     FormField, HiddenField, IntegerField, SelectField,
+                     SelectMultipleField, StringField, SubmitField,
                      validators, widgets)
 from wtforms.fields.html5 import DateField
 

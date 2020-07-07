@@ -1,7 +1,4 @@
-import base64
 import glob
-import io
-import urllib.parse
 
 import analysisFolder.analysis as analysis
 import analysisFolder.calculations as calc
@@ -11,7 +8,7 @@ import dash_html_components as html
 import models
 import pandas as pd
 from app import app
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 
 # creates an app context for the database
 app.app_context().push()
@@ -38,6 +35,7 @@ bioreactors = sorted(glob.glob('static/bioreactors/*'))
 
 # Create dash app (renders the webpage)
 dasher = dash.Dash(__name__, requests_pathname_prefix='/dash/')
+dasher.title = 'Tissue Analysis'
 dasher.layout = html.Div([
     # Button to take you to upload files
     dcc.Link('Go to Upload', href='/uploadFile', refresh=True),
