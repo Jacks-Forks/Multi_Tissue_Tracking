@@ -1,13 +1,7 @@
-import json
 import logging
 import os
-import threading
-from datetime import datetime
 
-import cv2
-from flask import (Flask, abort, flash, jsonify, redirect, render_template,
-                   request, send_file, send_from_directory, url_for)
-from forms import PickVid, upload_to_a_form, upload_to_b_form
+from flask import Flask
 from models import db
 from routes import routes_for_flask
 

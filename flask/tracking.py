@@ -2,16 +2,14 @@ import logging
 import os
 
 import cv2
-import models
 import numpy as np
 import pandas as pd
-from models import db
 
 logging.basicConfig(filename='tracking.log',
                     format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
 
-
+# This just formats the boxes toi be readable by opencv trackers
 def format_points(old_points):
     result = []
     for i in range(0, len(old_points), 2):
@@ -38,10 +36,14 @@ def start_trackig(unformated_points, video_id_passed):
     # getsvidio file path from vid object
     video_file_path = video_object.save_location
 
+    # Start a opencv videostream
     videostream = cv2.VideoCapture(video_file_path)
-    splits = video_file_path.split('/')
+
+    # Capture the first image
+    # TODO: Fail gracefully
     images = videostream.read()[1]
 
+    # Iniate all the available opencv trackers
     OPENCV_OBJECT_TRACKERS = {
         "csrt": cv2.TrackerCSRT_create,
         "kcf": cv2.TrackerKCF_create,
@@ -52,19 +54,22 @@ def start_trackig(unformated_points, video_id_passed):
         "mosse": cv2.TrackerMOSSE_create
     }
 
+    # Create a multitracker object
     trackers = cv2.MultiTracker_create()
 
+    # Format the points for opencv
     boxes = format_points(unformated_points)
 
     for box in boxes:
+        # Create and add a tracker to the multitracker object for each box drawn
         tracker = OPENCV_OBJECT_TRACKERS['csrt']()
         trackers.add(tracker, images, box)
 
     count = 0
+    # Initiate what will be a list of dataframes.
+    # Each dataframe will contain the diaplacements for 1 tissue
     displacement = []
 
-    # fig = go.Figure()
-    # trace = fig.add_trace(go.Scatter(x=xox, y=lists))
     while True:
         #    logging.info(count)
 
@@ -73,8 +78,7 @@ def start_trackig(unformated_points, video_id_passed):
             break
 
         """
-        # TODO: need should this have ret and [1] seems to stop evntually
-        # does 1489 in csv
+        # read in the next frame
         successful, image = videostream.read()
         '''
         if cv2.waitKey(25) & 0xFF == ord('q'):
@@ -87,23 +91,20 @@ def start_trackig(unformated_points, video_id_passed):
         '''
         if successful is False:
             break
-        posts = trackers.update(image)[1]
-        postcords = []
 
-        for post in posts:
+        # TODO: Add fail
+        posts = trackers.update(image)[1]
+        postio = {}
+        # Get the positions of each post
+        for i, post in enumerate(posts):
             # Used float for more acuracy but rectangle needs int
             (x, y, w, h) = [float(i) for i in post]
             # (rx, ry, rw, rh) = [int(i) for i in (x, y, w, h)]
             # cv2.rectangle(image, (rx, ry),
             #              (rx + rw, ry + rh), (0, 255, 0), 2)
             # Populate list for centroid tracking
-            postcords.append((x, y, x + w, y + h))
-
-        postio = {}
-
-        for (i, (x, y, x2, y2)) in enumerate(postcords):
-            centroidX = int((x + x2) / 2.0)
-            centroidY = int((y + y2) / 2.0)
+            centroidX = int((x + x + w) / 2.0)
+            centroidY = int((y + y + h) / 2.0)
             postio[i] = (centroidX, centroidY)
 
         for (objectID, centroid) in postio.items():

@@ -14,7 +14,7 @@ from werkzeug.utils import secure_filename
 current_directory = os.getcwd()
 
 
-UPLOAD_FOLDER = current_directory + "/static/uploads"
+UPLOAD_FOLDER = "static/uploads"
 
 
 def save_video_file(form_passed):
