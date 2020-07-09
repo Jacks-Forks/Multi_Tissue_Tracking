@@ -13,16 +13,15 @@ tz = timezone('EST')
 
 
 class Experiment(db.Model):
-    experiment_id = db.Column(db.Integer)
+    experiment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     experiment_num = db.Column(
-        db.Integer, nullable=False, primary_key=True, unique=True)
+        db.Integer, nullable=False, unique=True)
     tissues = db.relationship('Tissue', back_populates='experiment')
     vids = db.relationship('Video', back_populates='experiment')
 
 
 class Video(db.Model):
-    video_id = db.Column(db.Integer, primary_key=True,
-                         unique=True, autoincrement=True)
+    video_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     # TODO: add call factor float
     date_uploaded = db.Column(db.Date, nullable=False,
                               default=datetime.now(tz))
@@ -33,7 +32,7 @@ class Video(db.Model):
     save_location = db.Column(db.String(120), nullable=False)
 
     experiment_num = db.Column(db.Integer, db.ForeignKey(
-        'experiment.experiment_num'), nullable=False, primary_key=True)
+        'experiment.experiment_num'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='vids')
 
     bio_reactor_num = db.Column(db.Integer, db.ForeignKey(
@@ -45,7 +44,7 @@ class Video(db.Model):
 
 class Tissue(db.Model):
     # REVIEW: pk maybe should be combo between tissue number and expirment number
-    tissue_id = db.Column(db.Integer, primary_key=True)
+    tissue_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tissue_number = db.Column(db.Integer, nullable=False)
     tissue_type = db.Column(db.String(120), nullable=False)
     post = db.Column(db.Integer, nullable=False)
@@ -70,7 +69,8 @@ class Tissue(db.Model):
 
 
 class Bio_reactor(db.Model):
-    bio_reactor_id = db.Column(db.Integer, primary_key=True)
+    bio_reactor_id = db.Column(
+        db.Integer, primary_key=True, autoincrement=True)
     bio_reactor_num = db.Column(db.Integer, unique=True, nullable=False)
     tissues = db.relationship('Tissue', back_populates='bio_reactor')
     vids = db.relationship('Video', back_populates='bio_reactor')
