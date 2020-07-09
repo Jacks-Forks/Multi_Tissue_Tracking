@@ -56,11 +56,11 @@ class Tissue(db.Model):
     experiment = db.relationship('Experiment', back_populates='tissues')
 
     bio_reactor_num = db.Column(db.Integer,  db.ForeignKey(
-        'bio_reactor.bio_reactor_num'), nullable=False, unique=True,)
+        'bio_reactor.bio_reactor_num'), nullable=False)
     bio_reactor = db.relationship('Bio_reactor', back_populates='tissues')
 
     video_id = db.Column(
-        db.Integer,  db.ForeignKey('video.video_id'), nullable=False, unique=True)
+        db.Integer,  db.ForeignKey('video.video_id'), nullable=False)
     video = db.relationship('Video', back_populates='tissues')
 
     def __repr__(self):
