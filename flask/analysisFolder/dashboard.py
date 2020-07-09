@@ -1,3 +1,4 @@
+
 import glob
 
 import analysisFolder.analysis as analysis
@@ -13,7 +14,7 @@ from dash.dependencies import Input, Output
 # creates an app context for the database
 app.app_context().push()
 
-experiments =  models.Experiment.query.all()
+experiments = models.Experiment.query.all()
 '''
 These Should Be User Editable
 '''
@@ -45,7 +46,7 @@ dasher.layout = html.Div([
     dcc.Dropdown(
         id="exper",
         options=[
-            {'label': i.num, 'value': i.num} for i in experiments
+            {'label': i.experiment_num, 'value': i.experiment_num} for i in experiments
         ]
     ),
     dcc.Dropdown(id="dates"),
@@ -119,6 +120,8 @@ dasher.layout = html.Div([
 ])
 
 # Gets called when reload is clicked. Returns a new list of dates
+
+
 @dasher.callback(
     Output('exper', 'options'),
     [Input('button', 'n_clicks')]
@@ -127,6 +130,7 @@ def reload(button):
     #experiments = glob.glob('static/uploads/*')
     experiments = models.Experiment.query.all()
     return [{'label': i.num, 'value': i.num} for i in experiments]
+
 
 @dasher.callback(
     Output('dates', 'options'),
@@ -142,6 +146,8 @@ def dateselect(experiment):
 
 # Updates youngs
 # TODO: Can probably be removed. Store in database or file or something
+
+
 @dasher.callback(Output('reload', 'n_clicks'), [
     Input('young', 'value')
 ])
@@ -152,6 +158,8 @@ def consts(you):
     return count
 
 # The main graphing function. Gets called whenever on of the parameters changes
+
+
 @dasher.callback(Output('graphs', 'children'), [
     Input('dates', 'value'),
     Input('smoothing', 'value'),
@@ -161,11 +169,12 @@ def consts(you):
     Input('reload', 'n_clicks')
 ])
 def storedFiles(folder, smooth, thresh, buff, dist, but):
-	# Create a list to store the dataframes in.
+    # Create a list to store the dataframes in.
     dataframes = []
     if folder is not None:
         # Reads the files in the selected folder
-        files = glob.glob('static/uploads/' + folder[0] + '/' + folder[1] + '/csvfiles/*')
+        files = glob.glob('static/uploads/' +
+                          folder[0] + '/' + folder[1] + '/csvfiles/*')
         for file in files:
             # Reads each file in as a dataframe
             dataframes.append(pd.read_csv(file))
@@ -206,7 +215,7 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
 
         # For each dataframe
         for i in range(len(fifty)):
-            #For each contraction
+            # For each contraction
             for j in range(len(peaks[i])):
                 # Find the distances for sys, dias, and dev force
                 # TODO: IMPORTANT, SHOULD THIS BE peakdist[i] etc...
@@ -215,7 +224,7 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
                 devdist.append(peakdist[j] - basedist[j])
 
             tissue_object = models.get_tissue_by_csv(files[i])
-			# If it is multi tissue,
+            # If it is multi tissue,
             if tissue_object.bio_reactor_num != 0:
                 loc = tissue_object.post
                 bio = tissue_object.bio_reactor_num
@@ -274,7 +283,7 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
         print(str(pasforce) + '\n')
         print(str(devforce) + '\n')
 
-        #Returns the graph with all the points of interest graphed.
+        # Returns the graph with all the points of interest graphed.
         return ([
             dcc.Graph(id='graph#{}'.format(i),
                       figure={

@@ -10,6 +10,8 @@ logging.basicConfig(filename='tracking.log',
 logging.warning("New Run Starts Here")
 
 # This just formats the boxes toi be readable by opencv trackers
+
+
 def format_points(old_points):
     result = []
     for i in range(0, len(old_points), 2):
@@ -156,7 +158,7 @@ def start_trackig(unformated_points, video_id_passed):
     # list of tissue objects that are childeren of the vid
     tissue_object_list = video_object.tissues
     # gets the id and numbers of the tissues from db
-    li_tissue_ids = [tissue.id for tissue in tissue_object_list]
+    li_tissue_ids = [tissue.tissue_id for tissue in tissue_object_list]
     li_tissue_numbers = [
         tissue.tissue_number for tissue in tissue_object_list]
 

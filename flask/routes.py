@@ -200,7 +200,7 @@ def upload_to_b():
 @routes_for_flask.route('/pick_video', methods=['GET', 'POST'])
 def pick_video():
     form = forms.PickVid()
-    form.experiment.choices = [(row.num, row.num)
+    form.experiment.choices = [(row.experiment_num, row.experiment_num)
                                for row in models.Experiment.query.all()]
     if request.method == 'GET':
         return render_template('pick_video.html', form=form)
@@ -239,7 +239,7 @@ def get_video():
     date = datetime.strptime(date, '%m/%d/%Y')
     date = date.date()
 
-    vids = [(row.id, "bio" + str(row.bio_reactor_num) + " " + 'freq:' + str(row.frequency))
+    vids = [(row.video_id, "bio" + str(row.bio_reactor_num) + " " + 'freq:' + str(row.frequency))
             for row in models.Video.query.filter_by(date_recorded=date, experiment_num=experiment).all()]
 
     return jsonify(vids)
