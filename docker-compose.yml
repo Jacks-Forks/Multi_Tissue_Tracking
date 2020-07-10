@@ -3,14 +3,13 @@ version: "3.8"
 services:
 
   flask:
-    build: ./flask/
+    image: murphs/mtt:sqler
     container_name: flask
     restart: always
     links:
       - mysql
     expose:
       - 8080
-      - 3306
     volumes:
       - ~/shared:/shared
     depends_on:

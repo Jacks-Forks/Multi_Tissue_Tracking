@@ -129,7 +129,7 @@ dasher.layout = html.Div([
 def reload(button):
     #experiments = glob.glob('static/uploads/*')
     experiments = models.Experiment.query.all()
-    return [{'label': i.num, 'value': i.num} for i in experiments]
+    return [{'label': i.experiment_num, 'value': i.experiment_num} for i in experiments]
 
 
 @dasher.callback(
