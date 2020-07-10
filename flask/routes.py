@@ -162,7 +162,6 @@ def upload_to_b():
 
     if request.method == 'POST':
         if form.validate() == False:
-            flash('All fields are required.')
             return render_template('uploadToB.html', form=form)
         else:
             #  TODO: clean up and comment this its confusing
