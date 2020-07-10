@@ -3,7 +3,8 @@ version: "3.8"
 services:
 
   flask:
-    image: murphs/mtt:sqler
+    #image: murphs/mtt:sqler
+    build: ./flask/
     container_name: flask
     restart: always
     expose:

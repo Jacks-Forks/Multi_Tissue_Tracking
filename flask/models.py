@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import logging
 from pytz import timezone
 
 from flask_sqlalchemy import SQLAlchemy
@@ -145,7 +145,10 @@ def get_dates_list(experiment_num_passed):
 
 def get_tissue_by_csv(csv_filepath):
     # gets tissue by the tissue id
-    tissue = Tissue.query.filter_by(csv_path=csv_filepath).first()
+    logging.info('csvpath')
+    logging.info(csv_filepath)
+    tissue = db.session.query(Tissue).filter_by(csv_path=csv_filepath)
+    logging.info(tissue)
     return tissue
 
 

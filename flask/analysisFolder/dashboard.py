@@ -10,6 +10,11 @@ import models
 import pandas as pd
 from app import app
 from dash.dependencies import Input, Output
+import logging
+
+logging.basicConfig(filename='something.log',
+                    format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
+logging.warning("New Run Starts Here")
 
 # creates an app context for the database
 app.app_context().push()
@@ -138,8 +143,12 @@ def reload(button):
 )
 def dateselect(experiment):
     if experiment is not None:
+        logging.info('exoperiment')
+        logging.info(experiment)
         dates_list = models.get_dates_list(experiment)
+        logging.info(dates_list)
         dates_string = [i.strftime('%m_%d_%Y') for i in dates_list]
+        logging.info(dates_list)
         return [{'label': i, 'value': (str(experiment), i)} for i in dates_string]
     else:
         return []
@@ -172,9 +181,12 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
     # Create a list to store the dataframes in.
     dataframes = []
     if folder is not None:
+        logging.info('folder')
+        logging.info(folder)
         # Reads the files in the selected folder
         files = glob.glob('static/uploads/' +
                           folder[0] + '/' + folder[1] + '/csvfiles/*')
+        logging.info(files)
         for file in files:
             # Reads each file in as a dataframe
             dataframes.append(pd.read_csv(file))
@@ -222,9 +234,12 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
                 peakdist.append(7 + dataframeo[i]['disp'][peaks[i][j]])
                 basedist.append(7 + dataframeo[i]['disp'][basepoints[i][j]])
                 devdist.append(peakdist[j] - basedist[j])
-
+            logging.info('filesI')
+            logging.info(files[i])
             tissue_object = models.get_tissue_by_csv(files[i])
             # If it is multi tissue,
+            logging.info('tissue_object')
+            logging.info(tissue_object)
             if tissue_object.bio_reactor_num != 0:
                 loc = tissue_object.post
                 bio = tissue_object.bio_reactor_num
