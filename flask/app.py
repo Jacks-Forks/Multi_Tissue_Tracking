@@ -27,7 +27,7 @@ def create_app():
     mysql+pymysql://testUser:xlcr7ds7oy08c0qr@db-mysql-nyc1-39521-do-user-7668124-0.a.db.ondigitalocean.com:25060/defaultdb
 
     '''
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://newuser:newpassword@localhost:3306/test_db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://newuser:newpassword@mysql:3306/test_db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_ECHO'] = True
     #  REVIEW: : this needs to be changed
