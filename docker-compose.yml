@@ -6,15 +6,12 @@ services:
     image: murphs/mtt:sqler
     container_name: flask
     restart: always
-    links:
-      - mysql
     expose:
       - 8080
     volumes:
       - ~/shared:/shared
     depends_on:
       - mysql
-
 
   nginx:
     image: murphs/mtt:nginx
@@ -40,6 +37,19 @@ services:
       - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: mysql_admin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:80
+    depends_on:
+      - mysql
 
 volumes:
   dbdata:
