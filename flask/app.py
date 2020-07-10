@@ -16,23 +16,6 @@ UPLOAD_FOLDER = current_directory + "/static/uploads"
 ALLOWED_EXTENSIONS = {'csv', 'mov', 'mp4'}
 video_file_extentions = {'mov', 'mp4'}
 
-'''
-config = {
-    'host': 'localhost',
-    'port': 3306,
-    'user': 'newuser',
-    'password': 'newpassword',
-    'database': 'test_db'
-}
-
-
-db_user = config.get('user')
-db_pwd = config.get('password')
-db_host = config.get('host')
-db_port = config.get('port')
-db_name = config.get('database')
-'''
-
 
 def create_app():
     # TODO: move to wsgi??
@@ -41,9 +24,8 @@ def create_app():
     #  REVIEW: : where do we wanna save this and name it
     '''
     to connect to my sql droplet not had to create a new user with legacy pass word support as ssl doent seem to be supported
-mysql+pymysql://testUser:xlcr7ds7oy08c0qr@db-mysql-nyc1-39521-do-user-7668124-0.a.db.ondigitalocean.com:25060/defaultdb
+    mysql+pymysql://testUser:xlcr7ds7oy08c0qr@db-mysql-nyc1-39521-do-user-7668124-0.a.db.ondigitalocean.com:25060/defaultdb
 
-postgresql://doadmin:w69pcwyizsg4ug2p@db-postgresql-nyc1-31397-do-user-7668124-0.a.db.ondigitalocean.com:25060/defaultdb?sslmode=require
     '''
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://newuser:newpassword@localhost:3306/test_db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
