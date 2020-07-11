@@ -10,7 +10,8 @@ services:
       - 8080
     volumes:
       - ~/shared:/shared
-
+    depends_on:
+      - mysql
 
   nginx:
     image: murphs/mtt:nginx
@@ -18,4 +19,37 @@ services:
     restart: always
     ports:
       - "80:80"
+    depends_on:
+      - flask
 
+  mysql:
+    image: mysql:8.0.20
+    container_name: mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=test_db
+      - MYSQL_USER=newuser
+      - MYSQL_PASSWORD=newpassword
+    expose:
+      - 3306
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: mysql_admin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:80
+    depends_on:
+      - mysql
+
+volumes:
+  dbdata:
