@@ -106,6 +106,14 @@ def insert_tissue_sample(tissue_number_passed, tissue_type_passed, experiment_nu
     db.session.add(new_tissue)
     db.session.commit()
 
+def insert_tissue_sample_csv(tissue_number_passed, tissue_type_passed, experiment_num_passed, bio_reactor_num_passed, post_passed, video_id_passed, csv_passed):
+    new_tissue = Tissue(
+        tissue_number=tissue_number_passed, tissue_type=tissue_type_passed, post=post_passed, experiment_num=experiment_num_passed, video_id=video_id_passed, bio_reactor_num=bio_reactor_num_passed, csv_path=csv_passed)
+    new_tissue.experiment = get_experiment(experiment_num_passed)
+    new_tissue.bio_reactor = get_bio_reactor(bio_reactor_num_passed)
+    new_tissue.video = get_video(video_id_passed)
+    db.session.add(new_tissue)
+    db.session.commit()
 
 def insert_bio_reactor(num_passed):
     new_bio_reactor = Bio_reactor(bio_reactor_num=num_passed)
@@ -147,7 +155,7 @@ def get_tissue_by_csv(csv_filepath):
     # gets tissue by the tissue id
     logging.info('csvpath')
     logging.info(csv_filepath)
-    tissue = db.session.query(Tissue).filter_by(csv_path=csv_filepath)
+    tissue = db.session.query(Tissue).filter_by(csv_path=csv_filepath).first()
     logging.info(tissue)
     return tissue
 
@@ -160,4 +168,6 @@ def get_video(video_id_passed):
 def add_tissue_csv(id_passed, path_passed):
     tissue = get_tissue(id_passed)
     tissue.csv_path = path_passed
+    #insert_tissue_sample_csv(tissue.tissue_number, tissue.tissue_type, tissue.experiment_num, tissue.bio_reactor_num,
+                   #      tissue.post, tissue.video_id, path_passed)
     db.session.commit()

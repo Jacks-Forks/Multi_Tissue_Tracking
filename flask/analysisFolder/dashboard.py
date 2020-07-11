@@ -6,20 +6,23 @@ import analysisFolder.calculations as calc
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import models
 import pandas as pd
-from app import app
 from dash.dependencies import Input, Output
 import logging
+import models
+from app import app as apple
+import app
+import importlib
 
+apple.app_context().push()
 logging.basicConfig(filename='something.log',
                     format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
 
 # creates an app context for the database
-app.app_context().push()
 
 experiments = models.Experiment.query.all()
+
 '''
 These Should Be User Editable
 '''
@@ -132,7 +135,9 @@ dasher.layout = html.Div([
     [Input('button', 'n_clicks')]
 )
 def reload(button):
-    #experiments = glob.glob('static/uploads/*')
+    # Reloads so analysis is able to find csvpath
+    importlib.reload(app)
+    importlib.reload(models)
     experiments = models.Experiment.query.all()
     return [{'label': i.experiment_num, 'value': i.experiment_num} for i in experiments]
 
