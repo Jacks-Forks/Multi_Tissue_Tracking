@@ -22,14 +22,10 @@ def create_app():
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     #  REVIEW: : where do we wanna save this and name it
-    '''
-    to connect to my sql droplet not had to create a new user with legacy pass word support as ssl doent seem to be supported
-    mysql+pymysql://testUser:xlcr7ds7oy08c0qr@db-mysql-nyc1-39521-do-user-7668124-0.a.db.ondigitalocean.com:25060/defaultdb
-
-    '''
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://newuser:newpassword@mysql:3306/test_db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_ECHO'] = True
+    # Shows sql querys being made if having database issue set to true
+    app.config['SQLALCHEMY_ECHO'] = False
     #  REVIEW: : this needs to be changed
     app.secret_key = 'development key'
     app.register_blueprint(routes_for_flask)
