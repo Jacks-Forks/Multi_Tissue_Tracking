@@ -66,8 +66,8 @@ def allowed_file(filename):
 
 def get_post_info(wtforms_list):
     # converts the list of form data in list of number and type or empty if that post is not in use
-    count = 0
     li = []
+    count = 0
     for entry in wtforms_list:
         if entry.data['post_in_use'] is True:
             count = count + 1
@@ -75,11 +75,18 @@ def get_post_info(wtforms_list):
                 entry.data['tissue_num'] + "," + entry.data['type_of_tissue'])
         else:
             li.append("empty")
+    # returns a list of info about tissue 'empty' if string not in use
+    # 'tissue_number,tissue_type' if it is in use
     return count, li
 
 
 def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_id_passed):
     for post, info in enumerate(li_of_post_info):
+
+        '''
+        enumerate and post is used beacuse the location on the item in the list
+        if not 'empty' is the number of the post it is on whie info is the metadata about the tissue
+        '''
         # check is there is a tissue on post
         if info != 'empty':
             # splits so tissue num is in [0] and type in [1]
@@ -162,15 +169,17 @@ def upload_to_b():
 
     if request.method == 'POST':
         if form.validate() == False:
+            # TODO: add form validation
             return render_template('uploadToB.html', form=form)
         else:
-            #  TODO: clean up and comment this its confusing
-
-            tup_post_info = get_post_info(form.post.entries)
-            li_of_post_info = tup_post_info[1]
+            # is a list of info about tissue 'empty' if string not in use
+            # 'tissue_number,tissue_type' if it is in use
+            # tup[0] is count of tissues tup[1] is list of tiisue infor
+            tup = get_post_info(form.post.entries)
+            li_of_post_info = tup[1]
             logging.info(li_of_post_info)
 
-            # REVIEW: ideally would like to make these drop downs
+            # REVIEW: ideally would like to make these drop downs for experminet and bio reactor
 
             # checks if experiment exsits if it does makes it
             experiment_num = form.experiment_num.data
@@ -183,7 +192,7 @@ def upload_to_b():
                 models.insert_bio_reactor(bio_reactor_num)
 
             # TODO: if upload a csv
-            # adds the viedio to the db and saves the file
+            # adds the vid to the db and saves the file
             # retuens the id of the vid
             new_video_id = save_video_file(form)
 
