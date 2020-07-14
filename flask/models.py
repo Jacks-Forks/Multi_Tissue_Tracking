@@ -171,17 +171,24 @@ def get_video(video_id_passed):
 def add_tissue_csv(id_passed, path_passed):
     tissue = get_tissue(id_passed)
     tissue.csv_path = path_passed
-    # insert_tissue_sample_csv(tissue.tissue_number, tissue.tissue_type, tissue.experiment_num, tissue.bio_reactor_num,
-    #      tissue.post, tissue.video_id, path_passed)
     db.session.commit()
 
 
 def get_all_videos():
     vid_list = []
     vids = Video.query.all()
-    logging.info(vids)
     for video in vids:
         dic = {'id': video.video_id, 'date_uploaded': video.date_uploaded, 'date_recorded': video.date_recorded, 'frequency': video.frequency,
                'save_location': video.save_location, 'bio_reactor_num': video.bio_reactor_num, 'experiment_num': video.experiment_num}
         vid_list.append(dic)
     return vid_list
+
+
+def get_all_tissues():
+    tissue_list = []
+    tissues = Tissue.query.all()
+    for tissue in tissues:
+        dic = {'tissue_id': tissue.tissue_id, 'tissue_number': tissue.tissue_number,
+               'tissue_type': tissue.tissue_type, 'post': tissue.post, 'csv_path': tissue.csv_path, 'experiment_num': tissue.experiment_num, 'bio_reactor_num': tissue.bio_reactor_num, 'video_id': tissue.video_id}
+        tissue_list.append(dic)
+    return tissue_list

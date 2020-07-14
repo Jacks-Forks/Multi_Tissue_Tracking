@@ -1,0 +1,43 @@
+<!DOCTYPE htmls>
+<html>
+
+<head>
+  <title>Show Tissues</title>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+  <table>
+    <tr>
+      <th>Tissue ID</th>
+      <th>Tisssue Number</th>
+      <th>Post</th>
+      <th>CSV Path</th>
+      <th>Experiment Number</th>
+      <th>Bio Reactor Number</th>
+      <th>Video ID</th>
+      <th>Delete</th>
+      <th>Edit</th>
+    </tr>
+    {% for tissue in data %}
+    <tr>
+      <td>{{ tissue['tissue_id'] }}</td>
+      <td>{{ tissue['tissue_number'] }}</td>
+      <td>{{ tissue['post'] }}</td>
+      <td>{{ tissue['csv_path'] }}</td>
+      <td>{{ tissue['experiment_num'] }}</td>
+      <td>{{ tissue['bio_reactor_num'] }}</td>
+      <td>{{ tissue['video_id'] }}</td>
+      <td>
+        <!-- TODO: delete button -->
+      </td>
+      <td>
+        <!-- TODO: edit button -->
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+</body>
+
+</html>

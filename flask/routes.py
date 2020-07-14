@@ -257,3 +257,9 @@ def get_video():
 def show_videos():
     data = models.get_all_videos()
     return render_template('showVideos.html', data=data)
+
+
+@routes_for_flask.route('/showTissues')
+def show_tissues():
+    data = models.get_all_tissues()
+    return render_template('showTissues.html', data=data)
