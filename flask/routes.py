@@ -251,3 +251,9 @@ def get_video():
             for row in models.Video.query.filter_by(date_recorded=date, experiment_num=experiment).all()]
 
     return jsonify(vids)
+
+
+@routes_for_flask.route('/showVideos')
+def show_videos():
+    data = models.get_all_videos()
+    return render_template('showVideos.html', data=data)

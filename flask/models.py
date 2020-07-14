@@ -1,5 +1,6 @@
-from datetime import datetime
 import logging
+from datetime import datetime
+
 from pytz import timezone
 
 from flask_sqlalchemy import SQLAlchemy
@@ -106,6 +107,7 @@ def insert_tissue_sample(tissue_number_passed, tissue_type_passed, experiment_nu
     db.session.add(new_tissue)
     db.session.commit()
 
+
 def insert_tissue_sample_csv(tissue_number_passed, tissue_type_passed, experiment_num_passed, bio_reactor_num_passed, post_passed, video_id_passed, csv_passed):
     new_tissue = Tissue(
         tissue_number=tissue_number_passed, tissue_type=tissue_type_passed, post=post_passed, experiment_num=experiment_num_passed, video_id=video_id_passed, bio_reactor_num=bio_reactor_num_passed, csv_path=csv_passed)
@@ -114,6 +116,7 @@ def insert_tissue_sample_csv(tissue_number_passed, tissue_type_passed, experimen
     new_tissue.video = get_video(video_id_passed)
     db.session.add(new_tissue)
     db.session.commit()
+
 
 def insert_bio_reactor(num_passed):
     new_bio_reactor = Bio_reactor(bio_reactor_num=num_passed)
@@ -168,6 +171,17 @@ def get_video(video_id_passed):
 def add_tissue_csv(id_passed, path_passed):
     tissue = get_tissue(id_passed)
     tissue.csv_path = path_passed
-    #insert_tissue_sample_csv(tissue.tissue_number, tissue.tissue_type, tissue.experiment_num, tissue.bio_reactor_num,
-                   #      tissue.post, tissue.video_id, path_passed)
+    # insert_tissue_sample_csv(tissue.tissue_number, tissue.tissue_type, tissue.experiment_num, tissue.bio_reactor_num,
+    #      tissue.post, tissue.video_id, path_passed)
     db.session.commit()
+
+
+def get_all_videos():
+    vid_list = []
+    vids = Video.query.all()
+    logging.info(vids)
+    for video in vids:
+        dic = {'id': video.video_id, 'date_uploaded': video.date_uploaded, 'date_recorded': video.date_recorded, 'frequency': video.frequency,
+               'save_location': video.save_location, 'bio_reactor_num': video.bio_reactor_num, 'experiment_num': video.experiment_num}
+        vid_list.append(dic)
+    return vid_list

@@ -22,7 +22,7 @@ def create_app():
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     #  REVIEW: : where do we wanna save this and name it
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://newuser:newpassword@mysql:3306/test_db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://newuser:newpassword@localhost:3306/test_db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # Shows sql querys being made if having database issue set to true
     app.config['SQLALCHEMY_ECHO'] = False
