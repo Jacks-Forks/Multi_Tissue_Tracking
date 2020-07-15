@@ -1,0 +1,27 @@
+<!DOCTYPE htmls>
+<html>
+
+<head>
+  <title> Show Experiment </title>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+
+<body>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Number</th>
+    </tr>
+    {% for i in data %}
+    <tr>
+      <td>{{ i['experment_id'] }}</td>
+      <td>{{ i['experment_num'] }}</td>
+      <td><button type="button">Delete</button></td>
+      <td><button type="button">Edit</button></td>
+      <td><button type="button">Download</button></td>
+    </tr>
+    {% endfor %}
+  </table>
+
+</body>

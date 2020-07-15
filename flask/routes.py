@@ -263,3 +263,15 @@ def show_videos():
 def show_tissues():
     data = models.get_all_tissues()
     return render_template('showTissues.html', data=data)
+
+
+@routes_for_flask.route('/showBioreactos')
+def show_bio_reactors():
+    data = models.get_all_bio_reactors()
+    return render_template('showBios.html', data=data)
+
+
+@routes_for_flask.route('/showExp')
+def show_experiment():
+    data = models.get_all_experiments()
+    return render_template('showExp.html', data=data)

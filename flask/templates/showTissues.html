@@ -18,6 +18,7 @@
       <th>Video ID</th>
       <th>Delete</th>
       <th>Edit</th>
+      <th>Download</th>
     </tr>
     {% for tissue in data %}
     <tr>
@@ -28,12 +29,9 @@
       <td>{{ tissue['experiment_num'] }}</td>
       <td>{{ tissue['bio_reactor_num'] }}</td>
       <td>{{ tissue['video_id'] }}</td>
-      <td>
-        <!-- TODO: delete button -->
-      </td>
-      <td>
-        <!-- TODO: edit button -->
-      </td>
+      <td><button type="button">Delete</button></td>
+      <td><button type="button">Edit</button></td>
+      <td><button type="button">Download</button></td>
     </tr>
     {% endfor %}
   </table>
