@@ -275,3 +275,11 @@ def show_bio_reactors():
 def show_experiment():
     data = models.get_all_experiments()
     return render_template('showExp.html', data=data)
+
+
+@routes_for_flask.route('/deleteTissue', methods=['POST'])
+def delete_tissue():
+    from_js = request.get_data()
+    tissue_id = json.loads(from_js)
+    models.delete_tissue(tissue_id)
+    return jsonify({'status': 'OK'})
