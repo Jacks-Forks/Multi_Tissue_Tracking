@@ -1,0 +1,41 @@
+<!DOCTYPE htmls>
+<html>
+
+<head>
+  <title> Show Vidios </title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Date uploaded</th>
+      <th>Date recored</th>
+      <th>Frequency</th>
+      <th>Save Location</th>
+      <th>Experiment Number</th>
+      <th>Bio Reactor Number</th>
+      <th>Delete</th>
+      <th>Edit</th>
+    </tr>
+    {% for vid in data %}
+    <tr>
+      <td>{{ vid['id'] }}</td>
+      <td>{{ vid['date_uploaded'] }}</td>
+      <td>{{ vid['date_recorded'] }}</td>
+      <td>{{ vid['frequency'] }}</td>
+      <td>{{ vid['save_location'] }}</td>
+      <td>{{ vid['experiment_num'] }}</td>
+      <td>{{ vid['bio_reactor_num'] }}</td>
+      <td><button type="button">Delete</button></td>
+      <td><button type="button">Edit</button></td>
+      <td><button type="button">Download</button></td>
+    </tr>
+    {% endfor %}
+  </table>
+
+</body>
+
+</html>

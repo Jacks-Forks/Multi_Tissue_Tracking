@@ -251,3 +251,35 @@ def get_video():
             for row in models.Video.query.filter_by(date_recorded=date, experiment_num=experiment).all()]
 
     return jsonify(vids)
+
+
+@routes_for_flask.route('/showVideos')
+def show_videos():
+    data = models.get_all_videos()
+    return render_template('showVideos.html', data=data)
+
+
+@routes_for_flask.route('/showTissues')
+def show_tissues():
+    data = models.get_all_tissues()
+    return render_template('showTissues.html', data=data)
+
+
+@routes_for_flask.route('/showBioreactos')
+def show_bio_reactors():
+    data = models.get_all_bio_reactors()
+    return render_template('showBios.html', data=data)
+
+
+@routes_for_flask.route('/showExp')
+def show_experiment():
+    data = models.get_all_experiments()
+    return render_template('showExp.html', data=data)
+
+
+@routes_for_flask.route('/deleteTissue', methods=['POST'])
+def delete_tissue():
+    from_js = request.get_data()
+    tissue_id = json.loads(from_js)
+    models.delete_tissue(tissue_id)
+    return jsonify({'status': 'OK'})

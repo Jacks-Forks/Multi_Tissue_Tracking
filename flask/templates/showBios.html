@@ -1,0 +1,27 @@
+<!DOCTYPE htmls>
+<html>
+
+<head>
+  <title> Show Bio Reactors </title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+
+<body>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Number</th>
+    </tr>
+    {% for i in data %}
+    <tr>
+      <td>{{ i['bio_id'] }}</td>
+      <td>{{ i['bio_num'] }}</td>
+      <td><button type="button">Delete</button></td>
+      <td><button type="button">Edit</button></td>
+    </tr>
+    {% endfor %}
+  </table>
+
+</body>
