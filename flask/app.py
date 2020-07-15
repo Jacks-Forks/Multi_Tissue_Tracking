@@ -21,7 +21,7 @@ def create_app():
     # TODO: move to wsgi??
     username = 'newuser'
     password = 'newpassword'
-    location = 'localhost'
+    location = 'mysql'
     dbname = 'test_db'
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
