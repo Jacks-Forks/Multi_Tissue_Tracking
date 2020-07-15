@@ -9,7 +9,7 @@ services:
     expose:
       - 8080
     volumes:
-      - ~/shared:/shared
+      - ~/uploader:/app/static/uploads
     depends_on:
       - mysql
 
