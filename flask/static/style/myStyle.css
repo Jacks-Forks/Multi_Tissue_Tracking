@@ -16,3 +16,30 @@
   height: 540px;
   width: 960px;
 }
+
+/* table cs for show html */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+td {
+  text-align: center;
+}
+
+th {
+  background-color: blue;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #d4ebf2;
+}
+
+tr:hover {
+  background-color: #f2d4eb;
+}
