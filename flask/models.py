@@ -35,11 +35,11 @@ class Video(db.Model):
     save_location = db.Column(db.String(120), nullable=False)
 
     experiment_num = db.Column(db.Integer, db.ForeignKey(
-        'experiment.experiment_num', ondelete='CASCADE'), nullable=False)
+        'experiment.experiment_num'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='vids')
 
     bio_reactor_num = db.Column(db.Integer, db.ForeignKey(
-        'bio_reactor.bio_reactor_num', ondelete='CASCADE'), nullable=False)
+        'bio_reactor.bio_reactor_num'), nullable=False)
     bio_reactor = db.relationship(
         'Bio_reactor', back_populates='vids')
 
@@ -56,11 +56,11 @@ class Tissue(db.Model):
     csv_path = db.Column(db.String(120), nullable=True)
 
     experiment_num = db.Column(db.Integer, db.ForeignKey(
-        'experiment.experiment_num', ondelete='CASCADE'), nullable=False)
+        'experiment.experiment_num'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='tissues')
 
     bio_reactor_num = db.Column(db.Integer,  db.ForeignKey(
-        'bio_reactor.bio_reactor_num', ondelete='CASCADE'), nullable=False)
+        'bio_reactor.bio_reactor_num'), nullable=False)
     bio_reactor = db.relationship(
         'Bio_reactor', back_populates='tissues')
 
@@ -80,9 +80,9 @@ class Bio_reactor(db.Model):
         db.Integer, primary_key=True, autoincrement=True)
     bio_reactor_num = db.Column(db.Integer, unique=True, nullable=False)
     tissues = db.relationship(
-        'Tissue', back_populates='bio_reactor', passive_deletes=True)
+        'Tissue', back_populates='bio_reactor')
     vids = db.relationship(
-        'Video', back_populates='bio_reactor', passive_deletes=True)
+        'Video', back_populates='bio_reactor')
     # TODO:put actual stuff here
 
 # TODO: what happens if already exsits?
