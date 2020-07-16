@@ -283,3 +283,12 @@ def delete_tissue():
     tissue_id = json.loads(from_js)
     models.delete_tissue(tissue_id)
     return jsonify({'status': 'OK'})
+
+
+@routes_for_flask.route('/deleteVideo', methods=['POST'])
+def delete_video():
+    from_js = request.get_data()
+    logging.info(from_js)
+    video_id = json.loads(from_js)
+    models.delete_video(video_id)
+    return jsonify({'status': 'OK'})

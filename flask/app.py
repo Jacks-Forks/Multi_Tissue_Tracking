@@ -21,7 +21,7 @@ def create_app():
     # TODO: move to wsgi??
     username = 'newuser'
     password = 'newpassword'
-    location = 'mysql'
+    location = 'localhost'
     dbname = 'test_db'
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -53,8 +53,3 @@ def check_system():
 
 
 check_system()
-
-
-def test():
-    print("idk")
-    return render_template('home.html')

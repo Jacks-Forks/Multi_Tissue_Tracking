@@ -17,8 +17,10 @@ class Experiment(db.Model):
     experiment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     experiment_num = db.Column(
         db.Integer, nullable=False, unique=True)
-    tissues = db.relationship('Tissue', back_populates='experiment')
-    vids = db.relationship('Video', back_populates='experiment')
+    tissues = db.relationship(
+        'Tissue', back_populates='experiment', passive_deletes=True)
+    vids = db.relationship(
+        'Video', back_populates='experiment', passive_deletes=True)
 
 
 class Video(db.Model):
@@ -37,10 +39,12 @@ class Video(db.Model):
     experiment = db.relationship('Experiment', back_populates='vids')
 
     bio_reactor_num = db.Column(db.Integer, db.ForeignKey(
-        'bio_reactor.bio_reactor_num'), nullable=False)
-    bio_reactor = db.relationship('Bio_reactor', back_populates='vids')
+        'bio_reactor.bio_reactor_num', ondelete='CASCADE'), nullable=False)
+    bio_reactor = db.relationship(
+        'Bio_reactor', back_populates='vids')
 
-    tissues = db.relationship('Tissue', back_populates='video')
+    tissues = db.relationship(
+        'Tissue', back_populates='video', passive_deletes=True)
 
 
 class Tissue(db.Model):
@@ -56,12 +60,14 @@ class Tissue(db.Model):
     experiment = db.relationship('Experiment', back_populates='tissues')
 
     bio_reactor_num = db.Column(db.Integer,  db.ForeignKey(
-        'bio_reactor.bio_reactor_num'), nullable=False)
-    bio_reactor = db.relationship('Bio_reactor', back_populates='tissues')
+        'bio_reactor.bio_reactor_num', ondelete='CASCADE'), nullable=False)
+    bio_reactor = db.relationship(
+        'Bio_reactor', back_populates='tissues')
 
     video_id = db.Column(
-        db.Integer,  db.ForeignKey('video.video_id'), nullable=False)
-    video = db.relationship('Video', back_populates='tissues')
+        db.Integer,  db.ForeignKey('video.video_id', ondelete='CASCADE'), nullable=False)
+    video = db.relationship(
+        'Video', back_populates='tissues')
 
     def __repr__(self):
         return '<Tissue %r>' % self.id
@@ -216,4 +222,22 @@ def get_all_bio_reactors():
 def delete_tissue(tissue_id):
     tissue = get_tissue(tissue_id)
     db.session.delete(tissue)
+    db.session.commit()
+
+
+def delete_video(vid_id):
+    vid = get_video(vid_id)
+    db.session.delete(vid)
+    db.session.commit()
+
+
+def delete_expirement(exp_id):
+    exp = get_experiment(exp_id)
+    db.session.delete(exp)
+    db.session.commit()
+
+
+def delete_bio_reactor(bio_id):
+    bio = get_bio_reactor(bio_id)
+    db.session.delete(bio)
     db.session.commit()
