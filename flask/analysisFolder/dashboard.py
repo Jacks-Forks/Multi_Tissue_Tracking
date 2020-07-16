@@ -18,8 +18,6 @@ logging.basicConfig(filename='something.log',
                     format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
 
-# creates an app context for the database
-
 experiments = models.Experiment.query.all()
 
 '''

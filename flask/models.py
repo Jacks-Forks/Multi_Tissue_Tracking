@@ -85,8 +85,8 @@ def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_pa
 
     new_video = Video(date_recorded=date_recorded_passed,
                       experiment_num=experiment_num_passed, bio_reactor_num=bio_reactor_num_passed, frequency=frequency_passed, save_location=save_path_passed)
-    new_video.expirment = get_experiment(experiment_num_passed)
-    new_video.bio_reactor = get_bio_reactor(bio_reactor_num_passed)
+    new_video.expirment = get_experiment_by_num(experiment_num_passed)
+    new_video.bio_reactor = get_bio_reactor_by_num(bio_reactor_num_passed)
 
     db.session.add(new_video)
     db.session.commit()
@@ -117,15 +117,27 @@ def insert_bio_reactor(num_passed):
 # TODO: add error handling for all get functions
 
 
-def get_experiment(experiment_num_passed):
+def get_experiment_by_num(experiment_num_passed):
     expirment = Experiment.query.filter_by(
         experiment_num=experiment_num_passed).first()
     return expirment
 
 
-def get_bio_reactor(bio_reactor_num_passed):
+def get_bio_reactor_by_num(bio_reactor_num_passed):
     bio_reactor = Bio_reactor.query.filter_by(
         bio_reactor_num=bio_reactor_num_passed).first()
+    return bio_reactor
+
+
+def get_experiment_by_id(experiment_id_passed):
+    expirment = Experiment.query.filter_by(
+        experiment_id=experiment_id_passed).first()
+    return expirment
+
+
+def get_bio_reactor_by_id(bio_reactor_id_passed):
+    bio_reactor = Bio_reactor.query.filter_by(
+        bio_reactor_id=bio_reactor_id_passed).first()
     return bio_reactor
 
 
@@ -136,7 +148,7 @@ def get_tissue(tissue_id_passed):
 
 
 def get_dates_list(experiment_num_passed):
-    experiment = get_experiment(experiment_num_passed)
+    experiment = get_experiment_by_num(experiment_num_passed)
     videos_list = experiment.vids
     dates = []
     for video in videos_list:
@@ -190,7 +202,7 @@ def get_all_tissues():
     tissues = Tissue.query.all()
     for tissue in tissues:
         dic = {'tissue_id': tissue.tissue_id, 'tissue_number': tissue.tissue_number,
-               'tissue_type': tissue.tissue_type, 'post': tissue.post, 'csv_path': tissue.csv_path, 'experiment_num': tissue.experiment_num, 'bio_reactor_num': tissue.bio_reactor_num, 'video_id': tissue.video_id}
+               'tissue_type': tissue.tissue_type, 'post': tissue.post, 'csv_path': tissue.csv_path, 'video_id': tissue.video_id}
         tissue_list.append(dic)
     return tissue_list
 
@@ -217,12 +229,14 @@ def delete_video(vid_id):
 
 
 def delete_expirement(exp_id):
-    exp = get_experiment(exp_id)
+    exp = get_experiment_by_id(exp_id)
     db.session.delete(exp)
     db.session.commit()
 
 
 def delete_bio_reactor(bio_id):
-    bio = get_bio_reactor(bio_id)
+    print(bio_id)
+    bio = get_bio_reactor_by_id(bio_id)
+    print(bio)
     db.session.delete(bio)
     db.session.commit()
