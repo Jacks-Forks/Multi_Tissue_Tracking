@@ -70,7 +70,7 @@ class Tissue(db.Model):
         'Video', back_populates='tissues')
 
     def __repr__(self):
-        return '<Tissue %r>' % self.id
+        return '<Tissue %r>' % self.tissue_id
 
 # TODO: video and csv separe or not
 
@@ -217,7 +217,7 @@ def get_all_bio_reactors():
     bio_reactors = Bio_reactor.query.all()
     for bio in bio_reactors:
         dic = {'bio_id': bio.bio_reactor_id, 'bio_num': bio.bio_reactor_num}
-    bio_list.append(dic)
+        bio_list.append(dic)
     return bio_list
 
 
