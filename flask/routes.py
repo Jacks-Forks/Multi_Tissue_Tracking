@@ -80,7 +80,7 @@ def get_post_info(wtforms_list):
     return count, li
 
 
-def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_id_passed):
+def add_tissues(li_of_post_info, video_id_passed):
     for post, info in enumerate(li_of_post_info):
 
         '''
@@ -94,7 +94,7 @@ def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, 
             tissue_num = split_list[0]
             tissue_type = split_list[1]
             models.insert_tissue_sample(
-                tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_id_passed)
+                tissue_num, tissue_type, post, video_id_passed)
 
 
 def get_post_locations(vid_id):
@@ -197,8 +197,7 @@ def upload_to_b():
             new_video_id = save_video_file(form)
 
             # add the tissues to the databse as children of the vid, experiment and bio reactor
-            add_tissues(li_of_post_info, experiment_num,
-                        bio_reactor_num, new_video_id)
+            add_tissues(li_of_post_info, new_video_id)
 
             return redirect('/pick_video')
     else:
