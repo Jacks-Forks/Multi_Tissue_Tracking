@@ -18,7 +18,6 @@ video_file_extentions = {'mov', 'mp4'}
 
 
 def create_app():
-    # TODO: move to wsgi??
     username = 'newuser'
     password = 'newpassword'
     location = 'mysql'
@@ -53,8 +52,3 @@ def check_system():
 
 
 check_system()
-
-
-def test():
-    print("idk")
-    return render_template('home.html')

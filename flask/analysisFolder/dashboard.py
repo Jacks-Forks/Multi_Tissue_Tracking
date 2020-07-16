@@ -1,25 +1,22 @@
-
 import glob
+import importlib
+import logging
 
 import analysisFolder.analysis as analysis
 import analysisFolder.calculations as calc
+import app
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import pandas as pd
-from dash.dependencies import Input, Output
-import logging
 import models
+import pandas as pd
 from app import app as apple
-import app
-import importlib
+from dash.dependencies import Input, Output
 
 apple.app_context().push()
 logging.basicConfig(filename='something.log',
                     format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
 logging.warning("New Run Starts Here")
-
-# creates an app context for the database
 
 experiments = models.Experiment.query.all()
 
@@ -245,9 +242,9 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             # If it is multi tissue,
             logging.info('tissue_object')
             logging.info(tissue_object)
-            if tissue_object.bio_reactor_num != 0:
+            if tissue_object.video.bio_reactor_num != 0:
                 loc = tissue_object.post
-                bio = tissue_object.bio_reactor_num
+                bio = tissue_object.video.bio_reactor_num
                 # Read in post heights from csv values (imported into database earlier)
                 l_r = summarys[bio - 1]['RPostHt'][loc]
                 l_l = summarys[bio - 1]['LPostHt'][loc]

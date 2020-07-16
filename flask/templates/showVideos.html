@@ -5,9 +5,30 @@
   <title> Show Vidios </title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>
+
+  <script>
+    function makeSure(id) {
+      var r = confirm("Are you sure you want to Delete");
+      if (r == true) {
+        $(document).ready(function() {
+          $.ajax({
+            type: "POST",
+            url: '/deleteVideo',
+            dataType: "json",
+            data: JSON.stringify(id),
+            success: function(data) {
+              console.log(data);
+              window.location.reload(true);
+            }
+          })
+        });
+      }
+    }
+  </script>
   <table>
     <tr>
       <th>ID</th>
@@ -19,6 +40,7 @@
       <th>Bio Reactor Number</th>
       <th>Delete</th>
       <th>Edit</th>
+      <th>Download</th>
     </tr>
     {% for vid in data %}
     <tr>
@@ -29,7 +51,7 @@
       <td>{{ vid['save_location'] }}</td>
       <td>{{ vid['experiment_num'] }}</td>
       <td>{{ vid['bio_reactor_num'] }}</td>
-      <td><button type="button">Delete</button></td>
+      <td><button type="button" onclick="makeSure({{ vid['id'] }})">Delete</button></td>
       <td><button type="button">Edit</button></td>
       <td><button type="button">Download</button></td>
     </tr>

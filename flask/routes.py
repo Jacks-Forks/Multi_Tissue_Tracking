@@ -80,7 +80,7 @@ def get_post_info(wtforms_list):
     return count, li
 
 
-def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, video_id_passed):
+def add_tissues(li_of_post_info, video_id_passed):
     for post, info in enumerate(li_of_post_info):
 
         '''
@@ -94,7 +94,7 @@ def add_tissues(li_of_post_info, experiment_num_passed, bio_reactor_num_passed, 
             tissue_num = split_list[0]
             tissue_type = split_list[1]
             models.insert_tissue_sample(
-                tissue_num, tissue_type, experiment_num_passed, bio_reactor_num_passed, post, video_id_passed)
+                tissue_num, tissue_type, post, video_id_passed)
 
 
 def get_post_locations(vid_id):
@@ -183,12 +183,12 @@ def upload_to_b():
 
             # checks if experiment exsits if it does makes it
             experiment_num = form.experiment_num.data
-            if models.get_experiment(experiment_num) is None:
+            if models.get_experiment_by_num(experiment_num) is None:
                 models.insert_experiment(experiment_num)
 
             # checks if experiment exsits if it does makes it
             bio_reactor_num = form.bio_reactor_num.data
-            if models.get_bio_reactor(bio_reactor_num) is None:
+            if models.get_bio_reactor_by_num(bio_reactor_num) is None:
                 models.insert_bio_reactor(bio_reactor_num)
 
             # TODO: if upload a csv
@@ -197,8 +197,7 @@ def upload_to_b():
             new_video_id = save_video_file(form)
 
             # add the tissues to the databse as children of the vid, experiment and bio reactor
-            add_tissues(li_of_post_info, experiment_num,
-                        bio_reactor_num, new_video_id)
+            add_tissues(li_of_post_info, new_video_id)
 
             return redirect('/pick_video')
     else:
@@ -282,4 +281,29 @@ def delete_tissue():
     from_js = request.get_data()
     tissue_id = json.loads(from_js)
     models.delete_tissue(tissue_id)
+    return jsonify({'status': 'OK'})
+
+
+@routes_for_flask.route('/deleteVideo', methods=['POST'])
+def delete_video():
+    from_js = request.get_data()
+    logging.info(from_js)
+    video_id = json.loads(from_js)
+    models.delete_video(video_id)
+    return jsonify({'status': 'OK'})
+
+
+@routes_for_flask.route('/deleteExp', methods=['POST'])
+def delete_exp():
+    from_js = request.get_data()
+    exp_id = json.loads(from_js)
+    models.delete_expirement(exp_id)
+    return jsonify({'status': 'OK'})
+
+
+@routes_for_flask.route('/deleteBio', methods=['POST'])
+def delete_bio_reactor():
+    from_js = request.get_data()
+    bio_id = json.loads(from_js)
+    models.delete_bio_reactor(bio_id)
     return jsonify({'status': 'OK'})
