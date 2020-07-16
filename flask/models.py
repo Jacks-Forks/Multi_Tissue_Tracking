@@ -35,7 +35,7 @@ class Video(db.Model):
     save_location = db.Column(db.String(120), nullable=False)
 
     experiment_num = db.Column(db.Integer, db.ForeignKey(
-        'experiment.experiment_num'), nullable=False)
+        'experiment.experiment_num', ondelete='CASCADE'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='vids')
 
     bio_reactor_num = db.Column(db.Integer, db.ForeignKey(
@@ -56,7 +56,7 @@ class Tissue(db.Model):
     csv_path = db.Column(db.String(120), nullable=True)
 
     experiment_num = db.Column(db.Integer, db.ForeignKey(
-        'experiment.experiment_num'), nullable=False)
+        'experiment.experiment_num', ondelete='CASCADE'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='tissues')
 
     bio_reactor_num = db.Column(db.Integer,  db.ForeignKey(
@@ -79,8 +79,10 @@ class Bio_reactor(db.Model):
     bio_reactor_id = db.Column(
         db.Integer, primary_key=True, autoincrement=True)
     bio_reactor_num = db.Column(db.Integer, unique=True, nullable=False)
-    tissues = db.relationship('Tissue', back_populates='bio_reactor')
-    vids = db.relationship('Video', back_populates='bio_reactor')
+    tissues = db.relationship(
+        'Tissue', back_populates='bio_reactor', passive_deletes=True)
+    vids = db.relationship(
+        'Video', back_populates='bio_reactor', passive_deletes=True)
     # TODO:put actual stuff here
 
 # TODO: what happens if already exsits?

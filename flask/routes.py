@@ -292,3 +292,19 @@ def delete_video():
     video_id = json.loads(from_js)
     models.delete_video(video_id)
     return jsonify({'status': 'OK'})
+
+
+@routes_for_flask.route('/deleteExp', methods=['POST'])
+def delete_exp():
+    from_js = request.get_data()
+    exp_id = json.loads(from_js)
+    models.delete_expirement(exp_id)
+    return jsonify({'status': 'OK'})
+
+
+@routes_for_flask.route('/deleteBio', methods=['POST'])
+def delete_bio_reactor():
+    from_js = request.get_data()
+    bio_id = json.loads(from_js)
+    models.delete_bio_reactor(bio_id)
+    return jsonify({'status': 'OK'})
