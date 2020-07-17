@@ -8,7 +8,8 @@ import cv2
 import forms
 import models
 import tracking
-from flask import Blueprint, jsonify, redirect, render_template, request
+from flask import (Blueprint, jsonify, redirect, render_template, request,
+                   send_file)
 from werkzeug.utils import secure_filename
 
 current_directory = os.getcwd()
@@ -307,3 +308,10 @@ def delete_bio_reactor():
     bio_id = json.loads(from_js)
     models.delete_bio_reactor(bio_id)
     return jsonify({'status': 'OK'})
+
+
+@routes_for_flask.route('/download', methods=['POST'])
+def download():
+    logging.info(request.form['download'])
+    file_path = request.form['download']
+    return send_file(file_path, as_attachment=True)
