@@ -77,7 +77,7 @@ class Bio_reactor(db.Model):
 # TODO: what happens if already exsits?
 
 
-def delete_empties(file_path):
+def delete_empties():
     for (root, dirs, files) in os.walk('static/uploads', topdown=False):
         if root == 'static/uploads':
             break
@@ -238,7 +238,7 @@ def delete_video(vid_id):
     file_location = vid.save_location
     if os.path.isfile(file_location):
         os.remove(file_location)
-        delete_empties(file_location)
+        delete_empties()
     else:
         logging.error('failed to delete vid')
     db.session.delete(vid)
