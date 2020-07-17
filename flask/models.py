@@ -229,6 +229,14 @@ def get_all_bio_reactors():
 
 def delete_tissue(tissue_id):
     tissue = get_tissue(tissue_id)
+    logging.info(tissue.csv_path)
+    file_path = tissue.csv_path
+    if os.path.exists(file_path):
+        os.remove(tissue.csv_path)
+        delete_empties()
+    else:
+        logging.warning('There was no CSV')
+
     db.session.delete(tissue)
     db.session.commit()
 
@@ -240,7 +248,7 @@ def delete_video(vid_id):
         os.remove(file_location)
         delete_empties()
     else:
-        logging.error('failed to delete vid')
+        logging.error('Failed to delete vid')
     db.session.delete(vid)
     db.session.commit()
 
