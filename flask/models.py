@@ -1,4 +1,6 @@
 import logging
+import os
+import shutil
 from datetime import datetime
 
 from pytz import timezone
@@ -73,6 +75,15 @@ class Bio_reactor(db.Model):
     # TODO:put actual stuff here
 
 # TODO: what happens if already exsits?
+
+
+def delete_empties():
+    for (root, dirs, files) in os.walk('static/uploads', topdown=False):
+        if root == 'static/uploads':
+            break
+        if not os.listdir(root):
+            logging.info(root)
+            os.rmdir(root)
 
 
 def insert_experiment(num_passed):
@@ -224,19 +235,25 @@ def delete_tissue(tissue_id):
 
 def delete_video(vid_id):
     vid = get_video(vid_id)
+    file_location = vid.save_location
+    if os.path.isfile(file_location):
+        os.remove(file_location)
+        delete_empties()
+    else:
+        logging.error('failed to delete vid')
     db.session.delete(vid)
     db.session.commit()
 
 
 def delete_expirement(exp_id):
     exp = get_experiment_by_id(exp_id)
+    experiment_num = exp.experiment_num
+    shutil.rmtree(f'static/uploads/{experiment_num}')
     db.session.delete(exp)
     db.session.commit()
 
 
 def delete_bio_reactor(bio_id):
-    print(bio_id)
     bio = get_bio_reactor_by_id(bio_id)
-    print(bio)
     db.session.delete(bio)
     db.session.commit()
