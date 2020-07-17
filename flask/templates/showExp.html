@@ -36,6 +36,7 @@
       <th>Number</th>
       <th>Delete</th>
       <th>Edit</th>
+      <th>Download</th>
     </tr>
     {% for i in data %}
     <tr>
@@ -43,6 +44,9 @@
       <td>{{ i['experment_num'] }}</td>
       <td><button type="button" onclick="makeSure({{ i['experment_id'] }})">Delete</button></td>
       <td><button type="button">Edit</button></td>
+      <td>
+        <form action="/downloadExp" method="POST"><button type="submit" name="download" value="{{ i['experment_num'] }}">Download</button></form>
+      </td>
     </tr>
     {% endfor %}
   </table>

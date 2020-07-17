@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import shutil
 import threading
 from datetime import datetime
 
@@ -8,7 +9,8 @@ import cv2
 import forms
 import models
 import tracking
-from flask import Blueprint, jsonify, redirect, render_template, request
+from flask import (Blueprint, after_this_request, jsonify, redirect,
+                   render_template, request, send_file)
 from werkzeug.utils import secure_filename
 
 current_directory = os.getcwd()
@@ -307,3 +309,26 @@ def delete_bio_reactor():
     bio_id = json.loads(from_js)
     models.delete_bio_reactor(bio_id)
     return jsonify({'status': 'OK'})
+
+
+@routes_for_flask.route('/download', methods=['POST'])
+def download():
+    file_path = request.form['download']
+    return send_file(file_path, as_attachment=True)
+
+
+@routes_for_flask.route('/downloadExp', methods=['POST'])
+def download_exp():
+    exp_num = request.form['download']
+    zip_path = shutil.make_archive(f'{exp_num}',
+                                   'zip', f'static/uploads/{exp_num}')
+
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(zip_path)
+        except Exception as error:
+            logging.error(
+                "Error removing or closing downloaded file handle", error)
+        return response
+    return send_file(zip_path, as_attachment=True)
