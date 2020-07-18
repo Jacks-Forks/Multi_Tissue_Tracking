@@ -195,7 +195,7 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
         for i in range(len(dataframes)):
             # Converts time to seconds
             # TODO: Check this conversion
-            dataframes[i]['time'] = dataframes[i]['time'] / 1000
+            dataframes[i]['time'] = dataframes[i]['time']
 
         poly = smooth[0]
         window = smooth[1]
@@ -232,10 +232,13 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             # For each contraction
             for j in range(len(peaks[i])):
                 # Find the distances for sys, dias, and dev force
-                # TODO: IMPORTANT, SHOULD THIS BE peakdist[i] etc...
-                peakdist.append(7 + dataframeo[i]['disp'][peaks[i][j]])
-                basedist.append(7 + dataframeo[i]['disp'][basepoints[i][j]])
-                devdist.append(peakdist[j] - basedist[j])
+                # TODO: IMPORTANT, SHOULD THIS BE peakdist[i] etc... Fixed but confirm
+                peakdist.append([])
+                basedist.append([])
+                devdist.append([])
+                peakdist[i].append(7 + dataframeo[i]['disp'][peaks[i][j]])
+                basedist[i].append(7 + dataframeo[i]['disp'][basepoints[i][j]])
+                devdist[i].append(peakdist[i][j] - basedist[i][j])
             logging.info('filesI')
             logging.info(files[i])
             tissue_object = models.get_tissue_by_csv(files[i])
@@ -259,11 +262,11 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
 
             # Call functions for each calculation. Functions found in calculations.py
             actforce.append(calc.force(
-                youngs, radius, l_r, a_r, l_l, a_l, peakdist))
+                youngs, radius, l_r, a_r, l_l, a_l, peakdist[i]))
             pasforce.append(calc.force(
-                youngs, radius, l_r, a_r, l_l, a_l, basedist))
+                youngs, radius, l_r, a_r, l_l, a_l, basedist[i]))
             devforce.append(calc.force(
-                youngs, radius, l_r, a_r, l_l, a_l, devdist))
+                youngs, radius, l_r, a_r, l_l, a_l, devdist[i]))
             t50.append(calc.t50(fifty[i], dataframeo[i]['time']))
             c50.append(calc.c50(peaks[i], fifty[i], dataframeo[i]['time']))
             r50.append(calc.r50(peaks[i], fifty[i], dataframeo[i]['time']))
@@ -281,7 +284,67 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
 
         # Print out calculated values
         # TODO: Change to store and download data
+        summaryfile = open('static/uploads/' + folder[0] + '/' + folder[1] + '/summary.csv', 'w')
+        summaryfile.write( 'Tissue' + ',' +
+                            'Active Force' + ',' +
+                            'Active Force STD' + ',' +
+                           'Passive Force' + ',' +
+                           'Passive Force STD' + ',' +
+                            'Developed Force' + ',' +
+                            'Developed Force STD' + ',' +
+                            'Average Beat Rate' + ',' +
+                            'Average Beat Rate STD' + ',' +
+                            'Beat Rate COV' + ',' +
+                            'T2PK' + ',' +
+                            'T2PK STD' + ',' +
+                            'T50' + ',' +
+                            'T50 STD' + ',' +
+                            'C50' + ',' +
+                            'C50 STD' + ',' +
+                            'R50' + ',' +
+                            'R50 STD' + ',' +
+                            'T2Rel50' + ',' +
+                            'T2Rel50 STD' + ',' +
+                            'T2Rel90' + ',' +
+                            'T2Rel90 STD' + ',' +
+                            'dfdt' + ',' +
+                            'dfdt STD' + ',' +
+                            'negdfdt' + ',' +
+                            'negdfdt STD' + ',' +
+                            '\n'
+                           )
 
+        for i in range(len(t50)):
+            tissue_object = models.get_tissue_by_csv(files[i])
+            summaryfile.write( f'{tissue_object.tissue_number}' + ',' +
+                                str(actforce[i][0]) + ',' +
+                                str(actforce[i][1]) + ',' +
+                                str(pasforce[i][0]) + ',' +
+                                str(pasforce[i][1]) + ',' +
+                                str(devforce[i][0]) + ',' +
+                                str(devforce[i][1]) + ',' +
+                                str(freq[i][0]) + ',' +
+                                str(freq[i][1]) + ',' +
+                                str(freqCOV[i]) + ',' +
+                                str(t2pks[i][0]) + ',' +
+                                str(t2pks[i][1]) + ',' +
+                                str(t50[i][0]) + ',' +
+                                str(t50[i][1]) + ',' +
+                                str(c50[i][0]) + ',' +
+                                str(c50[i][1]) + ',' +
+                                str(r50[i][0]) + ',' +
+                                str(r50[i][1]) + ',' +
+                                str(t2rel50[i][0]) + ',' +
+                                str(t2rel50[i][1]) + ',' +
+                                str(t2rel90[i][0]) + ',' +
+                                str(t2rel90[i][1]) + ',' +
+                                str(dfdt[i][0]) + ',' +
+                                str(dfdt[i][1]) + ',' +
+                                str(negdfdt[i][0]) + ',' +
+                                str(negdfdt[i][1]) + ',' +
+                                '\n'
+                               )
+        summaryfile.close()
         print(str(t50) + '\n')
         print(str(r50) + '\n')
         print(str(c50) + '\n')
