@@ -280,10 +280,7 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
             dfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
             negdfdt.append(calc.dfdt(ninety[i], ten[i], dataframeo[i]['time']))
 
-            # TODO: clea up these prints
-
         # Print out calculated values
-        # TODO: Change to store and download data
         summaryfile = open('static/uploads/' + folder[0] + '/' + folder[1] + '/summary.csv', 'w')
         summaryfile.write( 'Tissue' + ',' +
                             'Active Force' + ',' +
@@ -345,23 +342,6 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
                                 '\n'
                                )
         summaryfile.close()
-        print(str(t50) + '\n')
-        print(str(r50) + '\n')
-        print(str(c50) + '\n')
-
-        print(str(t2pks) + '\n')
-        print(str(t2rel50) + '\n')
-        print(str(t2rel90) + '\n')
-
-        print(str(dfdt) + '\n')
-        print(str(negdfdt) + '\n')
-
-        print(str(freq) + '\n')
-        print(str(freqCOV) + '\n')
-
-        print(str(actforce) + '\n')
-        print(str(pasforce) + '\n')
-        print(str(devforce) + '\n')
 
         # Returns the graph with all the points of interest graphed.
         return ([
@@ -447,6 +427,11 @@ def storedFiles(folder, smooth, thresh, buff, dist, but):
                               'marker': {
                                   'size': 12
                               }
-                          }]
+                          }],
+                          'layout': {
+                              'xaxis': {
+                                  'rangeslider': {}
+                              }
+                          }
             }) for i in range(len(files))
         ])
