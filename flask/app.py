@@ -19,8 +19,8 @@ video_file_extentions = {'mov', 'mp4'}
 
 def create_app():
     username = 'newuser'
-    password = 'mysql'
-    location = 'localhost'
+    password = 'newpassword'
+    location = 'mysql'
     dbname = 'test_db'
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
