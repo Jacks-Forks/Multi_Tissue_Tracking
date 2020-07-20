@@ -84,7 +84,7 @@
     });
   </script>
     {% for i in range( leng | length ) %}
-        <div id="{{i}}"></div>
+        <div style="height: 600px;" id="{{i}}"></div>
     {% endfor %}
     <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
     <script type="text/javascript" src="{{ url_for('static', filename='JS/analysis.js') }}"></script>

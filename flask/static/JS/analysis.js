@@ -31,12 +31,21 @@ function grapher() {
       y: [9, 9, 9],
       type: 'scatter'
     };
-    var data = [trace2];
+    var data = [trace2, trace3];
     /* ------------------------------------------------------------------------------------*/
 
     /* ---------------Define Sliders Start------------------------------------------------*/
     var threshSlider = {
-      pad: {t: 50},
+      len: .5,
+      pad: {t: 100},
+      currentvalue: {
+       xanchor: 'right',
+       prefix: 'Thresh: ',
+       font: {
+         color: '#888',
+         size: 10
+       }
+     },
       steps: [{
         label: '0',
         method: 'restyle',
@@ -84,7 +93,16 @@ function grapher() {
       }]
     }
     var buffSlider = {
-      pad: {t: 100},
+      len: .5,
+      pad: {t: 160},
+      currentvalue: {
+       xanchor: 'right',
+       prefix: 'Buff: ',
+       font: {
+         color: '#888',
+         size: 10
+       }
+     },
       steps: [{
         label: '0',
         method: 'restyle',
@@ -132,7 +150,17 @@ function grapher() {
       }]
     }
     var minDistSlider = {
-      pad: {t:80},
+      len: .5,
+      x: .5,
+      pad: {t:100},
+      currentvalue: {
+       xanchor: 'right',
+       prefix: 'minDist: ',
+       font: {
+         color: '#888',
+         size: 10
+       }
+     },
       steps: [{
         label: '0',
         method: 'restyle',
@@ -180,7 +208,16 @@ function grapher() {
       }]
     }
     var polySlider = {
-      pad: {t: 150},
+      len: .5,
+      pad: {t: 220},
+      currentvalue: {
+       xanchor: 'right',
+       prefix: 'Poly: ',
+       font: {
+         color: '#888',
+         size: 10
+       }
+     },
       steps: [{
         label: '3',
         method: 'restyle',
@@ -216,7 +253,17 @@ function grapher() {
       }]
     }
     var windSlider = {
-      pad: {t: 200},
+      len: .5,
+      x: .5,
+      currentvalue: {
+       xanchor: 'right',
+       prefix: 'Wind: ',
+       font: {
+         color: '#888',
+         size: 10
+       }
+     },
+      pad: {t: 210},
       steps: [{
         label: '11',
         method: 'restyle',
@@ -267,23 +314,23 @@ function grapher() {
     /* -----------------Set Default Slider Values-----------------------------------------*/
     var temp = [0, 0];
     xranges.push(temp);
-    thresholds.push("0");
-    polynomials.push("0");
-    windows.push("0");
-    buffers.push("0");
-    minDistances.push("0");
+    thresholds.push(".6");
+    polynomials.push("3");
+    windows.push("13");
+    buffers.push("3");
+    minDistances.push("5");
     /* ---------------------------------------------------------------------------------*/
 
     let Div = document.getElementById(istring)
 
-    /* ----------------Range Selector Start----------------------------------------------*/
+    /* ----------------Range Selector----------------------------------------------*/
     Div.on('plotly_relayout', function (eventdata) {
       xranges[Div.valueOf().id][0] = eventdata['xaxis.range'][0]
       xranges[Div.valueOf().id][1] = eventdata['xaxis.range'][1]
     })
     /* ---------------------------------------------------------------------------------*/
 
-    /* ----------------Sliders Update Start---------------------------------------*/
+    /* ----------------Sliders Update---------------------------------------*/
     Div.on('plotly_restyle', function(eventData){
       console.log('ello there')
       console.log(eventData[0])
