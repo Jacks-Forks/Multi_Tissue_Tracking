@@ -5,8 +5,10 @@ import shutil
 import threading
 from datetime import datetime
 
+import glob
 import cv2
 import forms
+import pandas as pd
 import models
 import tracking
 from flask import (Blueprint, after_this_request, jsonify, redirect,
@@ -120,6 +122,31 @@ routes_for_flask = Blueprint(
 def main():
     return render_template('home.html')
 
+@ routes_for_flask.route('/alay', methods=['GET', 'POST'])
+def some():
+    form = forms.PickVid()
+    form.experiment.choices = [(row.experiment_num, row.experiment_num)
+                               for row in models.Experiment.query.all()]
+    if request.method == 'GET':
+        return render_template('analysis.html', form=form)
+
+    if request.method == 'POST':
+        dataframes = []
+        json_list = []
+        date = form.date.data
+        exp = form.experiment.data
+        date = date.replace('/', '_')
+        files = glob.glob('static/uploads/' +
+                          exp + '/' + date + '/csvfiles/*')
+        lengther = []
+        for i, file in enumerate(files):
+            # Reads each file in as a dataframe
+            lengther.append('f')
+            dataframes.append(pd.read_csv(file))
+            json_list.append(dataframes[i].to_json(orient='columns'))
+        json_list = json.dumps(json_list)
+        return (render_template("analysis.html", form=form, json_data_list=json_list, leng=lengther))
+    return redirect('/get_dates')
 
 @ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():
