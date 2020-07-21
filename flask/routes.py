@@ -164,22 +164,40 @@ def graphUpdate():
 
         from_js = request.get_data()
         data = json.loads(from_js)
-        print(data['thresholds'])
-        print(data['buffers'])
-        print(data['polynomials'])
-        print(data['windows'])
-        print(data['minDistances'])
-        print('btee')
-        print(data['value'])
-        print('tee')
-        print(datafram)
+        print('Xrange')
+        print(data['xrange'])
+        num = int(data['value'])
+        # This does calculations for all but then only usese one, probably inefficient.
         dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(datafram, int(data['buffers']), int(data['polynomials']), int(data['windows']),
                                                                                         float(data['thresholds']), int(data['minDistances']))
-        times = dataframe_smooth[int(data['value'])]['time'].to_list()
-        disps = dataframe_smooth[int(data['value'])]['disp'].to_list()
-        print('okok')
-        return jsonify({'status': 'OK', 'data': { 'xs': times,
-                                                  'ys': disps}})
+        times = dataframe_smooth[num]['time'].to_list()
+        disps = dataframe_smooth[num]['disp'].to_list()
+        peaksx = dataframe_smooth[num]['time'][peaks[num]].to_list()
+        peaksy = dataframe_smooth[num]['disp'][peaks[num]].to_list()
+        basex = dataframe_smooth[num]['time'][basepoints[num]].to_list()
+        basey = dataframe_smooth[num]['disp'][basepoints[num]].to_list()
+        frontx = dataframe_smooth[num]['time'][frontpoints[num]].to_list()
+        fronty = dataframe_smooth[num]['disp'][frontpoints[num]].to_list()
+
+        tencontx = ten[num][0]
+        tenconty = ten[num][1]
+        tenrelx = ninety[num][2]
+        tenrly = ninety[num][3]
+
+        fifcontx = fifty[num][0]
+        fifconty = fifty[num][1]
+        fifrelx = fifty[num][2]
+        fifrely = fifty[num][3]
+
+        ninecontx = ninety[num][0]
+        nineconty = ninety[num][1]
+        ninerelx = ten[num][2]
+        ninerely = ten[num][3]
+        return jsonify({'status': 'OK', 'data': { 'xs': times, 'ys': disps,
+                                                  'peaksx': peaksx, 'peaksy': peaksy,
+                                                  'basex': basex, 'basey': basey,
+                                                  'frontx': frontx, 'fronty': fronty,
+                                                  'tencontx': tencontx, 'tenconty': tenconty}})
 
 @ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():
