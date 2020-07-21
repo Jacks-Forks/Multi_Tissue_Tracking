@@ -31,7 +31,7 @@ function grapher() {
       y: [9, 9, 9],
       type: 'scatter'
     };
-    var data = [trace2, trace3];
+    var data = [trace1];
     /* ------------------------------------------------------------------------------------*/
 
     /* ---------------Define Sliders Start------------------------------------------------*/
@@ -338,41 +338,71 @@ function grapher() {
         thresholds[Div.valueOf().id] = eventData[0].thresh
         console.log('thresh')
         console.log(eventData[0].thresh)
-        //Plotly.restyle(Div.valueOf().id, 'y', [[12, 12, 12]])
+        toPython(thresholds[Div.valueOf().id], buffers[Div.valueOf().id], polynomials[Div.valueOf().id], windows[Div.valueOf().id], minDistances[Div.valueOf().id], Div)
       }
       else if(typeof eventData[0].polynom != "undefined") {
         polynomials[Div.valueOf().id] = eventData[0].polynom
         console.log('poly')
         console.log(eventData[0].polynom)
-        //Plotly.restyle(Div.valueOf().id, 'y', [[7,7,7]])
+        toPython(thresholds[Div.valueOf().id], buffers[Div.valueOf().id], polynomials[Div.valueOf().id], windows[Div.valueOf().id], minDistances[Div.valueOf().id], Div)
       }
       else if(typeof eventData[0].wind != "undefined") {
         windows[Div.valueOf().id] = eventData[0].wind
         console.log('wind')
         console.log(eventData[0].wind)
-        //Plotly.restyle(Div.valueOf().id, 'y', [[7,7,7]])
+        toPython(thresholds[Div.valueOf().id], buffers[Div.valueOf().id], polynomials[Div.valueOf().id], windows[Div.valueOf().id], minDistances[Div.valueOf().id], Div)
       }
       else if(typeof eventData[0].buff != "undefined") {
         buffers[Div.valueOf().id] = eventData[0].buff
         console.log('buff')
         console.log(eventData[0].buff)
-        //Plotly.restyle(Div.valueOf().id, 'y', [[7,7,7]])
+        toPython(thresholds[Div.valueOf().id], buffers[Div.valueOf().id], polynomials[Div.valueOf().id], windows[Div.valueOf().id], minDistances[Div.valueOf().id], Div)
       }
       else if(typeof eventData[0].mdist != "undefined") {
         minDistances[Div.valueOf().id] = eventData[0].mdist
         console.log('mdist')
         console.log(eventData[0].mdist)
         //Plotly.restyle(Div.valueOf().id, 'y', [[7,7,7]])
+        toPython(thresholds[Div.valueOf().id], buffers[Div.valueOf().id], polynomials[Div.valueOf().id], windows[Div.valueOf().id], minDistances[Div.valueOf().id], Div)
       }
 
       console.log(thresholds)
       console.log(buffers)
       console.log(polynomials)
       console.log(windows)
-      console.log(minDistances)
+      //console.log(df)
+
 	});
     /* -----------------------------------------------------------------------------------*/
   }
+}
+
+function toPython(thresholds, buffers, polynomials, windows, minDistances, Div) {
+    value = Div.valueOf().id
+   const graph_params = {
+            value,
+          thresholds,
+          buffers,
+          polynomials,
+          windows,
+          minDistances
+        }
+        graph_paramsJson = JSON.stringify(graph_params);
+        //console.log(graph_paramsJson);
+
+        $.ajax({
+          type: 'POST',
+          url: "/graphUpdate",
+          data: graph_paramsJson,
+          processData: false,
+          contentType: false,
+          success: function(response) {
+            console.log('something')
+            console.log(response);
+            console.log(response.data)
+            Plotly.restyle(Div.valueOf().id, 'y', [response.data.ys], 'x', [response.data.xs], 0)
+          }
+        })
 }
 
 

@@ -15,11 +15,13 @@ from flask import (Blueprint, after_this_request, jsonify, redirect,
                    render_template, request, send_file)
 from werkzeug.utils import secure_filename
 
+import analysisFolder.analysis as analysis
 current_directory = os.getcwd()
 
 
 UPLOAD_FOLDER = "static/uploads"
 
+files = None
 
 def save_video_file(form_passed):
     date_string = form_passed.date_recorded.data.strftime('%m_%d_%Y')
@@ -131,7 +133,7 @@ def some():
         return render_template('analysis.html', form=form)
 
     if request.method == 'POST':
-        dataframes = []
+        global files
         json_list = []
         date = form.date.data
         exp = form.experiment.data
@@ -139,14 +141,45 @@ def some():
         files = glob.glob('static/uploads/' +
                           exp + '/' + date + '/csvfiles/*')
         lengther = []
+        dataframes = []
         for i, file in enumerate(files):
             # Reads each file in as a dataframe
             lengther.append('f')
             dataframes.append(pd.read_csv(file))
-            json_list.append(dataframes[i].to_json(orient='columns'))
+        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(dataframes, 3, 3, 13, .6, 5)
+        for i in range(len(dataframe_smooth)):
+            json_list.append(dataframe_smooth[i].to_json(orient='columns'))
         json_list = json.dumps(json_list)
         return (render_template("analysis.html", form=form, json_data_list=json_list, leng=lengther))
     return redirect('/get_dates')
+
+@ routes_for_flask.route("/graphUpdate", methods=['GET', 'POST'])
+def graphUpdate():
+    if request.method == "POST":
+        global files
+        datafram = []
+        for i, file in enumerate(files):
+            # Reads each file in as a dataframe
+            datafram.append(pd.read_csv(file))
+
+        from_js = request.get_data()
+        data = json.loads(from_js)
+        print(data['thresholds'])
+        print(data['buffers'])
+        print(data['polynomials'])
+        print(data['windows'])
+        print(data['minDistances'])
+        print('btee')
+        print(data['value'])
+        print('tee')
+        print(datafram)
+        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(datafram, int(data['buffers']), int(data['polynomials']), int(data['windows']),
+                                                                                        float(data['thresholds']), int(data['minDistances']))
+        times = dataframe_smooth[int(data['value'])]['time'].to_list()
+        disps = dataframe_smooth[int(data['value'])]['disp'].to_list()
+        print('okok')
+        return jsonify({'status': 'OK', 'data': { 'xs': times,
+                                                  'ys': disps}})
 
 @ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():
