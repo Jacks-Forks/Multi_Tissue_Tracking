@@ -154,8 +154,8 @@ def analysis_page():
             tiss_freq.append(file.split('F')[1].split('.')[0])
             lengther.append(tiss_num)
             dataframes.append(pd.read_csv(file))
-            dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(dataframes[i], 3, 3, 13,.6,5,0,0)
-            glob_data[i] = analysis.findpoints(dataframes[i], 3, 3, 13,.6,5,0,0)
+            dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(dataframes[i]['disp'], dataframes[i], 3, 3, 13,.6,5,0,0)
+            glob_data[i] = analysis.findpoints(dataframes[i]['disp'], dataframes[i], 3, 3, 13,.6,5,0,0)
             json_list.append(dataframe_smooth.to_json(orient='columns'))
 
         json_list = json.dumps(json_list)
@@ -169,24 +169,25 @@ def call_calcs():
 
 @ routes_for_flask.route("/graphUpdate", methods=['GET', 'POST'])
 def graphUpdate():
-
-
     if request.method == "POST":
         global files, glob_data
         datafram = []
+        raw = []
         for i, file in enumerate(files):
             datafram.append(pd.read_csv(file))
-
+            raw.append(pd.read_csv(file))
         from_js = request.get_data()
         data = json.loads(from_js)
-        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(datafram[int(data['value'])],
-            int(data['buffers']), int(data['polynomials']), int(data['windows']), float(data['thresholds']), int(data['minDistances']),
-                int(data['xrange'][0]), int(data['xrange'][1]))
-        glob_data[int(data['value'])] = analysis.findpoints(datafram[int(data['value'])],
-            int(data['buffers']), int(data['polynomials']), int(data['windows']), float(data['thresholds']), int(data['minDistances']),
-                int(data['xrange'][0]), int(data['xrange'][1]))
-        #calcs.carry_calcs(dataframe_smooth['time'], dataframe_smooth['disp'], ten, fifty, ninety, peaks, files[int(data['value'])])
 
+        raw[int(data['value'])]['disp'] = raw[int(data['value'])]['disp'] * -1
+        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
+            int(data['buffers']), int(data['polynomials']), int(data['windows']), float(data['thresholds']), int(data['minDistances']),
+                int(data['xrange'][0]), int(data['xrange'][1]))
+        glob_data[int(data['value'])] = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
+            int(data['buffers']), int(data['polynomials']), int(data['windows']), float(data['thresholds']), int(data['minDistances']),
+                int(data['xrange'][0]), int(data['xrange'][1]))
+        rawx = raw[int(data['value'])]['time'].tolist()
+        rawy = raw[int(data['value'])]['disp'].tolist()
         times = dataframe_smooth['time'].to_list()
         disps = dataframe_smooth['disp'].to_list()
         peaksx = dataframe_smooth['time'][peaks].to_list()
@@ -220,6 +221,7 @@ def graphUpdate():
                                                   'fifrelx': fifrelx, 'fifrely': fifrely,
                                                   'ninecontx': ninecontx, 'nineconty': nineconty,
                                                   'ninerelx': ninerelx, 'ninerely': ninerely,
+                                                  'rawx': rawx, 'rawy': rawy
                                                   }})
 
 @ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])

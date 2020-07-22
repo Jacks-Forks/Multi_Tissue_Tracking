@@ -392,6 +392,7 @@ function toPython(xrange, thresholds, buffers, polynomials, windows, minDistance
        processData: false,
        contentType: false,
        success: function(response) {
+           console.log(response.data)
             Plotly.deleteTraces(Div.valueOf().id, [-9,-8,-7,-6,-5,-4,-3,-2,-1]);
             Plotly.restyle(Div.valueOf().id, 'y', [response.data.ys], 'x', [response.data.xs], [0]);
             Plotly.addTraces(Div.valueOf().id, {x: response.data.peaksx,
@@ -400,9 +401,11 @@ function toPython(xrange, thresholds, buffers, polynomials, windows, minDistance
             Plotly.addTraces(Div.valueOf().id, {x: response.data.basex,
                                                 y: response.data.basey,
                                                 mode: 'markers', name: 'Base'})
-            Plotly.addTraces(Div.valueOf().id, {x: response.data.frontx,
+            /*Plotly.addTraces(Div.valueOf().id, {x: response.data.frontx,
                                                 y: response.data.fronty,
                                                 mode: 'markers', name: 'Front'})
+
+             */
             Plotly.addTraces(Div.valueOf().id, {x: response.data.tencontx,
                                                 y: response.data.tenconty,
                                                 mode: 'markers', name: 'Ten % Contracted'})
@@ -421,6 +424,13 @@ function toPython(xrange, thresholds, buffers, polynomials, windows, minDistance
             Plotly.addTraces(Div.valueOf().id, {x: response.data.ninerelx,
                                                 y: response.data.ninerely,
                                                 mode: 'markers', name: 'Ninety % Relaxed'})
+            Plotly.addTraces(Div.valueOf().id, {x: response.data.rawx,
+                                                y: response.data.rawy,
+                                                mode: 'scatter', name: 'Raw', visible: 'legendonly'})
+
+            //Plotly.addTraces(Div.valueOf().id, {x: response.data.rawx,
+              //                                  y: response.data.rawy,
+                        //                        mode: 'markers', name: 'Raw'})
 
 
 

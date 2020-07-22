@@ -4,14 +4,14 @@ import numpy as np
 import logging
 logging.basicConfig(filename='something.log',
                     format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
-def findpoints(dataframe, buffer, poly, window, thresh, mindist, xstart, xend):
+def findpoints(raw, dataframe, buffer, poly, window, thresh, mindist, xstart, xend):
     basepoints = []
     frontpoints = []
-
+    temp = raw
     # For each tissue
     # TODO: ABS FIXES IT BUT WTF
-    dataframe['disp'] = abs(dataframe['disp'])
-    dataframe['disp'] = savgol_filter(dataframe['disp'], window, poly) * -1
+    #dataframe['disp'] = abs(dataframe['disp'])
+    dataframe['disp'] = savgol_filter(temp, window, poly)
     peaks = peakutils.indexes(dataframe['disp'], thresh, mindist)
     if not (xstart == xend == 0):
         start_ind = (np.abs(dataframe['time'] - xstart)).argmin()
