@@ -27,7 +27,7 @@ function grapher() {
       y: [],
       mode: 'markers'
     };
-    var data = [disp_graph, temp, temp, temp, temp];
+    var data = [disp_graph, temp, temp, temp, temp, temp, temp, temp, temp, temp];
     /* ------------------------------------------------------------------------------------*/
 
     /* ---------------Define Sliders Start------------------------------------------------*/
@@ -323,12 +323,19 @@ function grapher() {
     /* ---------------------------------------------------------------------------------------------------*/
     /* ----------------Range Selector----------------------------------------------*/
     Div.on('plotly_relayout', function (eventdata) {
-      console.log(eventdata)
-      console.log(eventdata['xaxis.range[0]'])
-      xranges[Div.valueOf().id][0] = eventdata['xaxis.range'][0]
-      xranges[Div.valueOf().id][1] = eventdata['xaxis.range'][1]
-      toPython(xranges[Div.valueOf().id], thresholds[Div.valueOf().id], buffers[Div.valueOf().id],
-          polynomials[Div.valueOf().id], windows[Div.valueOf().id], minDistances[Div.valueOf().id], Div)
+      // TODO: This is clearly a plotly typo, maybe notify them/open pull request
+      if(typeof eventdata['xaxis.range[0]'] != "undefined"){
+         xranges[Div.valueOf().id][0] = eventdata['xaxis.range[0]']
+         xranges[Div.valueOf().id][1] = eventdata['xaxis.range[1]']
+         toPython(xranges[Div.valueOf().id], thresholds[Div.valueOf().id], buffers[Div.valueOf().id],
+              polynomials[Div.valueOf().id], windows[Div.valueOf().id], minDistances[Div.valueOf().id], Div)
+      }
+      else if(typeof eventdata['xaxis.range'][0] != "undefined") {
+          xranges[Div.valueOf().id][0] = eventdata['xaxis.range'][0]
+          xranges[Div.valueOf().id][1] = eventdata['xaxis.range'][1]
+          toPython(xranges[Div.valueOf().id], thresholds[Div.valueOf().id], buffers[Div.valueOf().id],
+              polynomials[Div.valueOf().id], windows[Div.valueOf().id], minDistances[Div.valueOf().id], Div)
+      }
     })
     /* ---------------------------------------------------------------------------------*/
 
@@ -337,8 +344,6 @@ function grapher() {
       //Finds which slider was changed, updates that value, and calls toPython function
       if(typeof eventData[0].thresh != "undefined"){
         thresholds[Div.valueOf().id] = eventData[0].thresh
-        console.log('xrange')
-        console.log(xranges[Div.valueOf().id])
         toPython(xranges[Div.valueOf().id], thresholds[Div.valueOf().id], buffers[Div.valueOf().id],
             polynomials[Div.valueOf().id], windows[Div.valueOf().id], minDistances[Div.valueOf().id], Div)
       }
@@ -378,16 +383,16 @@ function toPython(xrange, thresholds, buffers, polynomials, windows, minDistance
           windows,
           minDistances
         }
-        graph_paramsJson = JSON.stringify(graph_params);
+   graph_paramsJson = JSON.stringify(graph_params);
 
-        $.ajax({
-          type: 'POST',
-          url: "/graphUpdate",
-          data: graph_paramsJson,
-          processData: false,
-          contentType: false,
-          success: function(response) {
-            Plotly.deleteTraces(Div.valueOf().id, [-4,-3,-2,-1]);
+   $.ajax({
+       type: 'POST',
+       url: "/graphUpdate",
+       data: graph_paramsJson,
+       processData: false,
+       contentType: false,
+       success: function(response) {
+            Plotly.deleteTraces(Div.valueOf().id, [-9,-8,-7,-6,-5,-4,-3,-2,-1]);
             Plotly.restyle(Div.valueOf().id, 'y', [response.data.ys], 'x', [response.data.xs], [0]);
             Plotly.addTraces(Div.valueOf().id, {x: response.data.peaksx,
                                                 y: response.data.peaksy,
@@ -401,9 +406,26 @@ function toPython(xrange, thresholds, buffers, polynomials, windows, minDistance
             Plotly.addTraces(Div.valueOf().id, {x: response.data.tencontx,
                                                 y: response.data.tenconty,
                                                 mode: 'markers', name: 'Ten % Contracted'})
+            Plotly.addTraces(Div.valueOf().id, {x: response.data.fifcontx,
+                                                y: response.data.fifconty,
+                                                mode: 'markers', name: 'Fifty % Contracted'})
+            Plotly.addTraces(Div.valueOf().id, {x: response.data.ninecontx,
+                                                y: response.data.nineconty,
+                                                mode: 'markers', name: 'Ninety % Contracted'})
+            Plotly.addTraces(Div.valueOf().id, {x: response.data.tenrelx,
+                                                y: response.data.tenrely,
+                                                mode: 'markers', name: 'Ten % Relaxed'})
+            Plotly.addTraces(Div.valueOf().id, {x: response.data.fifrelx,
+                                                y: response.data.fifrely,
+                                                mode: 'markers', name: 'Fifty % Relaxed'})
+            Plotly.addTraces(Div.valueOf().id, {x: response.data.ninerelx,
+                                                y: response.data.ninerely,
+                                                mode: 'markers', name: 'Ninety % Relaxed'})
 
-          }
-        })
+
+
+       }
+   })
 }
 
 

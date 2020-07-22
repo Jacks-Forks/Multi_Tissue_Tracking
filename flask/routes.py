@@ -164,7 +164,6 @@ def graphUpdate():
 
         from_js = request.get_data()
         data = json.loads(from_js)
-        print('Xrange')
         print(data['xrange'])
         num = int(data['value'])
         # This does calculations for all but then only usese one, probably inefficient.
@@ -182,7 +181,7 @@ def graphUpdate():
         tencontx = ten[num][0]
         tenconty = ten[num][1]
         tenrelx = ninety[num][2]
-        tenrly = ninety[num][3]
+        tenrely = ninety[num][3]
 
         fifcontx = fifty[num][0]
         fifconty = fifty[num][1]
@@ -197,7 +196,13 @@ def graphUpdate():
                                                   'peaksx': peaksx, 'peaksy': peaksy,
                                                   'basex': basex, 'basey': basey,
                                                   'frontx': frontx, 'fronty': fronty,
-                                                  'tencontx': tencontx, 'tenconty': tenconty}})
+                                                  'tencontx': tencontx, 'tenconty': tenconty,
+                                                  'tenrelx': tenrelx, 'tenrely': tenrely,
+                                                  'fifcontx': fifcontx, 'fifconty': fifconty,
+                                                  'fifrelx': fifrelx, 'fifrely': fifrely,
+                                                  'ninecontx': ninecontx, 'nineconty': nineconty,
+                                                  'ninerelx': ninerelx, 'ninerely': ninerely,
+                                                  }})
 
 @ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():
