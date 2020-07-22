@@ -124,7 +124,7 @@ routes_for_flask = Blueprint(
 def main():
     return render_template('home.html')
 
-@ routes_for_flask.route('/alay', methods=['GET', 'POST'])
+@ routes_for_flask.route('/analysis', methods=['GET', 'POST'])
 def some():
     form = forms.PickVid()
     form.experiment.choices = [(row.experiment_num, row.experiment_num)
@@ -141,16 +141,19 @@ def some():
         files = glob.glob('static/uploads/' +
                           exp + '/' + date + '/csvfiles/*')
         lengther = []
+        tiss_freq = []
         dataframes = []
         for i, file in enumerate(files):
             # Reads each file in as a dataframe
-            lengther.append('f')
+            tiss_num = file.split('T')[1].split('_')[0]
+            tiss_freq.append(file.split('F')[1].split('.')[0])
+            lengther.append(tiss_num)
             dataframes.append(pd.read_csv(file))
-        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(dataframes, 3, 3, 13, .6, 5)
-        for i in range(len(dataframe_smooth)):
-            json_list.append(dataframe_smooth[i].to_json(orient='columns'))
+            dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(dataframes[i], 3, 3, 13,.6,5,0,0)
+            json_list.append(dataframe_smooth.to_json(orient='columns'))
+
         json_list = json.dumps(json_list)
-        return (render_template("analysis.html", form=form, json_data_list=json_list, leng=lengther))
+        return (render_template("analysis.html", form=form, json_data_list=json_list, leng=lengther, freqs=tiss_freq))
     return redirect('/get_dates')
 
 @ routes_for_flask.route("/graphUpdate", methods=['GET', 'POST'])
@@ -159,39 +162,36 @@ def graphUpdate():
         global files
         datafram = []
         for i, file in enumerate(files):
-            # Reads each file in as a dataframe
             datafram.append(pd.read_csv(file))
 
         from_js = request.get_data()
         data = json.loads(from_js)
-        print(data['xrange'])
-        num = int(data['value'])
-        # This does calculations for all but then only usese one, probably inefficient.
-        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(datafram, int(data['buffers']), int(data['polynomials']), int(data['windows']),
-                                                                                        float(data['thresholds']), int(data['minDistances']))
-        times = dataframe_smooth[num]['time'].to_list()
-        disps = dataframe_smooth[num]['disp'].to_list()
-        peaksx = dataframe_smooth[num]['time'][peaks[num]].to_list()
-        peaksy = dataframe_smooth[num]['disp'][peaks[num]].to_list()
-        basex = dataframe_smooth[num]['time'][basepoints[num]].to_list()
-        basey = dataframe_smooth[num]['disp'][basepoints[num]].to_list()
-        frontx = dataframe_smooth[num]['time'][frontpoints[num]].to_list()
-        fronty = dataframe_smooth[num]['disp'][frontpoints[num]].to_list()
+        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(datafram[int(data['value'])],
+            int(data['buffers']), int(data['polynomials']), int(data['windows']), float(data['thresholds']), int(data['minDistances']),
+                int(data['xrange'][0]), int(data['xrange'][1]))
+        times = dataframe_smooth['time'].to_list()
+        disps = dataframe_smooth['disp'].to_list()
+        peaksx = dataframe_smooth['time'][peaks].to_list()
+        peaksy = dataframe_smooth['disp'][peaks].to_list()
+        basex = dataframe_smooth['time'][basepoints].to_list()
+        basey = dataframe_smooth['disp'][basepoints].to_list()
+        frontx = dataframe_smooth['time'][frontpoints].to_list()
+        fronty = dataframe_smooth['disp'][frontpoints].to_list()
+        tencontx = ten[0]
+        tenconty = ten[1]
+        tenrelx = ninety[2]
+        tenrely = ninety[3]
 
-        tencontx = ten[num][0]
-        tenconty = ten[num][1]
-        tenrelx = ninety[num][2]
-        tenrely = ninety[num][3]
+        fifcontx = fifty[0]
+        fifconty = fifty[1]
+        fifrelx = fifty[2]
+        fifrely = fifty[3]
 
-        fifcontx = fifty[num][0]
-        fifconty = fifty[num][1]
-        fifrelx = fifty[num][2]
-        fifrely = fifty[num][3]
+        ninecontx = ninety[0]
+        nineconty = ninety[1]
+        ninerelx = ten[2]
+        ninerely = ten[3]
 
-        ninecontx = ninety[num][0]
-        nineconty = ninety[num][1]
-        ninerelx = ten[num][2]
-        ninerely = ten[num][3]
         return jsonify({'status': 'OK', 'data': { 'xs': times, 'ys': disps,
                                                   'peaksx': peaksx, 'peaksy': peaksy,
                                                   'basex': basex, 'basey': basey,
