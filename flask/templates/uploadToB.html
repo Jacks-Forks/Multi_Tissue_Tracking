@@ -9,18 +9,45 @@
       horizonal-align: middle;
     }
   </style>
+  <meta charset="UTF-8">
+  <title>Video Selection</title>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
 
 </head>
 
 <body>
+  <div id="wrapper">
+      <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+          <div class="container-fluid d-flex flex-column p-0">
+              <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                  <div class="sidebar-brand-icon rotate-n-15"></div>
+                  <div class="sidebar-brand-text mx-3"><span>Tissue TrackiNG</span></div>
+              </a>
+              <hr class="sidebar-divider my-0">
+              <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                  <li class="nav-item" role="presentation"><a class="nav-link" href="/uploadFile/reactorB"><i class="fas fa-file-upload"></i><span>Uploads</span></a></li>
+                  <li class="nav-item" role="presentation"><a class="nav-link" href="/pick_video"><i class="far fa-eye"></i><span>Tracking</span></a></li>
+                  <li class="nav-item" role="presentation"><a class="nav-link" href="/alay"><i class="icon-graph"></i><span>Analysis</span></a></li>
+                  <li class="nav-item" role="presentation"><a class="nav-link" href="/showExp"><i class="fas fa-database"></i><span>Database Editor</span></a></li>
+                  <li class="nav-item" role="presentation"><a class="nav-link" href="http://mtt.murphs.team"><i class="fas fa-file"></i><span>Documentation</span></a></li>
+              </ul>
+              <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
+          </div>
+      </nav>
+      <div class="d-flex flex-column" id="content-wrapper">
+          <div id="content">
   <h2 style="text-align: center;">Upload a File</h2>
 
   <form method=post action="" enctype="multipart/form-data">
     <fieldset>
 
-      <legend> Uplaod Form </legend>
+      <legend> Upload Form </legend>
       {{ form.hidden_tag() }}
-
 
       {{ form.date_recorded.label }}<br>
       {{ form.date_recorded }}
@@ -50,6 +77,16 @@
 
     </fieldset>
   </form>
+</div>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='assets/js/bs-init.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+<script src="{{ url_for('static', filename='assets/js/theme.js') }}"></script>
+
 </body>
 
 </html>

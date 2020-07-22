@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import (BooleanField, DecimalField, FieldList, FileField,
+from wtforms import (BooleanField, DecimalField, FieldList, FileField, Form,
                      FormField, HiddenField, IntegerField, SelectField,
-                     SelectMultipleField, StringField, SubmitField,
-                     validators, widgets)
+                     SelectMultipleField, StringField, SubmitField, validators,
+                     widgets)
 from wtforms.fields.html5 import DateField
 
 
@@ -20,7 +20,7 @@ class upload_to_a_form(FlaskForm):
     submit = SubmitField('Upload')
 
 
-class Tissue_Samples(FlaskForm):
+class Tissue_Samples(Form):
     post_in_use = BooleanField(
         'Check If Post In Use')
     tissue_num = StringField('Tissue Number')
