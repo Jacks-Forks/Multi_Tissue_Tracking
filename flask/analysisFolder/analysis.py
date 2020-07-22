@@ -5,28 +5,22 @@ import logging
 logging.basicConfig(filename='something.log',
                     format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
 def findpoints(dataframe, buffer, poly, window, thresh, mindist, xstart, xend):
-    # Store a copy of original
-    # TODO: Is this actually storing an original? Or is it rewritten every time
-    # TODO: Handle Exceptions was better.
-    origin = dataframe
-
     basepoints = []
     frontpoints = []
 
     # For each tissue
-    dataframe['disp'] = savgol_filter(origin['disp'], window, poly)
-    dataframe['disp'] = origin['disp'] * -1
+    # TODO: ABS FIXES IT BUT WTF
+    dataframe['disp'] = abs(dataframe['disp'])
+    dataframe['disp'] = savgol_filter(dataframe['disp'], window, poly) * -1
     peaks = peakutils.indexes(dataframe['disp'], thresh, mindist)
-    # TODO: See if a more efficient way
     if not (xstart == xend == 0):
-        print("TRIM")
         start_ind = (np.abs(dataframe['time'] - xstart)).argmin()
         end_ind = (np.abs(dataframe['time'] - xend)).argmin()
         peak_start = (np.abs(peaks - start_ind)).argmin()
         peak_end = (np.abs(peaks - end_ind)).argmin()
         peaks = peaks[peak_start:peak_end]
 
-    peaks = peaks[1:-1]
+    peaks = peaks[2:-1]
     for peak in peaks:
         # For each point from peak towards the start
         for k in range(peak - buffer, 1, -1):
@@ -38,15 +32,12 @@ def findpoints(dataframe, buffer, poly, window, thresh, mindist, xstart, xend):
                 break
         # For each point from peak towards the end
         for k in range(peak + buffer, len(dataframe['disp'])-1, 1):
-            print(k)
-            print(len(dataframe['disp']))
             dfdt = (dataframe['disp'][k + 1] - dataframe['disp'][k])
             # If the derivate hits zero, we have changed diection and set base.
             if dfdt >= 0:
                 frontpoints.append(k)
                 break
     # Call the findP function to find the points at 10%, 50%, 90%
-    # TODO: Naming
     ten = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .10)
     fifty = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .50)
     ninety = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .90)
@@ -63,15 +54,13 @@ def findP(peaks, bases, fronts, disp, time, perc):
     # For each contraction
     for i in range(len(bases)):
         # Determines the baseline (explained in documentation)
-        # TODO: Add to documentation
         baseline = (disp[bases[i]] + disp[fronts[i]]) / 2
         # Set the y value that would be 10%, 50% or 90%
         ydiff = (disp[peaks[i]] - baseline) * perc
         yval = negyval = baseline + ydiff
 
         # For each point from basepoint towards peak
-        # TODO: Adding +1 seems to fix xval problem but slightly worries me
-        for j in range(bases[i], peaks[i] + 1, 1):
+        for j in range(bases[i], peaks[i], 1):
             # If yval is less the the basepoint it will not be on graph
             if yval < disp[bases[i]]:
                 # Set the val to the basepoint as thats the closest possible value

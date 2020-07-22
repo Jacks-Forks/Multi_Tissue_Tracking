@@ -43,7 +43,9 @@
 
     {{ form.submit }}
   </form>
-
+    <input type = "button" id = "mybutton" value = "Calculate" />
+    <script type=text/javascript> $(function() { $("#mybutton").click(function (event) { $.getJSON('/call_calcs', { },
+    function(data) { }); return false; }); }); </script>
     <script charset="utf-8" type="text/javascript">
     $(document).ready(function() {
 
@@ -125,7 +127,6 @@
         </div>
 
     {% endfor %}
-    <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
     <script type="text/javascript" src="{{ url_for('static', filename='JS/analysis.js') }}"></script>
     <form id="graphing" action="#" onsubmit="grapher();return false">
         <input type="hidden" id="dataframe" name="dataframe" value="{{ json_data_list }}" />

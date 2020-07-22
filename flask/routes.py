@@ -16,12 +16,15 @@ from flask import (Blueprint, after_this_request, jsonify, redirect,
 from werkzeug.utils import secure_filename
 
 import analysisFolder.analysis as analysis
+import analysisFolder.calculations as calcs
+
 current_directory = os.getcwd()
 
 
 UPLOAD_FOLDER = "static/uploads"
 
 files = None
+#glob_data = None
 
 def save_video_file(form_passed):
     date_string = form_passed.date_recorded.data.strftime('%m_%d_%Y')
@@ -125,7 +128,7 @@ def main():
     return render_template('home.html')
 
 @ routes_for_flask.route('/analysis', methods=['GET', 'POST'])
-def some():
+def analysis_page():
     form = forms.PickVid()
     form.experiment.choices = [(row.experiment_num, row.experiment_num)
                                for row in models.Experiment.query.all()]
@@ -133,7 +136,7 @@ def some():
         return render_template('analysis.html', form=form)
 
     if request.method == 'POST':
-        global files
+        global files, glob_data
         json_list = []
         date = form.date.data
         exp = form.experiment.data
@@ -143,23 +146,33 @@ def some():
         lengther = []
         tiss_freq = []
         dataframes = []
+        glob_data = []
         for i, file in enumerate(files):
             # Reads each file in as a dataframe
+            glob_data.append([])
             tiss_num = file.split('T')[1].split('_')[0]
             tiss_freq.append(file.split('F')[1].split('.')[0])
             lengther.append(tiss_num)
             dataframes.append(pd.read_csv(file))
             dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(dataframes[i], 3, 3, 13,.6,5,0,0)
+            glob_data[i] = analysis.findpoints(dataframes[i], 3, 3, 13,.6,5,0,0)
             json_list.append(dataframe_smooth.to_json(orient='columns'))
 
         json_list = json.dumps(json_list)
         return (render_template("analysis.html", form=form, json_data_list=json_list, leng=lengther, freqs=tiss_freq))
     return redirect('/get_dates')
 
+@ routes_for_flask.route("/call_calcs")
+def call_calcs():
+    calcs.carry_calcs(glob_data, files)
+    return "Nothing"
+
 @ routes_for_flask.route("/graphUpdate", methods=['GET', 'POST'])
 def graphUpdate():
+
+
     if request.method == "POST":
-        global files
+        global files, glob_data
         datafram = []
         for i, file in enumerate(files):
             datafram.append(pd.read_csv(file))
@@ -169,6 +182,11 @@ def graphUpdate():
         dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(datafram[int(data['value'])],
             int(data['buffers']), int(data['polynomials']), int(data['windows']), float(data['thresholds']), int(data['minDistances']),
                 int(data['xrange'][0]), int(data['xrange'][1]))
+        glob_data[int(data['value'])] = analysis.findpoints(datafram[int(data['value'])],
+            int(data['buffers']), int(data['polynomials']), int(data['windows']), float(data['thresholds']), int(data['minDistances']),
+                int(data['xrange'][0]), int(data['xrange'][1]))
+        #calcs.carry_calcs(dataframe_smooth['time'], dataframe_smooth['disp'], ten, fifty, ninety, peaks, files[int(data['value'])])
+
         times = dataframe_smooth['time'].to_list()
         disps = dataframe_smooth['disp'].to_list()
         peaksx = dataframe_smooth['time'][peaks].to_list()
