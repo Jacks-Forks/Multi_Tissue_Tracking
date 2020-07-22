@@ -5,19 +5,26 @@ import shutil
 import threading
 from datetime import datetime
 
+import glob
 import cv2
 import forms
+import pandas as pd
 import models
 import tracking
 from flask import (Blueprint, after_this_request, jsonify, redirect,
                    render_template, request, send_file)
 from werkzeug.utils import secure_filename
 
+import analysisFolder.analysis as analysis
+import analysisFolder.calculations as calcs
+
 current_directory = os.getcwd()
 
 
 UPLOAD_FOLDER = "static/uploads"
 
+files = None
+#glob_data = None
 
 def save_video_file(form_passed):
     date_string = form_passed.date_recorded.data.strftime('%m_%d_%Y')
@@ -120,6 +127,102 @@ routes_for_flask = Blueprint(
 def main():
     return render_template('home.html')
 
+@ routes_for_flask.route('/analysis', methods=['GET', 'POST'])
+def analysis_page():
+    form = forms.PickVid()
+    form.experiment.choices = [(row.experiment_num, row.experiment_num)
+                               for row in models.Experiment.query.all()]
+    if request.method == 'GET':
+        return render_template('analysis.html', form=form)
+
+    if request.method == 'POST':
+        global files, glob_data
+        json_list = []
+        date = form.date.data
+        exp = form.experiment.data
+        date = date.replace('/', '_')
+        files = glob.glob('static/uploads/' +
+                          exp + '/' + date + '/csvfiles/*')
+        lengther = []
+        tiss_freq = []
+        dataframes = []
+        glob_data = []
+        for i, file in enumerate(files):
+            # Reads each file in as a dataframe
+            glob_data.append([])
+            tiss_num = file.split('T')[1].split('_')[0]
+            tiss_freq.append(file.split('F')[1].split('.')[0])
+            lengther.append(tiss_num)
+            dataframes.append(pd.read_csv(file))
+            dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(dataframes[i]['disp'], dataframes[i], 3, 3, 13,.6,5,0,0)
+            glob_data[i] = analysis.findpoints(dataframes[i]['disp'], dataframes[i], 3, 3, 13,.6,5,0,0)
+            json_list.append(dataframe_smooth.to_json(orient='columns'))
+
+        json_list = json.dumps(json_list)
+        return (render_template("analysis.html", form=form, json_data_list=json_list, leng=lengther, freqs=tiss_freq))
+    return redirect('/get_dates')
+
+@ routes_for_flask.route("/call_calcs")
+def call_calcs():
+    calcs.carry_calcs(glob_data, files)
+    return "Nothing"
+
+@ routes_for_flask.route("/graphUpdate", methods=['GET', 'POST'])
+def graphUpdate():
+    if request.method == "POST":
+        global files, glob_data
+        datafram = []
+        raw = []
+        for i, file in enumerate(files):
+            datafram.append(pd.read_csv(file))
+            raw.append(pd.read_csv(file))
+        from_js = request.get_data()
+        data = json.loads(from_js)
+
+        raw[int(data['value'])]['disp'] = raw[int(data['value'])]['disp'] * -1
+        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
+            int(data['buffers']), int(data['polynomials']), int(data['windows']), float(data['thresholds']), int(data['minDistances']),
+                int(data['xrange'][0]), int(data['xrange'][1]))
+        glob_data[int(data['value'])] = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
+            int(data['buffers']), int(data['polynomials']), int(data['windows']), float(data['thresholds']), int(data['minDistances']),
+                int(data['xrange'][0]), int(data['xrange'][1]))
+        rawx = raw[int(data['value'])]['time'].tolist()
+        rawy = raw[int(data['value'])]['disp'].tolist()
+        times = dataframe_smooth['time'].to_list()
+        disps = dataframe_smooth['disp'].to_list()
+        peaksx = dataframe_smooth['time'][peaks].to_list()
+        peaksy = dataframe_smooth['disp'][peaks].to_list()
+        basex = dataframe_smooth['time'][basepoints].to_list()
+        basey = dataframe_smooth['disp'][basepoints].to_list()
+        frontx = dataframe_smooth['time'][frontpoints].to_list()
+        fronty = dataframe_smooth['disp'][frontpoints].to_list()
+        tencontx = ten[0]
+        tenconty = ten[1]
+        tenrelx = ninety[2]
+        tenrely = ninety[3]
+
+        fifcontx = fifty[0]
+        fifconty = fifty[1]
+        fifrelx = fifty[2]
+        fifrely = fifty[3]
+
+        ninecontx = ninety[0]
+        nineconty = ninety[1]
+        ninerelx = ten[2]
+        ninerely = ten[3]
+
+        return jsonify({'status': 'OK', 'data': { 'xs': times, 'ys': disps,
+                                                  'peaksx': peaksx, 'peaksy': peaksy,
+                                                  'basex': basex, 'basey': basey,
+                                                  'frontx': frontx, 'fronty': fronty,
+                                                  'tencontx': tencontx, 'tenconty': tenconty,
+                                                  'tenrelx': tenrelx, 'tenrely': tenrely,
+                                                  'fifcontx': fifcontx, 'fifconty': fifconty,
+                                                  'fifrelx': fifrelx, 'fifrely': fifrely,
+                                                  'ninecontx': ninecontx, 'nineconty': nineconty,
+                                                  'ninerelx': ninerelx, 'ninerely': ninerely,
+                                                  'rawx': rawx, 'rawy': rawy
+                                                  }})
 
 @ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():

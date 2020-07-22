@@ -1,62 +1,47 @@
 import peakutils
 from scipy.signal import savgol_filter
-
-
-def findpoints(dataframe, buffer, poly, window, thresh, mindist):
-    # Store a copy of original
-    # TODO: Is this actually storing an original? Or is it rewritten every time
-    origin = dataframe
-
-
-    peaks = []
+import numpy as np
+import logging
+logging.basicConfig(filename='something.log',
+                    format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
+def findpoints(raw, dataframe, buffer, poly, window, thresh, mindist, xstart, xend):
     basepoints = []
     frontpoints = []
-    ten = []
-    fifty = []
-    ninety = []
-
+    temp = raw
     # For each tissue
-    for i in range(len(dataframe)):
-        # Apply the sav-gol filter with specified parameters
-        dataframe[i]['disp'] = savgol_filter(origin[i]['disp'], window,
-                                             poly)
-        # Flip the data, Because when distance is smallest is actually the peak of the contraction
-        dataframe[i]['disp'] = dataframe[i]['disp'] * -1
-        # Use pythons peakutils to find the peaks with specified parameters
-        peaks.append(
-            peakutils.indexes(dataframe[i]['disp'], thresh, mindist))
-        # Delete the first and last peak ( Avoids possible errors with half peaks)
-        peaks[i] = peaks[i][1:-1]
-        basepoints.append([])
-        frontpoints.append([])
-        ten.append([])
-        fifty.append([])
-        ninety.append([])
-        # For each peak
-        for peak in peaks[i]:
-            # For each point from peak towards the start
-            for k in range(peak - buffer, 1, -1):
-                dfdt = (dataframe[i]['disp'][k] -
-                        dataframe[i]['disp'][k - 1])
-                # If the derivate hits zero, we have changed diection and set base.
-                if dfdt <= 0:
-                    basepoints[i].append(k)
-                    break
-            # For each point from peak towards the end
-            for k in range(peak + buffer, len(dataframe[i]['disp']), 1):
-                dfdt = (dataframe[i]['disp'][k + 1] - dataframe[i]['disp'][k])
-                # If the derivate hits zero, we have changed diection and set base.
-                if dfdt >= 0:
-                    frontpoints[i].append(k)
-                    break
-        # Call the findP function to find the points at 10%, 50%, 90%
-        # TODO: Naming
-        ten[i] = findP(peaks[i], basepoints[i], frontpoints[i], dataframe[i]
-                       ['disp'], dataframe[i]['time'], .10)
-        fifty[i] = findP(peaks[i], basepoints[i], frontpoints[i], dataframe[i]
-                         ['disp'], dataframe[i]['time'], .50)
-        ninety[i] = findP(peaks[i], basepoints[i], frontpoints[i], dataframe[i]
-                          ['disp'], dataframe[i]['time'], .90)
+    # TODO: ABS FIXES IT BUT WTF
+    #dataframe['disp'] = abs(dataframe['disp'])
+    dataframe['disp'] = savgol_filter(temp, window, poly)
+    peaks = peakutils.indexes(dataframe['disp'], thresh, mindist)
+    if not (xstart == xend == 0):
+        start_ind = (np.abs(dataframe['time'] - xstart)).argmin()
+        end_ind = (np.abs(dataframe['time'] - xend)).argmin()
+        peak_start = (np.abs(peaks - start_ind)).argmin()
+        peak_end = (np.abs(peaks - end_ind)).argmin()
+        peaks = peaks[peak_start:peak_end]
+
+    peaks = peaks[2:-1]
+    for peak in peaks:
+        # For each point from peak towards the start
+        for k in range(peak - buffer, 1, -1):
+            dfdt = (dataframe['disp'][k] -
+                    dataframe['disp'][k - 1])
+            # If the derivate hits zero, we have changed diection and set base.
+            if dfdt <= 0:
+                basepoints.append(k)
+                break
+        # For each point from peak towards the end
+        for k in range(peak + buffer, len(dataframe['disp'])-1, 1):
+            dfdt = (dataframe['disp'][k + 1] - dataframe['disp'][k])
+            # If the derivate hits zero, we have changed diection and set base.
+            if dfdt >= 0:
+                frontpoints.append(k)
+                break
+    # Call the findP function to find the points at 10%, 50%, 90%
+    ten = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .10)
+    fifty = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .50)
+    ninety = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .90)
+
     return dataframe, peaks, basepoints, frontpoints, ten, fifty, ninety
 
 
@@ -69,7 +54,6 @@ def findP(peaks, bases, fronts, disp, time, perc):
     # For each contraction
     for i in range(len(bases)):
         # Determines the baseline (explained in documentation)
-        # TODO: Add to documentation
         baseline = (disp[bases[i]] + disp[fronts[i]]) / 2
         # Set the y value that would be 10%, 50% or 90%
         ydiff = (disp[peaks[i]] - baseline) * perc
@@ -95,13 +79,12 @@ def findP(peaks, bases, fronts, disp, time, perc):
             elif disp[j] == yval:
                 xval = time[j]
                 break
-            # TODO: Add if yval > disp[peaks]??
 
         ypoints.append(yval)
         xpoints.append(xval)
 
         # For each point from peak towards frontpoint. Similar as above.
-        for j in range(peaks[i], fronts[i], 1):
+        for j in range(peaks[i], fronts[i] + 1, 1):
             if negyval < disp[fronts[i]]:
                 negxval = time[fronts[i]]
                 negyval = disp[fronts[i]]
