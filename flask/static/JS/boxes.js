@@ -1,13 +1,18 @@
 function getPostCount() {
-  var post_count = document.getElementById("numTissues").value * 2
+  var tissue_count = document.getElementById("numTissues").value
   var video_id = document.getElementById("videoId").value
-  initDraw(document.getElementById('canvas'), post_count, video_id);
+  initDraw(document.getElementById('canvas'), tissue_count, video_id);
 }
 
 
-function initDraw(canvas, post_count, video_id) {
-  var boxes = []
-  //  var boxCordinates = new List()
+function initDraw(canvas, tissue_count, video_id) {
+  let boxes = [];
+  let cal_points = [];
+  let cross_points = [];
+  let cal_done = false;
+  let crosssections = false;
+
+  let post_count = tissue_count * 2
 
 
   function setMousePosition(e) {
@@ -20,7 +25,6 @@ function initDraw(canvas, post_count, video_id) {
       mouse.y = ev.clientY + document.body.scrollTop;
     }
   }
-
 
   var mouse = {
     x: 0,
@@ -42,59 +46,82 @@ function initDraw(canvas, post_count, video_id) {
 
 
   canvas.onclick = function(e) {
-    if (element !== null) {
-      element = null;
-      canvas.style.cursor = "default";
-      post_count--;
-      console.log("finsihed." + post_count);
-      boxes.push(GetCoordinates());
-      console.log(GetCoordinates());
-      if (post_count == 0) {
-        console.log("stop here");
-        console.log(boxes);
 
-        var boxes_as_json = JSON.stringify(boxes);
-        console.log(boxes_as_json)
-        var video_id_json = JSON.stringify(video_id);
-        console.log(video_id)
-
-        const boxes_and_id = {
-          boxes,
-          video_id
-        }
-        boxes_id_asJson = JSON.stringify(boxes_and_id);
-        console.log(boxes_id_asJson);
-
-        $.ajax({
-          type: 'POST',
-          url: "/boxCoordinates",
-          data: boxes_id_asJson,
-          processData: false,
-          contentType: false,
-          success: function(response) {
-            console.log(response);
-            console.log(response.data)
-            boxCoords = response.data
-            $('#container').html(boxCoords.toString());
-          }
-        })
+    if (cal_done == false) {
+      if (element !== null) {
+        element = null;
+        canvas.style.cursor = "default";
+        cal_done = true
+        console.log("finsihed.");
+        cal_points.push(GetCoordinates());
+        console.log(GetCoordinates());
+      } else {
+        console.log("begun.");
+        mouse.startX = mouse.x;
+        mouse.startY = mouse.y;
+        element = document.createElement('div');
+        element.className = 'line';
+        element.style.left = mouse.x + 'px';
+        element.style.top = mouse.y + 'px';
+        canvas.appendChild(element);
+        canvas.style.cursor = "crosshair";
+        cal_points.push(GetCoordinates());
+        console.log(GetCoordinates());
       }
-
+    } else if (crosssections == false) {
+      if (element !== null) {
+        element = null;
+        canvas.style.cursor = "default";
+        tissue_count--;
+        console.log("finsihed.");
+        cross_points.push(GetCoordinates());
+        console.log(GetCoordinates());
+        if (tissue_count == 0) {
+          crosssections = true;
+        }
+      } else {
+        console.log("begun.");
+        mouse.startX = mouse.x;
+        mouse.startY = mouse.y;
+        element = document.createElement('div');
+        element.className = 'cross';
+        element.style.left = mouse.x + 'px';
+        element.style.top = mouse.y + 'px';
+        canvas.appendChild(element);
+        canvas.style.cursor = "crosshair";
+        cross_points.push(GetCoordinates());
+        console.log(GetCoordinates());
+      }
     } else {
-      console.log("begun.");
-      mouse.startX = mouse.x;
-      mouse.startY = mouse.y;
-      element = document.createElement('div');
-      element.className = 'rectangle';
-      element.style.left = mouse.x + 'px';
-      element.style.top = mouse.y + 'px';
-      canvas.appendChild(element);
-      canvas.style.cursor = "crosshair";
-      boxes.push(GetCoordinates());
-      console.log(GetCoordinates());
+      console.log("boxes")
+      if (element !== null) {
+        element = null;
+        canvas.style.cursor = "default";
+        post_count--;
+        console.log("finsihed." + post_count);
+        boxes.push(GetCoordinates());
+        console.log(GetCoordinates());
+        if (post_count == 0) {
+          send_to_python(boxes, cal_points, cross_points, video_id);
+          done = true;
+        }
+      } else {
+        console.log("begun.");
+        mouse.startX = mouse.x;
+        mouse.startY = mouse.y;
+        element = document.createElement('div');
+        element.className = 'rectangle';
+        element.style.left = mouse.x + 'px';
+        element.style.top = mouse.y + 'px';
+        canvas.appendChild(element);
+        canvas.style.cursor = "crosshair";
+        boxes.push(GetCoordinates());
+        console.log(GetCoordinates());
+      }
     }
   }
 }
+
 
 
 function FindPosition(oElement) {
@@ -128,4 +155,31 @@ function GetCoordinates(e) {
   PosX = PosX - ImgPos[0];
   PosY = PosY - ImgPos[1];
   return [PosX, PosY]
+}
+
+
+function send_to_python(boxes, cal_points, cross_points, video_id) {
+  const boxes_and_id = {
+    boxes,
+    cal_points,
+    cross_points,
+    video_id
+  }
+  boxes_id_asJson = JSON.stringify(boxes_and_id);
+  console.log(boxes_id_asJson);
+
+  $.ajax({
+    type: 'POST',
+    url: "/boxCoordinates",
+    data: boxes_id_asJson,
+    processData: false,
+    contentType: false,
+    success: function(response) {
+      console.log(response);
+      console.log(response.data)
+      boxCoords = response.data
+      $('#container').html(boxCoords.toString());
+    }
+  })
+
 }
