@@ -8,13 +8,13 @@ on:
 
 jobs:
   sync:
-    name: sync
+    name: Sync
     runs-on: ubuntu-latest
     steps:
       - uses: adrianjost/files-sync-action@master
         with:
-          GITHUB_TOKEN: ${{ secrets.SYNC_TOKEN }}  
           FILE_PATTERNS: |
-            ^\flask\/models\.py$
+            ^flask/models.py$
           TARGET_REPOS: |
             teammurphy/Multi_Tissue_Recording
+          GITHUB_TOKEN: ${{ secrets.SYNC_TOKEN }}
