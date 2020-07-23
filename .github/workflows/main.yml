@@ -1,0 +1,20 @@
+name: sync_models
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  sync:
+    name: sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: adrianjost/files-sync-action@master
+        with:
+          GITHUB_TOKEN: ${{ secrets.SYNC_TOKEN }}  
+          FILE_PATTERNS: |
+            ^\flask\/models\.py$
+          TARGET_REPOS: |
+            teammurphy/Multi_Tissue_Recording
