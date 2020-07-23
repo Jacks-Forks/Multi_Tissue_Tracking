@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+  {% block head %}
   <meta charset="UTF-8">
   <title>{% block title %}{% endblock %}</title>
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
@@ -13,10 +14,14 @@
   <link rel="stylesheet" href="https://maxcdn.icons8.com/fonts/line-awesome/1.1/css/line-awesome.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+  {% endblock %}
 
 </head>
 
+{% block bodystart %}
+
 <body>
+  {% endblock %}
   <div id="wrapper">
     <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
       <div class="container-fluid d-flex flex-column p-0">
