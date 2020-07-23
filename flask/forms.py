@@ -11,15 +11,6 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = widgets.CheckboxInput()
 
 
-class upload_to_a_form(FlaskForm):
-    # date recorded , number of tissues
-    # for each tissue number and type
-    date_recorded = DateField('Date Recorded', [validators.DataRequired()])
-    num_tissues = IntegerField('Number Of Feilds')
-    file = FileField('Upload a File', [validators.DataRequired()])
-    submit = SubmitField('Upload')
-
-
 class Tissue_Samples(Form):
     post_in_use = BooleanField(
         'Check If Post In Use')

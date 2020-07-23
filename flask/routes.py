@@ -276,33 +276,6 @@ def boxcoordinates():
         return jsonify({'status': 'OK', 'data': box_coords})
 
 
-@ routes_for_flask.route('/uploadFile', methods=['GET', 'POST'])
-def upload_file():
-    return render_template('uploadFile.html')
-
-
-@routes_for_flask.route('/uploadFile/reactorA', methods=['GET', 'POST'])
-def upload_to_a():
-    form = forms.upload_to_a_form()
-
-    if request.method == 'POST':
-        if form.validate() == False:
-            flash('All fields are required.')
-            return render_template('uploadToA.html', form=form)
-        else:
-            where_it_saved = save_file(form)
-
-            new_upload = models.Bio_reactor_A_sample(date_recorded=form.date_recorded.data, date_uploaded=datetime.now(
-            ), num_tissues=form.num_tissues.data, file_location=where_it_saved)
-
-            models.insert_bio_sample(new_upload)
-
-            # TODO:  where do we want to redirect to
-            return
-    elif request.method == 'GET':
-        return render_template('uploadToA.html', form=form)
-
-
 @routes_for_flask.route('/uploadFile/reactorB', methods=['GET', 'POST'])
 def upload_to_b():
     form = forms.upload_to_b_form()
