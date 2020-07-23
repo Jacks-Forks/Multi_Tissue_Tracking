@@ -31,6 +31,9 @@
           <li class="nav-item" role="presentation"><a class="nav-link" href="http://mtt.murphs.team"><i class="fas fa-file"></i><span>Documentation</span></a></li>
         </ul>
         <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
+        <div class="text-center d-none d-md-inline">
+          <button class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" id="reloadButton" type="button" title="Reload Database"><i class="icon ion-ios-reload"></i><span> </span><i class="la la-database"></i></button>
+        </div>
       </div>
     </nav>
     <div class="d-flex flex-column" id="content-wrapper">
@@ -48,6 +51,15 @@
     </div>
   </div>
   <!-- TODO: put this in a new files -->
+  <script type=text/javascript>
+    $(function() {
+      $("#reloadButton").click(function(event) {
+        $.getJSON('/reloader', {},
+          function(data) {});
+        return false;
+      });
+    });
+  </script>
   <script charset="utf-8" type="text/javascript">
     $(document).ready(function() {
 

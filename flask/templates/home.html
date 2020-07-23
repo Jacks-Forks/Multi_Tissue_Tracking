@@ -33,12 +33,24 @@
           <li class="nav-item" role="presentation"><a class="nav-link" href="https://mtt.murphs.team"><i class="fas fa-file"></i><span>Documentation</span></a></li>
         </ul>
         <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
+        <div class="text-center d-none d-md-inline">
+          <button class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" id="reloadButton" type="button" title="Reload Database"><i class="icon ion-ios-reload"></i><span> </span><i class="la la-database"></i></button>
+        </div>
       </div>
     </nav>
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content"></div>
     </div>
   </div>
+  <script type=text/javascript>
+    $(function() {
+      $("#reloadButton").click(function(event) {
+        $.getJSON('/reloader', {},
+          function(data) {});
+        return false;
+      });
+    });
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
