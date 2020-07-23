@@ -40,9 +40,11 @@
     </nav>
     <!-- REVIEW: whats this div?? -->
     <div class="d-flex flex-column" id="content-wrapper">
-      <div id="content"></div>
+      <div id="content">{% block content %}{% endblock %}</div>
+
     </div>
   </div>
+  {% block extrajs %}{% endblock %}
   <script type=text/javascript>
     $(function() {
       $("#reloadButton").click(function(event) {
