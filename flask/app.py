@@ -17,6 +17,7 @@ video_file_extentions = {'mov', 'mp4'}
 
 
 def create_app():
+<<<<<<< main
 	username = 'newuser'
 	password = 'newpassword'
 	location = 'mysql'
@@ -36,6 +37,24 @@ def create_app():
 	db.init_app(app)
 
 	return app
+=======
+    username = 'newuser'
+    password = 'newpassword'
+    location = 'mysql'
+    dbname = 'test_db'
+    app = Flask(__name__)
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{username}:{password}@{location}:3306/{dbname}?charset=utf8mb4"
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # Shows sql querys being made if having database issue set to true
+    app.config['SQLALCHEMY_ECHO'] = False
+    #  REVIEW:  this needs to be changed
+    app.secret_key = 'development key'
+    app.register_blueprint(routes_for_flask)
+    db.init_app(app)
+
+    return app
+>>>>>>> cross sections and such
 
 
 #  REVIEW: is having this here correct

@@ -1,6 +1,7 @@
 import glob
 import json
 import logging
+import math
 import os
 import shutil
 import threading
@@ -25,6 +26,7 @@ files = None
 
 
 # glob_data = None
+
 
 def save_video_file(form_passed):
 	date_string = form_passed.date_recorded.data.strftime('%m_%d_%Y')
@@ -68,11 +70,15 @@ def save_video_file(form_passed):
 
 
 def allowed_file(filename):
+<<<<<<< main
 	return '.' in filename and filename.rsplit(
 		'.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-# REVIEW: can proablly combine these too functions
+=======
+    # TODO: check allowed
+    print(ALLOWED_EXTENSIONS)
+    return '.' in filename and filename.rsplit(
+        '.', 1)[1].lower() in ALLOWED_EXTENSIONS
+>>>>>>> cross sections and such
 
 
 def get_post_info(wtforms_list):
@@ -109,6 +115,7 @@ def add_tissues(li_of_post_info, video_id_passed):
 
 
 def get_post_locations(vid_id):
+<<<<<<< main
 	video_object = models.get_video(vid_id)
 	file_path = video_object.save_location
 	number_of_tisues = len(video_object.tissues)
@@ -121,6 +128,17 @@ def get_post_locations(vid_id):
 
 
 # return render_template("selectPosts.html", path=image_path)
+=======
+    video_object = models.get_video(vid_id)
+    file_path = video_object.save_location
+    number_of_tisues = len(video_object.tissues)
+    videostream = cv2.VideoCapture(file_path)
+    image = videostream.read()[1]
+    image_path = 'static/img/' + str(vid_id) + '.jpg'
+    cv2.imwrite(image_path, image)
+    return (image_path, number_of_tisues)
+    # return render_template("selectPosts.html", path=image_path)
+>>>>>>> cross sections and such
 
 
 routes_for_flask = Blueprint(
@@ -132,6 +150,7 @@ def main():
 	return render_template('home.html')
 
 
+<<<<<<< main
 @routes_for_flask.route('/analysis', methods=['GET', 'POST'])
 def analysis_page():
 	form = forms.PickVid()
@@ -170,6 +189,47 @@ def analysis_page():
 
 
 @routes_for_flask.route("/call_calcs")
+=======
+@ routes_for_flask.route('/analysis', methods=['GET', 'POST'])
+def analysis_page():
+    form = forms.PickVid()
+    form.experiment.choices = [(row.experiment_num, row.experiment_num)
+                               for row in models.Experiment.query.all()]
+    if request.method == 'GET':
+        return render_template('analysis.html', form=form)
+
+    if request.method == 'POST':
+        global files, glob_data
+        json_list = []
+        date = form.date.data
+        exp = form.experiment.data
+        date = date.replace('/', '_')
+        files = glob.glob('static/uploads/' +
+                          exp + '/' + date + '/csvfiles/*')
+        lengther = []
+        tiss_freq = []
+        dataframes = []
+        glob_data = []
+        for i, file in enumerate(files):
+            # Reads each file in as a dataframe
+            glob_data.append([])
+            tiss_num = file.split('T')[1].split('_')[0]
+            tiss_freq.append(file.split('F')[1].split('.')[0])
+            lengther.append(tiss_num)
+            dataframes.append(pd.read_csv(file))
+            dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(
+                dataframes[i]['disp'], dataframes[i], 3, 3, 13, .6, 5, 0, 0)
+            glob_data[i] = analysis.findpoints(
+                dataframes[i]['disp'], dataframes[i], 3, 3, 13, .6, 5, 0, 0)
+            json_list.append(dataframe_smooth.to_json(orient='columns'))
+
+        json_list = json.dumps(json_list)
+        return (render_template("analysis.html", form=form, json_data_list=json_list, leng=lengther, freqs=tiss_freq))
+    return redirect('/get_dates')
+
+
+@ routes_for_flask.route("/call_calcs")
+>>>>>>> cross sections and such
 def call_calcs():
 	calcs.carry_calcs(glob_data, files)
 	return "Nothing"
@@ -179,6 +239,7 @@ def reloader():
 	calcs.reload_database()
 	return "Nothing"
 
+<<<<<<< main
 @routes_for_flask.route("/graphUpdate", methods=['GET', 'POST'])
 def graphUpdate():
 	if request.method == "POST":
@@ -258,6 +319,106 @@ def boxcoordinates():
 
 
 @routes_for_flask.route('/uploadFile', methods=['GET', 'POST'])
+=======
+
+@ routes_for_flask.route("/graphUpdate", methods=['GET', 'POST'])
+def graphUpdate():
+    if request.method == "POST":
+        global files, glob_data
+        datafram = []
+        raw = []
+        for i, file in enumerate(files):
+            datafram.append(pd.read_csv(file))
+            raw.append(pd.read_csv(file))
+        from_js = request.get_data()
+        data = json.loads(from_js)
+
+        raw[int(data['value'])]['disp'] = raw[int(data['value'])]['disp'] * -1
+        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
+                                                                                                   int(data['buffers']), int(data['polynomials']), int(
+                                                                                                       data['windows']), float(data['thresholds']), int(data['minDistances']),
+                                                                                                   int(data['xrange'][0]), int(data['xrange'][1]))
+        glob_data[int(data['value'])] = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
+                                                            int(data['buffers']), int(data['polynomials']), int(
+                                                                data['windows']), float(data['thresholds']), int(data['minDistances']),
+                                                            int(data['xrange'][0]), int(data['xrange'][1]))
+        rawx = raw[int(data['value'])]['time'].tolist()
+        rawy = raw[int(data['value'])]['disp'].tolist()
+        times = dataframe_smooth['time'].to_list()
+        disps = dataframe_smooth['disp'].to_list()
+        peaksx = dataframe_smooth['time'][peaks].to_list()
+        peaksy = dataframe_smooth['disp'][peaks].to_list()
+        basex = dataframe_smooth['time'][basepoints].to_list()
+        basey = dataframe_smooth['disp'][basepoints].to_list()
+        frontx = dataframe_smooth['time'][frontpoints].to_list()
+        fronty = dataframe_smooth['disp'][frontpoints].to_list()
+        tencontx = ten[0]
+        tenconty = ten[1]
+        tenrelx = ninety[2]
+        tenrely = ninety[3]
+
+        fifcontx = fifty[0]
+        fifconty = fifty[1]
+        fifrelx = fifty[2]
+        fifrely = fifty[3]
+
+        ninecontx = ninety[0]
+        nineconty = ninety[1]
+        ninerelx = ten[2]
+        ninerely = ten[3]
+
+        return jsonify({'status': 'OK', 'data': {'xs': times, 'ys': disps,
+                                                 'peaksx': peaksx, 'peaksy': peaksy,
+                                                 'basex': basex, 'basey': basey,
+                                                 'frontx': frontx, 'fronty': fronty,
+                                                 'tencontx': tencontx, 'tenconty': tenconty,
+                                                 'tenrelx': tenrelx, 'tenrely': tenrely,
+                                                 'fifcontx': fifcontx, 'fifconty': fifconty,
+                                                 'fifrelx': fifrelx, 'fifrely': fifrely,
+                                                 'ninecontx': ninecontx, 'nineconty': nineconty,
+                                                 'ninerelx': ninerelx, 'ninerely': ninerely,
+                                                 'rawx': rawx, 'rawy': rawy
+                                                 }})
+
+
+def coord_distance(coords_list):
+    dist_list = []
+    for i in range(0, len(coords_list), 2):
+        point_one = coords_list[i - 1]
+        point_two = coords_list[i]
+        dist_list.append(math.sqrt((point_two[0] - point_one[0])**2 +
+                                   (point_two[1] - point_one[1])**2))
+
+    return dist_list
+
+
+@ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])
+def boxcoordinates():
+    # TODO: comment all of this so it makes tissue_number_passed
+    if request.method == "POST":
+        # gets data from js ajax requests
+        # data is in a dic format ['boxes':[[]],'video_id':'x']
+        from_js = request.get_data()
+        data = json.loads(from_js)
+        box_coords = data['boxes']
+        cal_coords = data['cal_points']
+        cross_coords = data['cross_points']
+
+        cal_dist_pix = coord_distance(cal_coords)[0]
+        cross_dist_pix = coord_distance(cross_coords)
+
+        video_id = int(data['video_id'])
+        models.add_cal_distance(video_id, cal_dist_pix)
+        models.add_cross_sections(video_id, cross_dist_pix)
+
+        tracking_thread = threading.Thread(
+            target=tracking.start_trackig, args=(box_coords, video_id))
+        tracking_thread.start()
+        return jsonify({'status': 'OK', 'data': box_coords})
+
+
+@ routes_for_flask.route('/uploadFile', methods=['GET', 'POST'])
+>>>>>>> cross sections and such
 def upload_file():
 	return render_template('uploadFile.html')
 

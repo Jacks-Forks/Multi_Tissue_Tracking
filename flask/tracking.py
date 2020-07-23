@@ -169,7 +169,6 @@ def start_trackig(unformated_points, video_id_passed):
 
     if not os.path.exists(directory_to_save_path):
         os.makedirs(directory_to_save_path)
-# REVIEW: vid save loaction to full path csv save loaction is from static
     for i, an in enumerate(displacement):
         df = pd.DataFrame(
             an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
@@ -179,7 +178,7 @@ def start_trackig(unformated_points, video_id_passed):
         models.add_tissue_csv(li_tissue_ids[i], path_to_csv)
     logging.info("check csv")
 
-    # deltes files in img folder
+    # deletes files in img folder
     # REVIEW: this can probally be done better
     for file in os.listdir(os.getcwd() + '/static/img'):
         os.remove(os.getcwd() + '/static/img/' + file)

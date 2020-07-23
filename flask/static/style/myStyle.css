@@ -10,6 +10,16 @@
   position: absolute;
 }
 
+.line {
+  border: 2px solid black;
+  position: absolute;
+}
+
+.cross {
+  border: 2px solid pink;
+  position: absolute;
+}
+
 #pic {
   height: 540px;
   width: 960px;

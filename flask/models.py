@@ -34,6 +34,8 @@ class Video(db.Model):
 
     save_location = db.Column(db.String(120), nullable=False)
 
+    cal_dist_pix = db.Column(db.Float, nullable=True)
+
     experiment_num = db.Column(db.Integer, db.ForeignKey(
         'experiment.experiment_num', ondelete='CASCADE'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='vids')
@@ -48,12 +50,12 @@ class Video(db.Model):
 
 
 class Tissue(db.Model):
-    # REVIEW: pk maybe should be combo between tissue number and expirment number
     tissue_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tissue_number = db.Column(db.Integer, nullable=False)
     tissue_type = db.Column(db.String(120), nullable=False)
     post = db.Column(db.Integer, nullable=False)
     csv_path = db.Column(db.String(120), nullable=True)
+    cross_section_dist = db.Column(db.Float, nullable=True)
 
     video_id = db.Column(
         db.Integer,  db.ForeignKey('video.video_id', ondelete='CASCADE'), nullable=False)
@@ -62,8 +64,6 @@ class Tissue(db.Model):
 
     def __repr__(self):
         return '<Tissue %r>' % self.tissue_id
-
-# TODO: video and csv separe or not
 
 
 class Bio_reactor(db.Model):
@@ -188,6 +188,20 @@ def add_tissue_csv(id_passed, path_passed):
     db.session.commit()
 
 
+def add_cal_distance(id_passed, cal_dist_pix_passed):
+    video = get_video(id_passed)
+    video.cal_dist_pix = cal_dist_pix_passed
+    db.session.commit()
+
+
+def add_cross_sections(vid_id_passed, cross_dist_passed):
+    video = get_video(vid_id_passed)
+    tissues = video.tissues
+    for i, tissue in enumerate(tissues):
+        tissue.cross_section_dist = cross_dist_passed[i]
+    db.session.commit()
+
+
 def get_all_experiments():
     experment_list = []
     experiments = Experiment.query.all()
@@ -203,7 +217,7 @@ def get_all_videos():
     vids = Video.query.all()
     for video in vids:
         dic = {'id': video.video_id, 'date_uploaded': video.date_uploaded, 'date_recorded': video.date_recorded, 'frequency': video.frequency,
-               'save_location': video.save_location, 'bio_reactor_num': video.bio_reactor_num, 'experiment_num': video.experiment_num}
+               'save_location': video.save_location, 'bio_reactor_num': video.bio_reactor_num, 'experiment_num': video.experiment_num, 'cal_dist_pix': video.cal_dist_pix}
         vid_list.append(dic)
     return vid_list
 
@@ -213,7 +227,7 @@ def get_all_tissues():
     tissues = Tissue.query.all()
     for tissue in tissues:
         dic = {'tissue_id': tissue.tissue_id, 'tissue_number': tissue.tissue_number,
-               'tissue_type': tissue.tissue_type, 'post': tissue.post, 'csv_path': tissue.csv_path, 'video_id': tissue.video_id}
+               'tissue_type': tissue.tissue_type, 'post': tissue.post, 'csv_path': tissue.csv_path, 'video_id': tissue.video_id, 'cross_section_dist': tissue.cross_section_dist}
         tissue_list.append(dic)
     return tissue_list
 
