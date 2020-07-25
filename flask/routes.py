@@ -262,13 +262,21 @@ def boxcoordinates():
         box_coords = data['boxes']
         cal_coords = data['cal_points']
         cross_coords = data['cross_points']
+        cal_dist = float(data['calibration_distance'])
+        print(cal_dist)
 
         cal_dist_pix = coord_distance(cal_coords)[0]
+
+        # REVIEW: do we also want this in mm instead of pix
         cross_dist_pix = coord_distance(cross_coords)
 
         video_id = int(data['video_id'])
-        models.add_cal_distance(video_id, cal_dist_pix)
-        models.add_cross_sections(video_id, cross_dist_pix)
+        models.add_calibration_distance(video_id, cal_dist)
+
+        cal_factor = cal_dist / cal_dist_pix
+        models.add_calibration_factor(video_id, cal_factor)
+        cross_dist_mm = list(map(lambda x: x * cal_factor, cross_dist_pix))
+        models.add_cross_sections(video_id, cross_dist_mm)
 
         tracking_thread = threading.Thread(
             target=tracking.start_trackig, args=(box_coords, video_id))

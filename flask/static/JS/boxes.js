@@ -1,11 +1,12 @@
 function getPostCount() {
   var tissue_count = document.getElementById("numTissues").value
   var video_id = document.getElementById("videoId").value
-  initDraw(document.getElementById('canvas'), tissue_count, video_id);
+  var calibration_distance = document.getElementById("calDist").value
+  initDraw(document.getElementById('canvas'), tissue_count, video_id, calibration_distance);
 }
 
 
-function initDraw(canvas, tissue_count, video_id) {
+function initDraw(canvas, tissue_count, video_id, calibration_distance) {
   let boxes = [];
   let cal_points = [];
   let cross_points = [];
@@ -102,7 +103,7 @@ function initDraw(canvas, tissue_count, video_id) {
         boxes.push(GetCoordinates());
         console.log(GetCoordinates());
         if (post_count == 0) {
-          send_to_python(boxes, cal_points, cross_points, video_id);
+          send_to_python(boxes, cal_points, cross_points, video_id, calibration_distance);
           done = true;
         }
       } else {
@@ -158,12 +159,13 @@ function GetCoordinates(e) {
 }
 
 
-function send_to_python(boxes, cal_points, cross_points, video_id) {
+function send_to_python(boxes, cal_points, cross_points, video_id, calibration_distance) {
   const boxes_and_id = {
     boxes,
     cal_points,
     cross_points,
-    video_id
+    video_id,
+    calibration_distance
   }
   boxes_id_asJson = JSON.stringify(boxes_and_id);
   console.log(boxes_id_asJson);
