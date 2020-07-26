@@ -23,8 +23,6 @@ from app import app as apple
 
 
 def carry_calcs(all_data, files):
-	print(len(files))
-	print(len(all_data))
 	summarys = []
 	bioreactors = sorted(glob.glob('static/bioreactors/*'))
 	[summarys.append(pd.read_csv(bio)) for bio in bioreactors]
@@ -52,7 +50,6 @@ def carry_calcs(all_data, files):
 		ten = all_data[i][4]
 		fifty = all_data[i][5]
 		ninety = all_data[i][6]
-		print(file)
 		peakdist = []
 		basedist = []
 		devdist = []
