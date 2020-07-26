@@ -242,7 +242,7 @@ def graphUpdate():
 
 def coord_distance(coords_list):
     dist_list = []
-    for i in range(0, len(coords_list), 2):
+    for i in range(1, len(coords_list), 2):
         point_one = coords_list[i - 1]
         point_two = coords_list[i]
         dist_list.append(math.sqrt((point_two[0] - point_one[0])**2 +
@@ -267,15 +267,22 @@ def boxcoordinates():
 
         cal_dist_pix = coord_distance(cal_coords)[0]
 
-        # REVIEW: do we also want this in mm instead of pix
         cross_dist_pix = coord_distance(cross_coords)
+        logging.info(cal_dist_pix)
 
         video_id = int(data['video_id'])
         models.add_calibration_distance(video_id, cal_dist)
 
         cal_factor = cal_dist / cal_dist_pix
+        logging.info(cal_factor)
         models.add_calibration_factor(video_id, cal_factor)
+        #cross_dist_pix = [1, 2, 3, 4, 5]
+        #cal_factor = 5
+
         cross_dist_mm = list(map(lambda x: x * cal_factor, cross_dist_pix))
+        logging.info(cross_dist_mm)
+        logging.info(cross_dist_pix)
+        logging.info(cross_dist_mm)
         models.add_cross_sections(video_id, cross_dist_mm)
 
         tracking_thread = threading.Thread(
@@ -284,7 +291,7 @@ def boxcoordinates():
         return jsonify({'status': 'OK', 'data': box_coords})
 
 
-@routes_for_flask.route('/uploadFile/reactorB', methods=['GET', 'POST'])
+@ routes_for_flask.route('/uploadFile/reactorB', methods=['GET', 'POST'])
 def upload_to_b():
     form = forms.upload_to_b_form()
 
@@ -325,7 +332,7 @@ def upload_to_b():
         return render_template('uploadToB.html', form=form)
 
 
-@routes_for_flask.route('/pick_video', methods=['GET', 'POST'])
+@ routes_for_flask.route('/pick_video', methods=['GET', 'POST'])
 def pick_video():
     form = forms.PickVid()
     form.experiment.choices = [(row.experiment_num, row.experiment_num)
@@ -345,7 +352,7 @@ def pick_video():
     return redirect('/get_dates')
 
 
-@routes_for_flask.route('/get_dates')
+@ routes_for_flask.route('/get_dates')
 def get_dates():
     experiment = request.args.get('experiment', '01', type=str)
     dates = []
@@ -358,7 +365,7 @@ def get_dates():
     return jsonify(dates)
 
 
-@routes_for_flask.route('/get_video')
+@ routes_for_flask.route('/get_video')
 def get_video():
     date = request.args.get('dates', '01', type=str)
     experiment = request.args.get('experiment', '01', type=str)
@@ -371,31 +378,31 @@ def get_video():
     return jsonify(vids)
 
 
-@routes_for_flask.route('/showVideos')
+@ routes_for_flask.route('/showVideos')
 def show_videos():
     data = models.get_all_videos()
     return render_template('showVideos.html', data=data)
 
 
-@routes_for_flask.route('/showTissues')
+@ routes_for_flask.route('/showTissues')
 def show_tissues():
     data = models.get_all_tissues()
     return render_template('showTissues.html', data=data)
 
 
-@routes_for_flask.route('/showBioreactos')
+@ routes_for_flask.route('/showBioreactos')
 def show_bio_reactors():
     data = models.get_all_bio_reactors()
     return render_template('showBios.html', data=data)
 
 
-@routes_for_flask.route('/showExp')
+@ routes_for_flask.route('/showExp')
 def show_experiment():
     data = models.get_all_experiments()
     return render_template('showExp.html', data=data)
 
 
-@routes_for_flask.route('/deleteTissue', methods=['POST'])
+@ routes_for_flask.route('/deleteTissue', methods=['POST'])
 def delete_tissue():
     from_js = request.get_data()
     tissue_id = json.loads(from_js)
@@ -403,7 +410,7 @@ def delete_tissue():
     return jsonify({'status': 'OK'})
 
 
-@routes_for_flask.route('/deleteVideo', methods=['POST'])
+@ routes_for_flask.route('/deleteVideo', methods=['POST'])
 def delete_video():
     from_js = request.get_data()
     logging.info(from_js)
@@ -412,7 +419,7 @@ def delete_video():
     return jsonify({'status': 'OK'})
 
 
-@routes_for_flask.route('/deleteExp', methods=['POST'])
+@ routes_for_flask.route('/deleteExp', methods=['POST'])
 def delete_exp():
     from_js = request.get_data()
     exp_id = json.loads(from_js)
@@ -420,7 +427,7 @@ def delete_exp():
     return jsonify({'status': 'OK'})
 
 
-@routes_for_flask.route('/deleteBio', methods=['POST'])
+@ routes_for_flask.route('/deleteBio', methods=['POST'])
 def delete_bio_reactor():
     from_js = request.get_data()
     bio_id = json.loads(from_js)
@@ -428,19 +435,19 @@ def delete_bio_reactor():
     return jsonify({'status': 'OK'})
 
 
-@routes_for_flask.route('/download', methods=['POST'])
+@ routes_for_flask.route('/download', methods=['POST'])
 def download():
     file_path = request.form['download']
     return send_file(file_path, as_attachment=True)
 
 
-@routes_for_flask.route('/downloadExp', methods=['POST'])
+@ routes_for_flask.route('/downloadExp', methods=['POST'])
 def download_exp():
     exp_num = request.form['download']
     zip_path = shutil.make_archive(f'{exp_num}',
                                    'zip', f'static/uploads/{exp_num}')
 
-    @after_this_request
+    @ after_this_request
     def remove_file(response):
         try:
             os.remove(zip_path)
