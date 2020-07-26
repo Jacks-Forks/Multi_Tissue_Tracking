@@ -15,6 +15,7 @@ logging.warning("New Run Starts Here")
 def format_points(old_points):
     result = []
     for i in range(0, len(old_points), 2):
+        # Multiply by 2 because of scale factopr
         x = old_points[i][0] * 2
         y = old_points[i][1] * 2
         width = old_points[i + 1][0] * 2 - x
@@ -40,9 +41,10 @@ def start_trackig(unformated_points, video_id_passed, calib_factor):
 
     # Start a opencv videostream
     videostream = cv2.VideoCapture(video_file_path)
+    total_frames = int(videostream.get(cv2.CAP_PROP_FRAME_COUNT))
 
     # Capture the first image
-    # TODO: Fail gracefully
+    # TODO: Faddil gracefully
     images = videostream.read()[1]
 
     # Iniate all the available opencv trackers
@@ -67,90 +69,55 @@ def start_trackig(unformated_points, video_id_passed, calib_factor):
         tracker = OPENCV_OBJECT_TRACKERS['csrt']()
         trackers.add(tracker, images, box)
 
-    count = 0
+    frame = 1
+    old_percentage = 0
     # Initiate what will be a list of dataframes.
     # Each dataframe will contain the diaplacements for 1 tissue
     displacement = []
 
     while True:
-        #    logging.info(count)
+        if (percentage := int(100*frame/total_frames)) is not old_percentage:
+            print(percentage)
+        old_percentage = percentage
 
-        """
-        if count >= 100:
-            break
-
-        """
         # read in the next frame
         successful, image = videostream.read()
-        '''
-        if cv2.waitKey(25) & 0xFF == ord('q'):
+        if not successful:
             break
-        cv2.waitKey(20)
-        '''
-        '''
-        if count >= 100:
-            break
-        '''
-        if successful is False:
+        frame += 1
+
+        successful, posts = trackers.update(image)
+        if not successful:
             break
 
-        # TODO: Add fail
-        posts = trackers.update(image)[1]
-        postio = {}
         # Get the positions of each post
-        for i, post in enumerate(posts):
-            # Used float for more acuracy but rectangle needs int
+        for objectID, post in enumerate(posts):
             (x, y, w, h) = [float(i) for i in post]
-            # (rx, ry, rw, rh) = [int(i) for i in (x, y, w, h)]
-            # cv2.rectangle(image, (rx, ry),
-            #              (rx + rw, ry + rh), (0, 255, 0), 2)
-            # Populate list for centroid tracking
-            centroidX = int((x + x + w) / 2.0)
-            centroidY = int((y + y + h) / 2.0)
-            postio[i] = (centroidX, centroidY)
+            centroid = (float(x + w/2), float(y + h/2))
 
-        for (objectID, centroid) in postio.items():
-            """
-            only for debugging showes image and draws boxes on image
-            text = "{}".format(objectID)time = self.vs.get(cv2.CAP_PROP_POS_MSEC)/1000
-            cv2.putText(image, text, (centroid[0] - 10, centroid[1] - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            cv2.circle(image, (centroid[0], centroid[1]), 4, (0, 255, 0), -1)
-            logging.info((centroid[0], centroid[1]))
-
-            cv2.imshow("test", image)
-            """
             if (objectID % 2) == 0:
-                # Save the x position of the even post
-                evenX = centroid[0]
-                # Save the y position of the even post
-                evenY = centroid[1]
+                # Save the x, y position of the even post
+                evenX, evenY = centroid
                 evenID = objectID
-                # If objectID is odd it has a pair so do stuff
+            # If objectID is odd it has a pair so do stuff
             elif (objectID - 1) == evenID:
                 # Calculate tissue number based on object ID
                 reltissueID = int((objectID - 1) / 2)
-                if (len(displacement) < reltissueID + 1):
+
+                if len(displacement) < reltissueID + 1:
                     displacement.append([])
-                # Save the x position of the odd post
-                oddX = centroid[0]
-                # Save the y position of the odd post
-                oddY = centroid[1]
+
+                # Save the x, y position of the odd post
+                oddX, oddY = centroid
 
                 time = videostream.get(cv2.CAP_PROP_POS_MSEC) / 1000
+
+                # Divide by two because of the scale factor of the video
                 disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2)) * calib_factor / 2
-                count = count + 1
-                logging.info(count)
                 displacement[reltissueID].append(
                     (time, disp, oddX, oddY, evenX, evenY))
 
-    '''
-    videostream.release()
-    # Closes all the frames
-    cv2.destroyAllWindows()
-    cv2.waitKey(1)
-    '''
-    # gets other needed info from tissue object
+    # gets other needed info from video object
     date_recorded = video_object.date_recorded
     frequency = video_object.frequency
     experiment_num = video_object.experiment_num
