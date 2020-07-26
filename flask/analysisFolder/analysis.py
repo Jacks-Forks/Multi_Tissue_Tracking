@@ -65,7 +65,7 @@ def findP(peaks, bases, fronts, disp, time, perc):
 		yval = negyval = baseline + ydiff
 
 		# For each point from basepoint towards peak
-		for j in range(bases[i], peaks[i], 1):
+		for j in range(bases[i], peaks[i] + 1, 1):
 			# If yval is less the the basepoint it will not be on graph
 			if yval < disp[bases[i]]:
 				# Set the val to the basepoint as thats the closest possible value
