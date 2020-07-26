@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+from dataclasses import asdict, dataclass
 from datetime import datetime
 
 from pytz import timezone
@@ -53,15 +54,17 @@ class Video(db.Model):
         'Tissue', back_populates='video', passive_deletes=True)
 
 
+@dataclass
 class Tissue(db.Model):
-    tissue_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    tissue_number = db.Column(db.Integer, nullable=False)
-    tissue_type = db.Column(db.String(120), nullable=False)
-    post = db.Column(db.Integer, nullable=False)
-    csv_path = db.Column(db.String(120), nullable=True)
-    cross_section_dist = db.Column(db.Float, nullable=True)
+    tissue_id: int = db.Column(
+        db.Integer, primary_key=True, autoincrement=True)
+    tissue_number: int = db.Column(db.Integer, nullable=False)
+    tissue_type: str = db.Column(db.String(120), nullable=False)
+    post: int = db.Column(db.Integer, nullable=False)
+    csv_path: str = db.Column(db.String(120), nullable=True)
+    cross_section_dist: float = db.Column(db.Float, nullable=True)
 
-    video_id = db.Column(
+    video_id: int = db.Column(
         db.Integer,  db.ForeignKey('video.video_id', ondelete='CASCADE'), nullable=False)
     video = db.relationship(
         'Video', back_populates='tissues')
@@ -232,18 +235,18 @@ def get_all_videos():
     vids = Video.query.all()
     for video in vids:
         dic = {'id': video.video_id, 'date_uploaded': video.date_uploaded, 'date_recorded': video.date_recorded, 'frequency': video.frequency,
-               'save_location': video.save_location, 'bio_reactor_num': video.bio_reactor_num, 'experiment_num': video.experiment_num, 'cal_dist_pix': video.cal_dist_pix}
+               'save_location': video.save_location, 'bio_reactor_num': video.bio_reactor_num, 'experiment_num': video.experiment_num}
         vid_list.append(dic)
     return vid_list
 
 
 def get_all_tissues():
     tissue_list = []
-    tissues = Tissue.query.all()
+
+    tissues = db.session.query(Tissue).all()
     for tissue in tissues:
-        dic = {'tissue_id': tissue.tissue_id, 'tissue_number': tissue.tissue_number,
-               'tissue_type': tissue.tissue_type, 'post': tissue.post, 'csv_path': tissue.csv_path, 'video_id': tissue.video_id, 'cross_section_dist': tissue.cross_section_dist}
-        tissue_list.append(dic)
+        tissue_list.append(asdict(tissue))
+
     return tissue_list
 
 
