@@ -5,7 +5,6 @@ import app
 import models
 import numpy as np
 import pandas as pd
-from app import app as apple
 
 
 
@@ -61,7 +60,6 @@ def carry_calcs(all_data, files):
 			basedist.append(7 + disp[bases[j]])
 			devdist.append(peakdist[j] - basedist[j])
 		tissue_object = models.get_tissue_by_csv(file)
-		print(tissue_object.tissue_number)
 
 		if tissue_object.video.bio_reactor_num != 0:
 			loc = tissue_object.post
@@ -71,16 +69,16 @@ def carry_calcs(all_data, files):
 			l_l = summarys[bio - 1]['LPostHt'][loc]
 			a_r = summarys[bio - 1]['RTissHt'][loc]
 			a_l = summarys[bio - 1]['LTissHt'][loc]
-			radius = .0005
+			radius = .227
 		else:
 			# If other system, set these as heights
-			l_r = .012
-			l_l = .012
-			a_r = .0115
-			a_l = .0115
-			radius = .0005
-		# TODO: Better Define youngs + radius, be editable
-		youngs = 1330000
+			l_r = 12
+			l_l = 12
+			a_r = 11.5
+			a_l = 11.5
+			radius = .5
+		# TODO: Better Define youngs + radius, be editable. FIND UNITS FOR FORCE
+		youngs = 13300.00
 		actforce.append(force(youngs, radius, l_r, a_r, l_l, a_l, peakdist))
 		pasforce.append(force(youngs, radius, l_r, a_r, l_l, a_l, basedist))
 		devforce.append(force(youngs, radius, l_r, a_r, l_l, a_l, devdist))
@@ -100,7 +98,8 @@ def carry_calcs(all_data, files):
 
 
 def reload_database():
-	apple.app_context().push()
+	app.app.app_context().push()
+
 	importlib.reload(models)
 	return
 
