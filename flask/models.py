@@ -16,36 +16,39 @@ tz = timezone('EST')
 # TODO: what hnappens when get fails check that work flow
 
 
+@dataclass
 class Experiment(db.Model):
-    experiment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    experiment_num = db.Column(
+    experiment_id: int = db.Column(
+        db.Integer, primary_key=True, autoincrement=True)
+    experiment_num: int = db.Column(
         db.Integer, nullable=False, unique=True)
     vids = db.relationship(
         'Video', back_populates='experiment', passive_deletes=True)
 
 
+@dataclass
 class Video(db.Model):
-    video_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    video_id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     # TODO: add call factor float
-    date_uploaded = db.Column(db.Date, nullable=False,
-                              default=datetime.now(tz))
-    date_recorded = db.Column(db.Date, nullable=False)
+    date_uploaded: datetime.date = db.Column(db.Date, nullable=False,
+                                             default=datetime.now(tz))
+    date_recorded: datetime.date = db.Column(db.Date, nullable=False)
 
-    frequency = db.Column(db.Float, nullable=False)
+    frequency: float = db.Column(db.Float, nullable=False)
 
-    save_location = db.Column(db.String(120), nullable=False)
+    save_location: str = db.Column(db.String(120), nullable=False)
 
     # calibration distance is the user inputed length in mm of marker used to calibrate
-    calibration_distance = db.Column(db.Float, nullable=True)
+    calibration_distance: float = db.Column(db.Float, nullable=True)
 
     # calibration factor is the calibration distance / length if the drawn calibration line in pixels
-    calibration_factor = db.Column(db.Float, nullable=True)
+    calibration_factor: float = db.Column(db.Float, nullable=True)
 
-    experiment_num = db.Column(db.Integer, db.ForeignKey(
+    experiment_num: int = db.Column(db.Integer, db.ForeignKey(
         'experiment.experiment_num', ondelete='CASCADE'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='vids')
 
-    bio_reactor_num = db.Column(db.Integer, db.ForeignKey(
+    bio_reactor_num: int = db.Column(db.Integer, db.ForeignKey(
         'bio_reactor.bio_reactor_num', ondelete='CASCADE'), nullable=False)
     bio_reactor = db.relationship(
         'Bio_reactor', back_populates='vids')
@@ -73,10 +76,11 @@ class Tissue(db.Model):
         return '<Tissue %r>' % self.tissue_id
 
 
+@dataclass
 class Bio_reactor(db.Model):
-    bio_reactor_id = db.Column(
+    bio_reactor_id: int = db.Column(
         db.Integer, primary_key=True, autoincrement=True)
-    bio_reactor_num = db.Column(db.Integer, unique=True, nullable=False)
+    bio_reactor_num: int = db.Column(db.Integer, unique=True, nullable=False)
     vids = db.relationship(
         'Video', back_populates='bio_reactor', passive_deletes=True)
     # TODO:put actual stuff here
@@ -221,42 +225,31 @@ def add_cross_sections(vid_id_passed, cross_dist_passed):
 
 
 def get_all_experiments():
-    experment_list = []
-    experiments = Experiment.query.all()
-    for exp in experiments:
-        dic = {'experment_id': exp.experiment_id,
-               'experment_num': exp.experiment_num}
-        experment_list.append(dic)
-    return experment_list
+    result = []
+    all = db.session.query(Experiment).all()
+    [result.append(asdict(row)) for row in all]
+    return result
 
 
 def get_all_videos():
-    vid_list = []
-    vids = Video.query.all()
-    for video in vids:
-        dic = {'id': video.video_id, 'date_uploaded': video.date_uploaded, 'date_recorded': video.date_recorded, 'frequency': video.frequency,
-               'save_location': video.save_location, 'bio_reactor_num': video.bio_reactor_num, 'experiment_num': video.experiment_num}
-        vid_list.append(dic)
-    return vid_list
+    result = []
+    all = db.session.query(Video).all()
+    [result.append(asdict(row)) for row in all]
+    return result
 
 
 def get_all_tissues():
-    tissue_list = []
-
-    tissues = db.session.query(Tissue).all()
-    for tissue in tissues:
-        tissue_list.append(asdict(tissue))
-
-    return tissue_list
+    result = []
+    all = db.session.query(Tissue).all()
+    [result.append(asdict(row)) for row in all]
+    return result
 
 
 def get_all_bio_reactors():
-    bio_list = []
-    bio_reactors = Bio_reactor.query.all()
-    for bio in bio_reactors:
-        dic = {'bio_id': bio.bio_reactor_id, 'bio_num': bio.bio_reactor_num}
-        bio_list.append(dic)
-    return bio_list
+    result = []
+    all = db.session.query(Bio_reactor).all()
+    [result.append(asdict(row)) for row in all]
+    return result
 
 
 def delete_tissue(tissue_id):
