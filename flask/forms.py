@@ -34,3 +34,8 @@ class PickVid(FlaskForm):
     date = SelectField('Date', id='select_date')
     vids = SelectField('Vids', id='select_vids')
     submit = SubmitField('Select Video')
+
+
+class calibrationFactor(FlaskForm):
+    cal_factor = DecimalField("Calibration Factor")
+    submit = SubmitField('Submit')
