@@ -26,7 +26,6 @@ def format_points(old_points):
 
 def start_trackig(unformated_points, video_id_passed, calib_factor):
     logging.info('start_trackig')
-    logging.info(unformated_points)
     # allows acess to the databse avoding circular imports
     # REVIEW: there might be a better way to do this
     from app import app

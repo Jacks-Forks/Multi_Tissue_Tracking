@@ -16,6 +16,7 @@ import pandas as pd
 import tracking
 from flask import (Blueprint, after_this_request, jsonify, redirect,
                    render_template, request, send_file)
+from scipy.spatial import distance
 from werkzeug.utils import secure_filename
 
 current_directory = os.getcwd()
@@ -246,8 +247,10 @@ def coord_distance(coords_list):
     for i in range(1, len(coords_list), 2):
         point_one = coords_list[i - 1]
         point_two = coords_list[i]
-        dist_list.append(math.sqrt((point_two[0] - point_one[0])**2 +
-                                   (point_two[1] - point_one[1])**2))
+
+        d = float(distance.euclidean(point_one, point_two))
+
+        dist_list.append(d)
 
     return dist_list
 

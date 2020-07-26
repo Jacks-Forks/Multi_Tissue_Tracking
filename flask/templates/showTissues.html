@@ -59,12 +59,13 @@
 {% block extrajs %}
 <script>
   function makeSure(id) {
+    console.log(id)
     var r = confirm("Are you sure you want to Delete");
     if (r == true) {
       $(document).ready(function() {
         $.ajax({
           type: "POST",
-          url: '/deleteExp',
+          url: '/deleteTissue',
           dataType: "json",
           data: JSON.stringify(id),
           success: function(data) {
