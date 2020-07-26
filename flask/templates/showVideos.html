@@ -24,7 +24,8 @@
     <th>Date uploaded</th>
     <th>Date recored</th>
     <th>Frequency</th>
-    <th>Calibration Pixel Dist</th>
+    <th>Calibration Dist (mm)</th>
+    <th>Calibraton Factor</th>
     <th>Save Location</th>
     <th>Experiment Number</th>
     <th>Bio Reactor Number</th>
@@ -34,16 +35,17 @@
   </tr>
   {% for vid in data %}
   <tr>
-    <td>{{ vid['id'] }}</td>
+    <td>{{ vid['video_id'] }}</td>
     <td>{{ vid['date_uploaded'] }}</td>
     <td>{{ vid['date_recorded'] }}</td>
     <td>{{ vid['frequency'] }}</td>
-    <td>{{ vid['cal_dist_pix'] }}</td>
+    <td>{{ vid['calibration_distance'] }}</td>
+    <td>{{ vid['calibration_factor'] }}</td>
     <td>{{ vid['save_location'] }}</td>
     <td>{{ vid['experiment_num'] }}</td>
     <td>{{ vid['bio_reactor_num'] }}</td>
     <td>
-      <button type="button" onclick="makeSure({{ vid['id'] }})">Delete</button>
+      <button type="button" onclick="makeSure({{ vid['video_id'] }})">Delete</button>
     </td>
     <td>
       <button type="button">Edit</button>
@@ -66,7 +68,7 @@
       $(document).ready(function() {
         $.ajax({
           type: "POST",
-          url: '/deleteExp',
+          url: '/deleteVideo',
           dataType: "json",
           data: JSON.stringify(id),
           success: function(data) {

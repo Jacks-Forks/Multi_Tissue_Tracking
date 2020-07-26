@@ -27,8 +27,9 @@
 
 /* table cs for show html */
 table {
-  border-collapse: collapse;
-  width: 100%;
+  width: 95%;
+  margin: 40px auto;
+  table-layout: auto;
 }
 
 table, th, td {
