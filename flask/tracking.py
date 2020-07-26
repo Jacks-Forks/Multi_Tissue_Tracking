@@ -76,7 +76,7 @@ def start_trackig(unformated_points, video_id_passed, calib_factor):
     displacement = []
 
     while True:
-        if (percentage := int(100*frame/total_frames)) is not old_percentage:
+        if (percentage := int(100 * frame / total_frames)) is not old_percentage:
             print(percentage)
         old_percentage = percentage
 
@@ -93,7 +93,7 @@ def start_trackig(unformated_points, video_id_passed, calib_factor):
         # Get the positions of each post
         for objectID, post in enumerate(posts):
             (x, y, w, h) = [float(i) for i in post]
-            centroid = (float(x + w/2), float(y + h/2))
+            centroid = (float(x + w / 2), float(y + h / 2))
 
             if (objectID % 2) == 0:
                 # Save the x, y position of the even post
@@ -113,13 +113,15 @@ def start_trackig(unformated_points, video_id_passed, calib_factor):
                 time = videostream.get(cv2.CAP_PROP_POS_MSEC) / 1000
 
                 # Divide by two because of the scale factor of the video
-                disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2)) * calib_factor / 2
+                disp = np.sqrt(((oddX - evenX)**2) +
+                               ((oddY - evenY)**2)) * calib_factor / 2
                 displacement[reltissueID].append(
                     (time, disp, oddX, oddY, evenX, evenY))
 
     # gets other needed info from video object
     date_recorded = video_object.date_recorded
     frequency = video_object.frequency
+    frequencyUnder = str(frequency).replace('.', '-')
     experiment_num = video_object.experiment_num
 
     # list of tissue objects that are childeren of the vid
@@ -139,8 +141,9 @@ def start_trackig(unformated_points, video_id_passed, calib_factor):
     for i, an in enumerate(displacement):
         df = pd.DataFrame(
             an, columns=["time", "disp", "oddX", "oddY", "evenX", "evenY"])
-        path_to_csv = directory_to_save_path + '{0}_T{1}_F{2}.csv'.format(
-            date_as_string, li_tissue_numbers[i],  frequency)
+        path_to_csv = directory_to_save_path + \
+            f'{date_as_string}_T{li_tissue_numbers[i]}_F{frequencyUnder}.csv'
+        logging.info(path_to_csv)
         df.to_csv(path_to_csv, index=False)
         models.add_tissue_csv(li_tissue_ids[i], path_to_csv)
     logging.info("check csv")

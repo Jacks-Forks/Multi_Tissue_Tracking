@@ -154,7 +154,8 @@ def analysis_page():
             # Reads each file in as a dataframe
             glob_data.append([])
             tiss_num = file.split('T')[1].split('_')[0]
-            tiss_freq.append(file.split('F')[1].split('.')[0])
+            tiss_freq.append(
+                float(file.split('F')[1].split('.')[0].replace('-', '.')))
             lengther.append(tiss_num)
             dataframes.append(pd.read_csv(file))
             dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(
@@ -174,7 +175,7 @@ def call_calcs():
     return "Nothing"
 
 
-@routes_for_flask.route("/reloader")
+@ routes_for_flask.route("/reloader")
 def reloader():
     calcs.reload_database()
     return "Nothing"
@@ -195,12 +196,12 @@ def graphUpdate():
         raw[int(data['value'])]['disp'] = raw[int(data['value'])]['disp'] * -1
         dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
                                                                                                    int(data['buffers']), int(data['polynomials']), int(
-                                                                                                       data['windows']), float(data['thresholds']), int(data['minDistances']),
-                                                                                                   int(data['xrange'][0]), int(data['xrange'][1]))
+            data['windows']), float(data['thresholds']), int(data['minDistances']),
+            int(data['xrange'][0]), int(data['xrange'][1]))
         glob_data[int(data['value'])] = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
                                                             int(data['buffers']), int(data['polynomials']), int(
-                                                                data['windows']), float(data['thresholds']), int(data['minDistances']),
-                                                            int(data['xrange'][0]), int(data['xrange'][1]))
+            data['windows']), float(data['thresholds']), int(data['minDistances']),
+            int(data['xrange'][0]), int(data['xrange'][1]))
         rawx = raw[int(data['value'])]['time'].tolist()
         rawy = raw[int(data['value'])]['disp'].tolist()
         times = dataframe_smooth['time'].to_list()
@@ -267,21 +268,14 @@ def boxcoordinates():
         cal_dist_pix = coord_distance(cal_coords)[0]
 
         cross_dist_pix = coord_distance(cross_coords)
-        logging.info(cal_dist_pix)
 
         video_id = int(data['video_id'])
         models.add_calibration_distance(video_id, cal_dist)
 
         cal_factor = cal_dist / cal_dist_pix
-        logging.info(cal_factor)
         models.add_calibration_factor(video_id, cal_factor)
-        #cross_dist_pix = [1, 2, 3, 4, 5]
-        #cal_factor = 5
 
         cross_dist_mm = list(map(lambda x: x * cal_factor, cross_dist_pix))
-        logging.info(cross_dist_mm)
-        logging.info(cross_dist_pix)
-        logging.info(cross_dist_mm)
         models.add_cross_sections(video_id, cross_dist_mm)
 
         tracking_thread = threading.Thread(
