@@ -23,7 +23,7 @@ def format_points(old_points):
     return result
 
 
-def start_trackig(unformated_points, video_id_passed):
+def start_trackig(unformated_points, video_id_passed, calib_factor):
     logging.info('start_trackig')
     logging.info(unformated_points)
     # allows acess to the databse avoding circular imports
@@ -138,7 +138,7 @@ def start_trackig(unformated_points, video_id_passed):
                 oddY = centroid[1]
 
                 time = videostream.get(cv2.CAP_PROP_POS_MSEC) / 1000
-                disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2))
+                disp = np.sqrt(((oddX - evenX)**2) + ((oddY - evenY)**2)) * calib_factor / 2
                 count = count + 1
                 logging.info(count)
                 displacement[reltissueID].append(

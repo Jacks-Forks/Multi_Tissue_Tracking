@@ -263,7 +263,6 @@ def boxcoordinates():
         cal_coords = data['cal_points']
         cross_coords = data['cross_points']
         cal_dist = float(data['calibration_distance'])
-        print(cal_dist)
 
         cal_dist_pix = coord_distance(cal_coords)[0]
 
@@ -286,7 +285,7 @@ def boxcoordinates():
         models.add_cross_sections(video_id, cross_dist_mm)
 
         tracking_thread = threading.Thread(
-            target=tracking.start_trackig, args=(box_coords, video_id))
+            target=tracking.start_trackig, args=(box_coords, video_id, cal_factor))
         tracking_thread.start()
         return jsonify({'status': 'OK', 'data': box_coords})
 
