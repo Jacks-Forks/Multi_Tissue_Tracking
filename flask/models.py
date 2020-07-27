@@ -63,6 +63,7 @@ class Tissue(db.Model):
         db.Integer, primary_key=True, autoincrement=True)
     tissue_number: int = db.Column(db.Integer, nullable=False)
     tissue_type: str = db.Column(db.String(120), nullable=False)
+    # REVIEW: maybe this should be a relationship
     post: int = db.Column(db.Integer, nullable=False)
     csv_path: str = db.Column(db.String(120), nullable=True)
     cross_section_dist: float = db.Column(db.Float, nullable=True)
@@ -83,9 +84,24 @@ class Bio_reactor(db.Model):
     bio_reactor_num: int = db.Column(db.Integer, unique=True, nullable=False)
     vids = db.relationship(
         'Video', back_populates='bio_reactor', passive_deletes=True)
-    # TODO:put actual stuff here
 
-# TODO: what happens if already exsits?
+    posts = db.realtionships(
+        'Post', back_populates='post', passive_deletes=True)
+
+
+@dataclass
+class Post(db.Model):
+    post_id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    post_number: int = db.Column(db.Integer, nullable=False)
+
+    left_post_height: float = db.Column(db.Float, nullable=False)
+    left_tissue_height: float = db.Column(db.Float, nullable=False)
+    right_post_height: float = db.Column(db.Float, nullable=False)
+    right_tissue_height: float = db.Column(db.Float, nullable=False)
+
+    bio_reactor_id: int = db.Column(db.Integer, db.ForeignKey(
+        'bio_reactor.bio_reactor_id', ondelete='CASCADE'), nullable=False)
+    bio_reactor = db.relationship('Bio_reactor', back_populates='bio_reactor')
 
 
 def delete_empties():
@@ -95,6 +111,8 @@ def delete_empties():
         if not os.listdir(root):
             logging.info(root)
             os.rmdir(root)
+
+# TODO: what happens if already exsits?
 
 
 def insert_experiment(num_passed):
