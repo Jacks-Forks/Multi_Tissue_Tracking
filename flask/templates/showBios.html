@@ -1,12 +1,7 @@
-{% extends "base.html" %}
-{% block title %}Show Tissues{% endblock %}
-{% block head %}
-{{ super() }}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
-{% endblock %}
+{% extends "dbBase.html" %}
+{% block title %}Show Bioreactors{% endblock %}
 
-
-{% block content %}
+{% block morecontent %}
 <table>
   <tr>
     <th>ID</th>
@@ -29,27 +24,4 @@
 </table>
 <button type="button" onclick="window.location.href='/addBio';">Add Bio Reactor</button>
 
-{% endblock %}
-
-{% block extrajs %}
-<script>
-  function makeSure(id) {
-    console.log(id)
-    var r = confirm("Are you sure you want to Delete");
-    if (r == true) {
-      $(document).ready(function() {
-        $.ajax({
-          type: "POST",
-          url: '/deleteTissue',
-          dataType: "json",
-          data: JSON.stringify(id),
-          success: function(data) {
-            console.log(data);
-            window.location.reload(true);
-          }
-        })
-      });
-    }
-  }
-</script>
 {% endblock %}
