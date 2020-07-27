@@ -138,7 +138,7 @@ def insert_experiment(num_passed):
 def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_passed, frequency_passed, save_path_passed):
 
     new_video = Video(date_recorded=date_recorded_passed,
-                      experiment_num=experiment_num_passed, bio_reactor_num=bio_reactor_num_passed, frequency=frequency_passed, save_location=save_path_passed)
+                      experiment_num=experiment_num_passed, bio_reactor_number=bio_reactor_num_passed, frequency=frequency_passed, save_location=save_path_passed)
     new_video.expirment = get_experiment_by_num(experiment_num_passed)
     new_video.bio_reactor = get_bio_reactor_by_num(bio_reactor_num_passed)
 
