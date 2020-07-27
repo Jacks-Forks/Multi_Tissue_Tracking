@@ -127,9 +127,12 @@ def populate():
 
 
 def insert_experiment(num_passed):
-    new_expirment = Experiment(experiment_num=num_passed)
-    db.session.add(new_expirment)
-    db.session.commit()
+    if (db.session.query(Experiment.experiment_num).filter_by(experiment_num=num_passed).scalar() is None):
+        new_expirment = Experiment(experiment_num=num_passed)
+        db.session.add(new_expirment)
+        db.session.commit()
+    else:
+        logging.info('already exists')
 
 
 def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_num_passed, frequency_passed, save_path_passed):
@@ -161,16 +164,22 @@ def insert_tissue_sample_csv(tissue_number_passed, tissue_type_passed, post_pass
 
 
 def insert_bio_reactor(num_passed):
-    new_bio_reactor = Bio_reactor(bio_reactor_number=num_passed)
-    db.session.add(new_bio_reactor)
-    db.session.commit()
+    if (db.session.query(Bio_reactor.bio_reactor_number).filter_by(bio_reactor_number=num_passed).scalar() is None):
+        new_bio_reactor = Bio_reactor(bio_reactor_number=num_passed)
+        db.session.add(new_bio_reactor)
+        db.session.commit()
+    else:
+        logging.info('already exists')
 
 
 def insert_post(post_number_passed, left_post_height_passed, left_tissue_height_passed, right_post_height_passed, right_tissue_height_passed, bio_reactor_num_passed):
-    new_post = Post(post_number=post_number_passed, left_post_height=left_post_height_passed, left_tissue_height=left_tissue_height_passed,
-                    right_post_height=right_post_height_passed, right_tissue_height=right_tissue_height_passed, bio_reactor_number=bio_reactor_num_passed)
-    db.session.add(new_post)
-    db.session.commit()
+    if (db.session.query(Post.post_id).filter_by(post_number=post_number_passed, bio_reactor_number=bio_reactor_num_passed).scalar() is None):
+        new_post = Post(post_number=post_number_passed, left_post_height=left_post_height_passed, left_tissue_height=left_tissue_height_passed,
+                        right_post_height=right_post_height_passed, right_tissue_height=right_tissue_height_passed, bio_reactor_number=bio_reactor_num_passed)
+        db.session.add(new_post)
+        db.session.commit()
+    else:
+        logging.info('already exists')
 
     # TODO: add error handling for all get functions
 
