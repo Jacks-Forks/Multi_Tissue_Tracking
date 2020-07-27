@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Show Video{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+  <div class="container-fluid">
+    <ul class="nav navbar-nav ml-auto">
+      <li class="nav-item" role="presentation"><a class="nav-link active" href="/showExp">Experiments</a></li>
+      <li class="nav-item" role="presentation"><a class="nav-link" href="/showVideos">Videos</a></li>
+      <li class="nav-item" role="presentation"><a class="nav-link" href="/showTissues">Tissues</a>
+      </li>
+    </ul>
+    <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+
+{% block morecontent %}{% endblock %}
+
+{% endblock %}
+
+{% block extrajs %}
+<script>
+  function makeSure(id) {
+    var r = confirm("Are you sure you want to Delete");
+    if (r == true) {
+      $(document).ready(function() {
+        $.ajax({
+          type: "POST",
+          url: '/deleteVideo',
+          dataType: "json",
+          data: JSON.stringify(id),
+          success: function(data) {
+            console.log(data);
+            window.location.reload(true);
+          }
+        })
+      });
+    }
+  }
+</script>
+{% endblock %}
