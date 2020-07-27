@@ -48,8 +48,8 @@ class Video(db.Model):
         'experiment.experiment_num', ondelete='CASCADE'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='vids')
 
-    bio_reactor_num: int = db.Column(db.Integer, db.ForeignKey(
-        'bio_reactor.bio_reactor_num', ondelete='CASCADE'), nullable=False)
+    bio_reactor_number: int = db.Column(db.Integer, db.ForeignKey(
+        'bio_reactor.bio_reactor_number', ondelete='CASCADE'), nullable=False)
     bio_reactor = db.relationship(
         'Bio_reactor', back_populates='vids')
 
@@ -81,12 +81,13 @@ class Tissue(db.Model):
 class Bio_reactor(db.Model):
     bio_reactor_id: int = db.Column(
         db.Integer, primary_key=True, autoincrement=True)
-    bio_reactor_num: int = db.Column(db.Integer, unique=True, nullable=False)
+    bio_reactor_number: int = db.Column(
+        db.Integer, unique=True, nullable=False)
     vids = db.relationship(
         'Video', back_populates='bio_reactor', passive_deletes=True)
 
-    posts = db.realtionships(
-        'Post', back_populates='post', passive_deletes=True)
+    posts = db.relationship(
+        'Post', back_populates='bio_reactor', passive_deletes=True)
 
 
 @dataclass
@@ -99,9 +100,9 @@ class Post(db.Model):
     right_post_height: float = db.Column(db.Float, nullable=False)
     right_tissue_height: float = db.Column(db.Float, nullable=False)
 
-    bio_reactor_id: int = db.Column(db.Integer, db.ForeignKey(
-        'bio_reactor.bio_reactor_id', ondelete='CASCADE'), nullable=False)
-    bio_reactor = db.relationship('Bio_reactor', back_populates='bio_reactor')
+    bio_reactor_number: int = db.Column(db.Integer, db.ForeignKey(
+        'bio_reactor.bio_reactor_number', ondelete='CASCADE'), nullable=False)
+    bio_reactor = db.relationship('Bio_reactor', back_populates='posts')
 
 
 def delete_empties():
@@ -113,6 +114,16 @@ def delete_empties():
             os.rmdir(root)
 
 # TODO: what happens if already exsits?
+
+
+def populate():
+    insert_bio_reactor(1)
+    insert_post(0, 3, 2.8, 3, 2.8, 1)
+    insert_post(1, 3, 2.8, 3, 2.8, 1)
+    insert_post(2, 3, 2.8, 3, 2.8, 1)
+    insert_post(3, 3, 2.8, 3, 2.8, 1)
+    insert_post(4, 3, 2.8, 3, 2.8, 1)
+    insert_post(5, 3, 2.8, 3, 2.8, 1)
 
 
 def insert_experiment(num_passed):
@@ -150,11 +161,18 @@ def insert_tissue_sample_csv(tissue_number_passed, tissue_type_passed, post_pass
 
 
 def insert_bio_reactor(num_passed):
-    new_bio_reactor = Bio_reactor(bio_reactor_num=num_passed)
+    new_bio_reactor = Bio_reactor(bio_reactor_number=num_passed)
     db.session.add(new_bio_reactor)
     db.session.commit()
 
-# TODO: add error handling for all get functions
+
+def insert_post(post_number_passed, left_post_height_passed, left_tissue_height_passed, right_post_height_passed, right_tissue_height_passed, bio_reactor_num_passed):
+    new_post = Post(post_number=post_number_passed, left_post_height=left_post_height_passed, left_tissue_height=left_tissue_height_passed,
+                    right_post_height=right_post_height_passed, right_tissue_height=right_tissue_height_passed, bio_reactor_number=bio_reactor_num_passed)
+    db.session.add(new_post)
+    db.session.commit()
+
+    # TODO: add error handling for all get functions
 
 
 def get_experiment_by_num(experiment_num_passed):
@@ -165,7 +183,7 @@ def get_experiment_by_num(experiment_num_passed):
 
 def get_bio_reactor_by_num(bio_reactor_num_passed):
     bio_reactor = Bio_reactor.query.filter_by(
-        bio_reactor_num=bio_reactor_num_passed).first()
+        bio_reactor_number=bio_reactor_num_passed).first()
     return bio_reactor
 
 
