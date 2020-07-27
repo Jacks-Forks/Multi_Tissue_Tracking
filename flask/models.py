@@ -297,6 +297,14 @@ def get_all_bio_reactors():
     return result
 
 
+def get_posts(bio_reactor_id):
+    result = []
+    bio_reactor = get_bio_reactor_by_id(bio_reactor_id)
+    all = bio_reactor.posts
+    [result.append(asdict(row)) for row in all]
+    return result
+
+
 def delete_tissue(tissue_id):
     logging.info(tissue_id)
     tissue = get_tissue_by_id(tissue_id)

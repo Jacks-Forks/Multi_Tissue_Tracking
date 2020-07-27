@@ -386,9 +386,10 @@ def show_tissues():
     return render_template('showTissues.html', data=data)
 
 
-@ routes_for_flask.route('/showBioreactos')
+@ routes_for_flask.route('/showBioreactors')
 def show_bio_reactors():
     data = models.get_all_bio_reactors()
+    logging.info(data)
     return render_template('showBios.html', data=data)
 
 
@@ -396,6 +397,12 @@ def show_bio_reactors():
 def show_experiment():
     data = models.get_all_experiments()
     return render_template('showExp.html', data=data)
+
+
+@routes_for_flask.route('/showPosts/<bio_reactor_id>')
+def show_posts(bio_reactor_id):
+    data = models.get_posts(bio_reactor_id)
+    return render_template('showPosts.html', data=data)
 
 
 @ routes_for_flask.route('/deleteTissue', methods=['POST'])
