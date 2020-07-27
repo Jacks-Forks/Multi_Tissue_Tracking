@@ -2,6 +2,26 @@ version: "3.8"
 
 services:
 
+  flask:
+    image: murphs/mtt:flask
+    container_name: flask
+    restart: always
+    expose:
+      - 8080
+    volumes:
+      - ~/uploader:/app/static/uploads
+    depends_on:
+      - mysql
+
+  nginx:
+    image: murphs/mtt:nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - flask
+
   mysql:
     image: mysql:8.0.20
     container_name: mysql

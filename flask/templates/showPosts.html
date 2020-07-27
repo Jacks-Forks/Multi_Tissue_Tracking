@@ -1,0 +1,27 @@
+{% extends "dbBase.html" %}
+{% block title %}Show Tissues{% endblock %}
+
+
+{% block morecontent %}
+
+<table>
+  <tr>
+    <th>Post ID</th>
+    <th>Post Number</th>
+    <th>Left post height</th>
+    <th>Left tissue height</th>
+    <th>Right post height</th>
+    <th>Right tissue height</th>
+  </tr>
+  {% for post in data %}
+  <tr>
+    <td>{{ post['post_id'] }}</td>
+    <td>{{ post['post_number'] }}</td>
+    <td>{{ post['left_post_height'] }}</td>
+    <td>{{ post['left_tissue_height'] }}</td>
+    <td>{{ post['right_post_height'] }}</td>
+    <td>{{ post['right_tissue_height'] }}</td>
+  <tr>
+    {% endfor %}
+</table>
+{% endblock %}

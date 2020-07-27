@@ -37,5 +37,19 @@ class PickVid(FlaskForm):
 
 
 class calibrationFactor(FlaskForm):
+    # REVIEW: does this even get used
     cal_factor = DecimalField("Calibration Factor")
+    submit = SubmitField('Submit')
+
+
+class Post(Form):
+    left_tissue_height = DecimalField('Enter left tissue height')
+    left_post_height = DecimalField('Enter left post height')
+    right_tissue_height = DecimalField('Enter right tissue height')
+    right_post_height = DecimalField('Enter right post height')
+
+
+class addBio(FlaskForm):
+    bio_number = IntegerField('Enter Bio Reactor Number')
+    posts = FieldList(FormField(Post), min_entries=6)
     submit = SubmitField('Submit')

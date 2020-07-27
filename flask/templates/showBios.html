@@ -1,53 +1,55 @@
-<!DOCTYPE htmls>
-<html>
-
-<head>
-    <title> Show Bio Reactors </title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-</head>
+{% extends "base.html" %}
+{% block title %}Show Tissues{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
+{% endblock %}
 
 
-<body>
-<script>
-    function makeSure(id) {
-        var r = confirm("Are you sure you want to Delete");
-        if (r == true) {
-            $(document).ready(function () {
-                $.ajax({
-                    type: "POST",
-                    url: '/deleteBio',
-                    dataType: "json",
-                    data: JSON.stringify(id),
-                    success: function (data) {
-                        console.log(data);
-                        window.location.reload(true);
-                    }
-                })
-            });
-        }
-    }
-</script>
+{% block content %}
 <table>
-    <tr>
-        <th>ID</th>
-        <th>Number</th>
-        <th>Delete</th>
-        <th>Edit</th>
-    </tr>
-    {% for i in data %}
-    <tr>
-        <td>{{ i['bio_id'] }}</td>
-        <td>{{ i['bio_num'] }}</td>
-        <td>
-            <button type="button" onclick="makeSure({{ i['bio_id'] }})">Delete</button>
-        </td>
-        <td>
-            <button type="button">Edit</button>
-        </td>
-    </tr>
-    {% endfor %}
+  <tr>
+    <th>ID</th>
+    <th>Number</th>
+    <th>Delete</th>
+    <th>Show Posts</th>
+  </tr>
+  {% for i in data %}
+  <tr>
+    <td>{{ i['bio_reactor_id'] }}</td>
+    <td>{{ i['bio_reactor_number'] }}</td>
+    <td>
+      <button type="button" onclick="makeSure({{ i['bio_reactor_id'] }})">Delete</button>
+    </td>
+    <td>
+      <button type="button" onclick="window.location.href='/showPosts/{{ i['bio_reactor_id'] }}';">Show Posts</button>
+    </td>
+  </tr>
+  {% endfor %}
 </table>
+<button type="button" onclick="window.location.href='/addBio';">Add Bio Reactor</button>
 
-</body>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+  function makeSure(id) {
+    console.log(id)
+    var r = confirm("Are you sure you want to Delete");
+    if (r == true) {
+      $(document).ready(function() {
+        $.ajax({
+          type: "POST",
+          url: '/deleteTissue',
+          dataType: "json",
+          data: JSON.stringify(id),
+          success: function(data) {
+            console.log(data);
+            window.location.reload(true);
+          }
+        })
+      });
+    }
+  }
+</script>
+{% endblock %}
