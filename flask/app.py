@@ -1,6 +1,7 @@
 import logging
 import os
 
+import models
 from flask import Flask
 from models import db
 from routes import routes_for_flask
@@ -39,6 +40,7 @@ def create_app():
 app = create_app()
 app.app_context().push()
 db.create_all()
+models.populate()
 
 
 def check_system():
