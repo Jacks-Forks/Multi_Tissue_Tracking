@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Show Tissues{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style/myStyle.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<form method=post action="" enctype="multipart/form-data">
+  <fieldset>
+    <legend> Add Bio Reactor </legend>
+    {{ form.hidden_tag() }}
+
+    {{ form.bio_number.label }}<br>
+    {{ form.bio_number }}
+    <br>
+
+    {{ form.posts.label }}<br>
+    {{ form.posts }}
+    <br>
+
+    {{ form.submit }}
+
+  </fieldset>
+</form>
+{% endblock %}

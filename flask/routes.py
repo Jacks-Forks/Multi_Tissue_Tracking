@@ -374,6 +374,33 @@ def get_video():
     return jsonify(vids)
 
 
+def post_tissue_heights(wtforms_list, bio_number):
+    li = []
+    for i, entry in enumerate(wtforms_list):
+        left_tissue_height = entry.data['left_tissue_height']
+        left_post_height = entry.data['left_post_height']
+        right_tissue_height = entry.data['right_tissue_height']
+        right_post_height = entry.data['right_post_height']
+        models.insert_post(i, left_tissue_height, left_post_height,
+                           right_tissue_height, right_post_height, bio_number)
+
+
+@routes_for_flask.route('/addBio', methods=['GET', 'POST'])
+def add_bio():
+    form = forms.addBio()
+    if request.method == 'POST':
+        bio_number = form.bio_number.data
+        logging.info(bio_number)
+        models.insert_bio_reactor(bio_number)
+
+        logging.info(form.posts.entries)
+        post_tissue_heights(form.posts.entries, bio_number)
+
+        return redirect('/')
+    else:
+        return render_template('addBio.html', form=form)
+
+
 @ routes_for_flask.route('/showVideos')
 def show_videos():
     data = models.get_all_videos()
