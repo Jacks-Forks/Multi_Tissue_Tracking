@@ -22,10 +22,6 @@ import pandas as pd
 
 
 def carry_calcs(all_data, files):
-	summarys = []
-	bioreactors = sorted(glob.glob('static/bioreactors/*'))
-	[summarys.append(pd.read_csv(bio)) for bio in bioreactors]
-
 	beat_freq = []
 	time2pks = []
 	time50rel = []
@@ -45,6 +41,7 @@ def carry_calcs(all_data, files):
 		time = all_data[i][0]['time']
 		disp = all_data[i][0]['disp']
 		bases = all_data[i][2]
+		fronts = all_data[i][3]
 		peaks = all_data[i][1]
 		ten = all_data[i][4]
 		fifty = all_data[i][5]
@@ -52,23 +49,22 @@ def carry_calcs(all_data, files):
 		peakdist = []
 		basedist = []
 		devdist = []
+
 		for j in range(len(peaks)):
 			# Find the distances for sys, dias, and dev force
-			# TODO: I ise Base for force. Should prob use (base+front)/2
 			# TODO: CHECK SIgn of 7
 			peakdist.append(7 + disp[peaks[j]])
-			basedist.append(7 + disp[bases[j]])
+			basedist.append(7 + ((disp[bases[j]] + disp[fronts[j]])/2))
 			devdist.append(peakdist[j] - basedist[j])
 		tissue_object = models.get_tissue_by_csv(file)
+		bio_object = tissue_object.video.bio_reactor
 
-		if tissue_object.video.bio_reactor_num != 0:
+		if bio_object.bio_reactor_number != 0:
 			loc = tissue_object.post
-			bio = tissue_object.video.bio_reactor_num
-			# Read in post heights from csv values (imported into database earlier)
-			l_r = summarys[bio - 1]['RPostHt'][loc]
-			l_l = summarys[bio - 1]['LPostHt'][loc]
-			a_r = summarys[bio - 1]['RTissHt'][loc]
-			a_l = summarys[bio - 1]['LTissHt'][loc]
+			l_r = bio_object.posts[loc].right_post_height
+			l_l = bio_object.posts[loc].left_post_height
+			a_r = bio_object.posts[loc].right_tissue_height
+			a_l = bio_object.posts[loc].left_tissue_height
 			radius = .227
 		else:
 			# If other system, set these as heights

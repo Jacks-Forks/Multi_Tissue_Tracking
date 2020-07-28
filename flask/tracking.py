@@ -83,6 +83,7 @@ def start_trackig(unformated_points, video_id_passed, calib_factor):
         # read in the next frame
         successful, image = videostream.read()
         if not successful:
+            logging.info("tracker failed to follow object")
             break
         frame += 1
 
