@@ -57,7 +57,7 @@ def carry_calcs(all_data, files):
 			basedist.append(7 + ((disp[bases[j]] + disp[fronts[j]])/2))
 			devdist.append(peakdist[j] - basedist[j])
 		tissue_object = models.get_tissue_by_csv(file)
-		bio_object = models.get_bio_reactor_by_num(tissue_object.video.bio_reactor_number)
+		bio_object = tissue_object.video.bio_reactor
 
 		if bio_object.bio_reactor_number != 0:
 			loc = tissue_object.post

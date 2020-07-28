@@ -147,17 +147,18 @@ def analysis_page():
         date = date.replace('/', '_')
         files = glob.glob('static/uploads/' +
                           exp + '/' + date + '/csvfiles/*')
-        lengther = []
+        tiss_nums = []
         tiss_freq = []
+        tiss_types = []
         dataframes = []
         glob_data = []
         for i, file in enumerate(files):
             # Reads each file in as a dataframe
             glob_data.append([])
-            tiss_num = file.split('T')[1].split('_')[0]
-            tiss_freq.append(
-                float(file.split('F')[1].split('.')[0].replace('-', '.')))
-            lengther.append(tiss_num)
+            tissue_object = models.get_tissue_by_csv(file)
+            tiss_freq.append(tissue_object.video.frequency)
+            tiss_types.append(tissue_object.tissue_type)
+            tiss_nums.append(tissue_object.tissue_number)
             dataframes.append(pd.read_csv(file))
             dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(
                 dataframes[i]['disp'], dataframes[i], 3, 3, 13, .6, 5, 0, 0)
@@ -166,7 +167,7 @@ def analysis_page():
             json_list.append(dataframe_smooth.to_json(orient='columns'))
 
         json_list = json.dumps(json_list)
-        return (render_template("analysis.html", form=form, json_data_list=json_list, leng=lengther, freqs=tiss_freq))
+        return (render_template("analysis.html", form=form, json_data_list=json_list, nums=tiss_nums, freqs=tiss_freq, types=tiss_types))
     return redirect('/get_dates')
 
 
