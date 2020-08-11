@@ -23,7 +23,7 @@ class upload_to_b_form(FlaskForm):
     post = FieldList(FormField(Tissue_Samples), min_entries=6)
     frequency = DecimalField('Enter the Frequency')
     bio_reactor_num = IntegerField('Enter Bio Reactor Number')
-    experiment_num = IntegerField('Enter Experiment number')
+    experiment_num = StringField('Enter Experiment number')
     file = FileField('Upload a File', [validators.Required()])
     submit = SubmitField('Upload')
 
