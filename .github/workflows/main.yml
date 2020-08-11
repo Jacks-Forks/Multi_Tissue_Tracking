@@ -13,6 +13,7 @@ jobs:
         with:
           FILE_PATTERNS: |
             ^flask/models.py$
+            ^flask/forms.py$
           TARGET_REPOS: |
             teammurphy/Multi_Tissue_Recording
           GITHUB_TOKEN: ${{ secrets.SYNC_TOKEN }}
