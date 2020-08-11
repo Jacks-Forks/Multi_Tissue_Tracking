@@ -128,7 +128,7 @@ routes_for_flask = Blueprint(
 
 @routes_for_flask.route('/')
 def main():
-    return render_template('home.html')
+    return render_template('index.html')
 
 
 @ routes_for_flask.route('/analysis', methods=['GET', 'POST'])
