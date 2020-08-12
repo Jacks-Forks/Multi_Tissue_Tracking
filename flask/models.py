@@ -1,11 +1,13 @@
 import logging
 import os
 import shutil
+import xml.etree.ElementTree as et
 from dataclasses import asdict, dataclass
 from datetime import datetime
 
-from flask_sqlalchemy import SQLAlchemy
 from pytz import timezone
+
+from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
@@ -183,12 +185,6 @@ def insert_post(post_number_passed, left_post_height_passed, left_tissue_height_
     # TODO: add error handling for all get functions
 
 
-def get_experiment_by_num(experiment_num_passed):
-    expirment = Experiment.query.filter_by(
-        experiment_num=experiment_num_passed).first()
-    return expirment
-
-
 def get_bio_reactor_by_num(bio_reactor_num_passed):
     bio_reactor = Bio_reactor.query.filter_by(
         bio_reactor_number=bio_reactor_num_passed).first()
@@ -198,6 +194,12 @@ def get_bio_reactor_by_num(bio_reactor_num_passed):
 def get_experiment_by_id(experiment_id_passed):
     expirment = Experiment.query.filter_by(
         experiment_id=experiment_id_passed).first()
+    return expirment
+
+
+def get_experiment_by_num(experiment_num_passed):
+    expirment = Experiment.query.filter_by(
+        experiment_num=experiment_num_passed).first()
     return expirment
 
 
@@ -347,3 +349,32 @@ def delete_bio_reactor(bio_id):
     bio = get_bio_reactor_by_id(bio_id)
     db.session.delete(bio)
     db.session.commit()
+
+
+def experment_to_xml(experiment_num):
+    experiment = get_experiment_by_num(experiment_num)
+    elem = et.Element('experiment')
+    elem.set('experiment_num', experiment_num)
+    videos_elemant = et.SubElement(elem, 'videos')
+
+    for vid in experiment.vids:
+        dic = asdict(vid)
+        video_elemant = et.SubElement(videos_elemant, 'video')
+        for key, val in dic.items():
+            child = et.Element(key)
+            child.text = str(val)
+            video_elemant.append(child)
+
+        if (vid.tissues):
+            tissues_elemant = et.SubElement(video_elemant, 'tissues')
+            for tissue in vid.tissues:
+                tissue_dic = asdict(tissue)
+                tissue_elemant = et.SubElement(video_elemant, 'tissue')
+                for key, val in tissue_dic.items():
+                    child = et.Element(key)
+                    child.text = str(val)
+                    tissue_elemant.append(child)
+
+    logging.info(elem)
+    test = et.tostring(elem)
+    logging.info(test)
