@@ -355,29 +355,31 @@ def experment_to_xml(experiment_num):
     experiment = get_experiment_by_num(experiment_num)
     elem = et.Element('experiment')
     elem.set('experiment_num', experiment_num)
-    videos_elemant = et.SubElement(elem, 'videos')
+    # REVIEW: this is kindia slow but works
+    if (experiment.vids):
+        videos_elemant = et.SubElement(elem, 'videos')
+        for vid in experiment.vids:
+            dic = asdict(vid)
+            video_elemant = et.SubElement(videos_elemant, 'video')
+            video_elemant.set('video_id', str(dic['video_id']))
+            for key, val in dic.items():
+                child = et.Element(key)
+                child.text = str(val)
+                video_elemant.append(child)
 
-    for vid in experiment.vids:
-        dic = asdict(vid)
-        video_elemant = et.SubElement(videos_elemant, 'video')
-        for key, val in dic.items():
-            child = et.Element(key)
-            child.text = str(val)
-            video_elemant.append(child)
+            if (vid.tissues):
+                tissues_elemant = et.SubElement(video_elemant, 'tissues')
 
-        if (vid.tissues):
-            tissues_elemant = et.SubElement(video_elemant, 'tissues')
-            for tissue in vid.tissues:
-                tissue_dic = asdict(tissue)
-                tissue_elemant = et.SubElement(video_elemant, 'tissue')
-                for key, val in tissue_dic.items():
-                    child = et.Element(key)
-                    child.text = str(val)
-                    tissue_elemant.append(child)
+                for tissue in vid.tissues:
+                    tissue_dic = asdict(tissue)
+                    tissue_elemant = et.SubElement(tissues_elemant, 'tissue')
+                    tissue_elemant.set(
+                        'tissue_num', str(tissue_dic['tissue_number']))
+                    for key, val in tissue_dic.items():
+                        child = et.Element(key)
+                        child.text = str(val)
+                        tissue_elemant.append(child)
 
-    logging.info(elem)
-    test = et.tostring(elem)
-    logging.info(test)
     tree = et.ElementTree(elem)
     with open(f'static/uploads/{experiment_num}/{experiment_num}.xml', 'wb') as f:
         tree.write(f)
