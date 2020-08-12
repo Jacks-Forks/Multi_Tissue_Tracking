@@ -378,3 +378,6 @@ def experment_to_xml(experiment_num):
     logging.info(elem)
     test = et.tostring(elem)
     logging.info(test)
+    tree = et.ElementTree(elem)
+    with open(f'static/uploads/{experiment_num}/{experiment_num}.xml', 'wb') as f:
+        tree.write(f)
