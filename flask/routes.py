@@ -475,6 +475,8 @@ def download():
 @ routes_for_flask.route('/downloadExp', methods=['POST'])
 def download_exp():
     exp_num = request.form['download']
+    models.experment_to_xml(exp_num)
+
     zip_path = shutil.make_archive(f'{exp_num}',
                                    'zip', f'static/uploads/{exp_num}')
 
