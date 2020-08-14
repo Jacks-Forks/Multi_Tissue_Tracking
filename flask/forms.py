@@ -51,5 +51,6 @@ class Post(Form):
 
 class addBio(FlaskForm):
     bio_number = IntegerField('Enter Bio Reactor Number')
+    date_added = DateField('Date Added', [validators.Required()])
     posts = FieldList(FormField(Post), min_entries=6)
     submit = SubmitField('Submit')

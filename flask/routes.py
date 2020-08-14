@@ -394,11 +394,12 @@ def add_bio():
     form = forms.addBio()
     if request.method == 'POST':
         bio_number = form.bio_number.data
+        date_added = form.date_added.data
         logging.info(bio_number)
-        models.insert_bio_reactor(bio_number)
+        bio_reactor_id = models.insert_bio_reactor(bio_number, date_added)
 
         logging.info(form.posts.entries)
-        post_tissue_heights(form.posts.entries, bio_number)
+        post_tissue_heights(form.posts.entries, bio_reactor_id)
 
         return redirect('/')
     else:

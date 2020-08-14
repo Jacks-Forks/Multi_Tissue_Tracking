@@ -122,12 +122,17 @@ def delete_empties():
 def populate():
     x = datetime(2020, 5, 17)
     insert_bio_reactor(1, x)
+    logging.info('firest one added')
     insert_post(0, 3, 2.8, 3, 2.8, 1)
     insert_post(1, 3, 2.8, 3, 2.8, 1)
     insert_post(2, 3, 2.8, 3, 2.8, 1)
     insert_post(3, 3, 2.8, 3, 2.8, 1)
     insert_post(4, 3, 2.8, 3, 2.8, 1)
     insert_post(5, 3, 2.8, 3, 2.8, 1)
+    insert_bio_reactor(1, datetime(2020, 5, 19))
+    logging.info('second one added')
+    insert_bio_reactor(1, x)
+    logging.info('third one added')
 
 
 def insert_experiment(num_passed):
@@ -171,14 +176,23 @@ def insert_tissue_sample_csv(tissue_number_passed, tissue_type_passed, post_pass
 
 def insert_bio_reactor(num_passed, date_added_passed):
     # TODO: if number is the same add with diffrent id and date
-    # TODO: if date and num already exist ask uset to overwrite ??
-    if (db.session.query(Bio_reactor.bio_reactor_number).filter_by(bio_reactor_number=num_passed).scalar() is None):
+
+    bio_reactor_id = -1
+
+    if (db.session.query(Bio_reactor.bio_reactor_id).filter_by(bio_reactor_number=num_passed, date_added=date_added_passed).scalar() is None):
         new_bio_reactor = Bio_reactor(
             bio_reactor_number=num_passed, date_added=date_added_passed)
         db.session.add(new_bio_reactor)
         db.session.commit()
+        bio_reactor_id = new_bio_reactor.bio_reactor_id
     else:
         logging.info('already exists')
+        # TODO: if date and num already exist ask uset to overwrite ??
+        bio_reactor = Bio_reactor.query.filter_by(
+            bio_reactor_number=num_passed, date_added=date_added_passed).first()
+        bio_reactor_id = bio_reactor.bio_reactor_id
+
+    return bio_reactor_id
 
 
 def insert_post(post_number_passed, left_post_height_passed, left_tissue_height_passed, right_post_height_passed, right_tissue_height_passed, bio_reactor_id_passed):
