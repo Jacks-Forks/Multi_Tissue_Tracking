@@ -6,6 +6,7 @@
   <tr>
     <th>ID</th>
     <th>Number</th>
+    <th>Date Added</th>
     <th>Delete</th>
     <th>Show Posts</th>
   </tr>
@@ -13,6 +14,7 @@
   <tr>
     <td>{{ i['bio_reactor_id'] }}</td>
     <td>{{ i['bio_reactor_number'] }}</td>
+    <td>{{ i['date_added'] }}</td>
     <td>
       <button type="button" onclick="makeSure({{ i['bio_reactor_id'] }})">Delete</button>
     </td>

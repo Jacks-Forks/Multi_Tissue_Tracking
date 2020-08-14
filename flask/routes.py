@@ -60,9 +60,12 @@ def save_video_file(form_passed):
     # saves the file
     form_passed.file.data.save(path_to_file)
 
+    # TODO: write fuction to get the bio reactor id based on the number and date
+    bio_reactor_id = 1
+
     # records vid rto databse
     vid_id = models.insert_video(form_passed.date_recorded.data,
-                                 form_passed.experiment_num.data, bio_reactor_num, form_passed.frequency.data,
+                                 form_passed.experiment_num.data, bio_reactor_id, form_passed.frequency.data,
                                  path_to_file)
     return vid_id
 
@@ -417,7 +420,6 @@ def show_tissues():
 @ routes_for_flask.route('/showBioreactors')
 def show_bio_reactors():
     data = models.get_all_bio_reactors()
-    logging.info(data)
     return render_template('showBios.html', data=data)
 
 
