@@ -25,6 +25,7 @@ def carry_calcs(all_data, files):
 	beat_freq = []
 	time2pks = []
 	time50rel = []
+	time80rel = []
 	time90rel = []
 	t_50 = []
 	c_50 = []
@@ -45,7 +46,8 @@ def carry_calcs(all_data, files):
 		peaks = all_data[i][1]
 		ten = all_data[i][4]
 		fifty = all_data[i][5]
-		ninety = all_data[i][6]
+		eighty = all_data[i][6]
+		ninety = all_data[i][7]
 		peakdist = []
 		basedist = []
 		devdist = []
@@ -81,6 +83,7 @@ def carry_calcs(all_data, files):
 		beat_freq.append(beating_freq(time, peaks))
 		time2pks.append(time2pk(ten, peaks, time))
 		time50rel.append(time2rel50(fifty, peaks, time))
+		time80rel.append(time2rel80(eighty, peaks, time))
 		time90rel.append(time2rel90(ninety, peaks, time))
 		t_50.append(t50(fifty))
 		c_50.append(c50(peaks, fifty, time))
@@ -88,7 +91,7 @@ def carry_calcs(all_data, files):
 		slope.append(dfdt(ninety, ten))
 		negslope.append(negdfdt(ninety, ten))
 		freqCOV.append(beat_freq[i][1] / beat_freq[i][0])
-	output(actforce, devforce, pasforce, beat_freq, freqCOV, time2pks, time50rel, time90rel, t_50, c_50, r_50, slope,
+	output(actforce, devforce, pasforce, beat_freq, freqCOV, time2pks, time50rel, time80rel, time90rel, t_50, c_50, r_50, slope,
 		   negslope, path, files)
 	return
 
@@ -100,7 +103,7 @@ def reload_database():
 	return
 
 
-def output(actforce, devforce, pasforce, beat_freq, freqCOV, time2pks, time50rel, time90rel, t_50, c_50, r_50, slope,
+def output(actforce, devforce, pasforce, beat_freq, freqCOV, time2pks, time50rel, time80rel, time90rel, t_50, c_50, r_50, slope,
 		   negslope, path, files):
 	summaryfile = open(path + 'summary.csv', 'w')
 	summaryfile.write('Tissue' + ',' +
@@ -123,6 +126,8 @@ def output(actforce, devforce, pasforce, beat_freq, freqCOV, time2pks, time50rel
 					  'R50 STD' + ',' +
 					  'T2Rel50' + ',' +
 					  'T2Rel50 STD' + ',' +
+					  'T2Rel80' + ',' +
+					  'T2Rel80 STD' + ',' +
 					  'T2Rel90' + ',' +
 					  'T2Rel90 STD' + ',' +
 					  'dfdt' + ',' +
@@ -153,6 +158,8 @@ def output(actforce, devforce, pasforce, beat_freq, freqCOV, time2pks, time50rel
 						  str(r_50[i][1]) + ',' +
 						  str(time50rel[i][0]) + ',' +
 						  str(time50rel[i][1]) + ',' +
+						  str(time80rel[i][0]) + ',' +
+						  str(time80rel[i][1]) + ',' +
 						  str(time90rel[i][0]) + ',' +
 						  str(time90rel[i][1]) + ',' +
 						  str(slope[i][0]) + ',' +
@@ -222,6 +229,13 @@ def time2rel50(fifty, peaks, time):
 	avg = sum(t2rel) / len(t2rel)
 	return avg, std
 
+def time2rel80(eighty, peaks, time):
+	t2rel = []
+	for i in range(len(eighty[2])):
+		t2rel.append(eighty[2][i] - time[peaks[i]])
+	std = np.std(t2rel)
+	avg = sum(t2rel) / len(t2rel)
+	return avg, std
 
 def time2rel90(ninety, peaks, time):
 	t2rel = []
