@@ -373,7 +373,36 @@ def delete_bio_reactor(bio_id):
     db.session.commit()
 
 
+def bio_reactors_to_xml(experiment_num_passed, li_of_bio_ids):
+    root = et.Element('bio_reactors')
+    for bio_id in li_of_bio_ids:
+        bio_reactor_elem = et.SubElement(root, 'bio_reactor')
+        bio_reactor_elem.set('bio_reactor_id', str(bio_id))
+        bio_reactor = get_bio_reactor_by_id(bio_id)
+
+        dic = asdict(bio_reactor)
+        for key, val in dic.items():
+            child = et.Element(key)
+            child.text = str(val)
+            bio_reactor_elem.append(child)
+
+        if (bio_reactor.posts):
+            posts_elem = et.SubElement(bio_reactor_elem, 'posts')
+            for post in bio_reactor.posts:
+                post_elem = et.SubElement(posts_elem, 'post')
+                post_dic = asdict(post)
+                for key, val in post_dic.items():
+                    child = et.Element(key)
+                    child.text = str(val)
+                    post_elem.append(child)
+
+    tree = et.ElementTree(root)
+    with open(f'static/uploads/{experiment_num_passed}/bio_reactor_exp_num_{experiment_num_passed}.xml', 'wb') as f:
+        tree.write(f)
+
+
 def experment_to_xml(experiment_num):
+    used_bios_ids = []
     experiment = get_experiment_by_num(experiment_num)
     elem = et.Element('experiment')
     elem.set('experiment_num', experiment_num)
@@ -385,6 +414,8 @@ def experment_to_xml(experiment_num):
             video_elemant = et.SubElement(videos_elemant, 'video')
             video_elemant.set('video_id', str(dic['video_id']))
             for key, val in dic.items():
+                if key == 'bio_reactor_id' and val not in used_bios_ids:
+                    used_bios_ids.append(val)
                 child = et.Element(key)
                 child.text = str(val)
                 video_elemant.append(child)
@@ -401,6 +432,8 @@ def experment_to_xml(experiment_num):
                         child = et.Element(key)
                         child.text = str(val)
                         tissue_elemant.append(child)
+
+    bio_reactors_to_xml(experiment_num, used_bios_ids)
 
     tree = et.ElementTree(elem)
     with open(f'static/uploads/{experiment_num}/{experiment_num}.xml', 'wb') as f:
