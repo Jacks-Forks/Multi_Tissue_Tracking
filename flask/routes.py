@@ -170,7 +170,7 @@ def analysis_page():
             tiss_types.append(tissue_object.tissue_type)
             tiss_nums.append(tissue_object.tissue_number)
             dataframes.append(pd.read_csv(file))
-            dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(
+            dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, eighty, ninety = analysis.findpoints(
                 dataframes[i]['disp'], dataframes[i], 3, 3, 13, .6, 5, 0, 0)
             glob_data[i] = analysis.findpoints(
                 dataframes[i]['disp'], dataframes[i], 3, 3, 13, .6, 5, 0, 0)
@@ -206,7 +206,7 @@ def graphUpdate():
         data = json.loads(from_js)
 
         raw[int(data['value'])]['disp'] = raw[int(data['value'])]['disp'] * -1
-        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, ninety = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
+        dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, eighty, ninety = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
                                                                                                    int(data['buffers']), int(data['polynomials']), int(
             data['windows']), float(data['thresholds']), int(data['minDistances']),
             int(data['xrange'][0]), int(data['xrange'][1]))
