@@ -1,3 +1,4 @@
+import models
 from flask_wtf import FlaskForm
 from wtforms import (BooleanField, DecimalField, FieldList, FileField, Form,
                      FormField, HiddenField, IntegerField, SelectField,
@@ -22,10 +23,13 @@ class upload_to_b_form(FlaskForm):
     date_recorded = DateField('Date Recorded', [validators.Required()])
     post = FieldList(FormField(Tissue_Samples), min_entries=6)
     frequency = DecimalField('Enter the Frequency')
-    bio_reactor_num = IntegerField('Enter Bio Reactor Number')
+    bio_reactor = SelectField('Select Bio')
+    #bio_reactor_num = IntegerField('Enter Bio Reactor Number')
     experiment_num = StringField('Enter Experiment number')
     file = FileField('Upload a File', [validators.Required()])
     submit = SubmitField('Upload')
+
+    # choices=models.get_bio_choices()
 
 
 class PickVid(FlaskForm):
