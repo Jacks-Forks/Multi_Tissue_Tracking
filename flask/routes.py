@@ -60,10 +60,15 @@ def save_video_file(form_passed):
     # saves the file
     form_passed.file.data.save(path_to_file)
 
+    # TODO: write fuction to get the bio reactor id based on the number and date
+    #bio_reactor_id = 1
+    bio_reactor_id = models.calculate_bio_id(
+        bio_reactor_num, form_passed.date_recorded.data)
+
     # records vid rto databse
     vid_id = models.insert_video(form_passed.date_recorded.data,
-                                 form_passed.experiment_num.data, bio_reactor_num, form_passed.frequency.data,
-                                 path_to_file)
+                                 form_passed.experiment_num.data, bio_reactor_id, form_passed.frequency.data,
+                                 path_to_file, bio_reactor_num)
     return vid_id
 
 
@@ -314,7 +319,7 @@ def upload_to_b():
             # checks if experiment exsits if it does makes it
             bio_reactor_num = form.bio_reactor_num.data
             if models.get_bio_reactor_by_num(bio_reactor_num) is None:
-                models.insert_bio_reactor(bio_reactor_num)
+                models.insert_bio_reactor(bio_reactor_num, datetime.now())
 
             # TODO: if upload a csv
             # adds the vid to the db and saves the file
@@ -391,11 +396,12 @@ def add_bio():
     form = forms.addBio()
     if request.method == 'POST':
         bio_number = form.bio_number.data
+        date_added = form.date_added.data
         logging.info(bio_number)
-        models.insert_bio_reactor(bio_number)
+        bio_reactor_id = models.insert_bio_reactor(bio_number, date_added)
 
         logging.info(form.posts.entries)
-        post_tissue_heights(form.posts.entries, bio_number)
+        post_tissue_heights(form.posts.entries, bio_reactor_id)
 
         return redirect('/')
     else:
@@ -417,7 +423,6 @@ def show_tissues():
 @ routes_for_flask.route('/showBioreactors')
 def show_bio_reactors():
     data = models.get_all_bio_reactors()
-    logging.info(data)
     return render_template('showBios.html', data=data)
 
 
