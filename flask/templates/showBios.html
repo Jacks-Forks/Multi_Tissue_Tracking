@@ -16,7 +16,7 @@
     <td>{{ i['bio_reactor_number'] }}</td>
     <td>{{ i['date_added'] }}</td>
     <td>
-      <button type="button" onclick="makeSure({{ i['bio_reactor_id'] }})">Delete</button>
+      <button type="button" onclick="makeSure({{ i['bio_reactor_id'] }}, '/deleteBio')">Delete</button>
     </td>
     <td>
       <button type="button" onclick="window.location.href='/showPosts/{{ i['bio_reactor_id'] }}';">Show Posts</button>

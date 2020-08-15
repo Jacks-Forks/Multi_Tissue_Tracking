@@ -25,13 +25,13 @@
 
 {% block extrajs %}
 <script>
-  function makeSure(id) {
+  function makeSure(id, url_passed) {
     var r = confirm("Are you sure you want to Delete");
     if (r == true) {
       $(document).ready(function() {
         $.ajax({
           type: "POST",
-          url: '/deleteVideo',
+          url: url_passed,
           dataType: "json",
           data: JSON.stringify(id),
           success: function(data) {

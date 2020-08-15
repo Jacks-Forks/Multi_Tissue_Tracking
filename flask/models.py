@@ -45,12 +45,14 @@ class Video(db.Model):
     # calibration factor is the calibration distance / length if the drawn calibration line in pixels
     calibration_factor: float = db.Column(db.Float, nullable=True)
 
+    bio_reactor_number: int = db.Column(db.Integer, nullable=False)
+
     experiment_num: str = db.Column(db.String(120), db.ForeignKey(
         'experiment.experiment_num', ondelete='CASCADE'), nullable=False)
     experiment = db.relationship('Experiment', back_populates='vids')
 
     bio_reactor_id: int = db.Column(db.Integer, db.ForeignKey(
-        'bio_reactor.bio_reactor_id', ondelete='CASCADE'), nullable=False)
+        'bio_reactor.bio_reactor_id', ondelete='CASCADE'), nullable=True)
     bio_reactor = db.relationship(
         'Bio_reactor', back_populates='vids')
 
@@ -122,7 +124,6 @@ def delete_empties():
 def populate():
     x = datetime(2020, 5, 17)
     insert_bio_reactor(1, x)
-    logging.info('firest one added')
     insert_post(0, 3, 2.8, 3, 2.8, 1)
     insert_post(1, 3, 2.8, 3, 2.8, 1)
     insert_post(2, 3, 2.8, 3, 2.8, 1)
@@ -130,9 +131,9 @@ def populate():
     insert_post(4, 3, 2.8, 3, 2.8, 1)
     insert_post(5, 3, 2.8, 3, 2.8, 1)
     insert_bio_reactor(1, datetime(2020, 5, 19))
-    logging.info('second one added')
+    insert_bio_reactor(1, datetime(2020, 5, 21))
+    insert_bio_reactor(1, datetime(2020, 5, 1))
     insert_bio_reactor(1, x)
-    logging.info('third one added')
 
 
 def insert_experiment(num_passed):
@@ -144,12 +145,12 @@ def insert_experiment(num_passed):
         logging.info('already exists')
 
 
-def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_id_passed, frequency_passed, save_path_passed):
+def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_id_passed, frequency_passed, save_path_passed, bio_reactor_num_passed):
 
     new_video = Video(date_recorded=date_recorded_passed,
                       experiment_num=experiment_num_passed,
                       bio_reactor_id=bio_reactor_id_passed,
-                      frequency=frequency_passed, save_location=save_path_passed)
+                      frequency=frequency_passed, save_location=save_path_passed, bio_reactor_number=bio_reactor_num_passed)
     new_video.expirment = get_experiment_by_num(experiment_num_passed)
     new_video.bio_reactor = get_bio_reactor_by_id(bio_reactor_id_passed)
 
@@ -373,6 +374,16 @@ def delete_bio_reactor(bio_id):
     db.session.commit()
 
 
+def calculate_bio_id(bio_reactor_num_passed, date_passed):
+
+    # TODO: add better error handling if bio doesnt exist
+
+    bio_reactor = (db.session.query(Bio_reactor).filter(
+        Bio_reactor.bio_reactor_number == bio_reactor_num_passed, Bio_reactor.date_added <= date_passed).order_by(Bio_reactor.date_added.desc())).first()
+
+    return bio_reactor.bio_reactor_id
+
+
 def bio_reactors_to_xml(experiment_num_passed, li_of_bio_ids):
     root = et.Element('bio_reactors')
     for bio_id in li_of_bio_ids:
@@ -391,6 +402,7 @@ def bio_reactors_to_xml(experiment_num_passed, li_of_bio_ids):
             for post in bio_reactor.posts:
                 post_elem = et.SubElement(posts_elem, 'post')
                 post_dic = asdict(post)
+                post_elem.set('post_num', str(post_dic['post_number']))
                 for key, val in post_dic.items():
                     child = et.Element(key)
                     child.text = str(val)

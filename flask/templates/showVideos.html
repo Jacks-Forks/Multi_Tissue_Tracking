@@ -15,6 +15,7 @@
     <th>Save Location</th>
     <th>Experiment Number</th>
     <th>Bio Reactor Number</th>
+    <th>Bio Reactor ID</th>
     <th>Delete</th>
     <th>Edit</th>
     <th>Download</th>
@@ -30,8 +31,9 @@
     <td>{{ vid['save_location'] }}</td>
     <td>{{ vid['experiment_num'] }}</td>
     <td>{{ vid['bio_reactor_number'] }}</td>
+    <td>{{ vid['bio_reactor_id'] }}</td>
     <td>
-      <button type="button" onclick="makeSure({{ vid['video_id'] }})">Delete</button>
+      <button type="button" onclick="makeSure({{ vid['video_id'] }}, '/deleteVideo')">Delete</button>
     </td>
     <td>
       <button type="button">Edit</button>
