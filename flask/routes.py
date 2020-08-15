@@ -30,10 +30,13 @@ files = None
 
 
 def save_video_file(form_passed):
+    bio_reactor_id = form_passed.bio_reactor.data
+    logging.info(bio_reactor_id)
     date_string = form_passed.date_recorded.data.strftime('%m_%d_%Y')
     # gets saves in experment folder
     experiment_num = str(form_passed.experiment_num.data)
-    bio_reactor_num = form_passed.bio_reactor_num.data
+
+    bio_reactor_num = models.get_bio_reactor_number(bio_reactor_id)
 
     # gets save loaction uploadfolder/expermentnum/date/vid
     where_to_save = os.path.join(
@@ -60,10 +63,12 @@ def save_video_file(form_passed):
     # saves the file
     form_passed.file.data.save(path_to_file)
 
+    '''
     # TODO: write fuction to get the bio reactor id based on the number and date
     #bio_reactor_id = 1
     bio_reactor_id = models.calculate_bio_id(
         bio_reactor_num, form_passed.date_recorded.data)
+    '''
 
     # records vid rto databse
     vid_id = models.insert_video(form_passed.date_recorded.data,
@@ -296,6 +301,7 @@ def boxcoordinates():
 @ routes_for_flask.route('/uploadFile/reactorB', methods=['GET', 'POST'])
 def upload_to_b():
     form = forms.upload_to_b_form()
+    form.bio_reactor.choices = models.get_bio_choices()
 
     if request.method == 'POST':
         if form.validate() == False:
@@ -316,10 +322,12 @@ def upload_to_b():
             if models.get_experiment_by_num(experiment_num) is None:
                 models.insert_experiment(experiment_num)
 
+            '''
             # checks if experiment exsits if it does makes it
             bio_reactor_num = form.bio_reactor_num.data
             if models.get_bio_reactor_by_num(bio_reactor_num) is None:
                 models.insert_bio_reactor(bio_reactor_num, datetime.now())
+            '''
 
             # TODO: if upload a csv
             # adds the vid to the db and saves the file
