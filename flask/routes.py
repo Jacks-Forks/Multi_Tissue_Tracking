@@ -66,7 +66,7 @@ def save_video_file(form_passed):
         "Freq" + str(form_passed.frequency.data) + "_" + \
         "Bio" + str(bio_reactor_num) + "." + extenstion
 
-    # makes sure file name is crrect formats
+    # makes sure file name is correct formats
     safe_filename = secure_filename(new_filename)
 
     # creates path to file
@@ -334,6 +334,10 @@ def upload_to_b():
         return render_template('uploadToB.html', form=form)
 
 
+def add_exp_zip_to_db(path_to_file):
+    logging.info(path_to_file)
+
+
 @routes_for_flask.route('/upload/uploadExp', methods=['GET', 'POST'])
 def upload_experiment():
     form = forms.upload_experiment()
@@ -342,7 +346,20 @@ def upload_experiment():
         if form.validate() == False:
             return render_template('uploadExp.html', form=form)
         else:
-            pass
+
+            # makes sure file name is correct formats
+            safe_filename = secure_filename(form.file.data.filename)
+
+            # creates path to file
+            path_to_file = os.path.join(UPLOAD_FOLDER, safe_filename)
+
+            # saves the file
+            form.file.data.save(path_to_file)
+
+            add_exp_zip_to_db(path_to_file)
+            return '''
+            <h1>hi</h1>
+            '''
     else:
 
         return render_template('uploadExp.html', form=form)
