@@ -29,7 +29,10 @@ class upload_to_b_form(FlaskForm):
     file = FileField('Upload a File', [validators.Required()])
     submit = SubmitField('Upload')
 
-    # choices=models.get_bio_choices()
+
+class upload_experiment(FlaskForm):
+    file = FileField('Upload a File', [validators.Required()])
+    submit = SubmitField('Upload')
 
 
 class PickVid(FlaskForm):

@@ -28,6 +28,18 @@ files = None
 
 # glob_data = None
 
+def coord_distance(coords_list):
+    dist_list = []
+    for i in range(1, len(coords_list), 2):
+        point_one = coords_list[i - 1]
+        point_two = coords_list[i]
+
+        d = float(distance.euclidean(point_one, point_two))
+
+        dist_list.append(d)
+
+    return dist_list
+
 
 def save_video_file(form_passed):
     bio_reactor_id = form_passed.bio_reactor.data
@@ -65,7 +77,7 @@ def save_video_file(form_passed):
 
     '''
     # TODO: write fuction to get the bio reactor id based on the number and date
-    #bio_reactor_id = 1
+    # bio_reactor_id = 1
     bio_reactor_id = models.calculate_bio_id(
         bio_reactor_num, form_passed.date_recorded.data)
     '''
@@ -207,7 +219,7 @@ def graphUpdate():
 
         raw[int(data['value'])]['disp'] = raw[int(data['value'])]['disp'] * -1
         dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, eighty, ninety = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
-                                                                                                   int(data['buffers']), int(data['polynomials']), int(
+                                                                                                           int(data['buffers']), int(data['polynomials']), int(
             data['windows']), float(data['thresholds']), int(data['minDistances']),
             int(data['xrange'][0]), int(data['xrange'][1]))
         glob_data[int(data['value'])] = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
@@ -253,19 +265,6 @@ def graphUpdate():
                                                  }})
 
 
-def coord_distance(coords_list):
-    dist_list = []
-    for i in range(1, len(coords_list), 2):
-        point_one = coords_list[i - 1]
-        point_two = coords_list[i]
-
-        d = float(distance.euclidean(point_one, point_two))
-
-        dist_list.append(d)
-
-    return dist_list
-
-
 @ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():
     # TODO: comment all of this so it makes tissue_number_passed
@@ -298,7 +297,12 @@ def boxcoordinates():
         return jsonify({'status': 'OK', 'data': box_coords})
 
 
-@ routes_for_flask.route('/uploadFile/reactorB', methods=['GET', 'POST'])
+@routes_for_flask.route('/upload')
+def upload():
+    return render_template('upload.html')
+
+
+@ routes_for_flask.route('/upload/reactorB', methods=['GET', 'POST'])
 def upload_to_b():
     form = forms.upload_to_b_form()
     form.bio_reactor.choices = models.get_bio_choices()
@@ -315,31 +319,33 @@ def upload_to_b():
             li_of_post_info = tup[1]
             logging.info(li_of_post_info)
 
-            # REVIEW: ideally would like to make these drop downs for experminet and bio reactor
-
             # checks if experiment exsits if it does makes it
             experiment_num = form.experiment_num.data
             if models.get_experiment_by_num(experiment_num) is None:
                 models.insert_experiment(experiment_num)
 
-            '''
-            # checks if experiment exsits if it does makes it
-            bio_reactor_num = form.bio_reactor_num.data
-            if models.get_bio_reactor_by_num(bio_reactor_num) is None:
-                models.insert_bio_reactor(bio_reactor_num, datetime.now())
-            '''
-
-            # TODO: if upload a csv
-            # adds the vid to the db and saves the file
-            # retuens the id of the vid
             new_video_id = save_video_file(form)
 
-            # add the tissues to the databse as children of the vid, experiment and bio reactor
+            # add the tissues to the databse as children of the vid
             add_tissues(li_of_post_info, new_video_id)
 
             return redirect('/pick_video')
     else:
         return render_template('uploadToB.html', form=form)
+
+
+@routes_for_flask.route('/upload/uploadExp', methods=['GET', 'POST'])
+def upload_experiment():
+    form = forms.upload_experiment()
+
+    if request.method == 'POST':
+        if form.validate() == False:
+            return render_template('uploadExp.html', form=form)
+        else:
+            pass
+    else:
+
+        return render_template('uploadExp.html', form=form)
 
 
 @ routes_for_flask.route('/pick_video', methods=['GET', 'POST'])

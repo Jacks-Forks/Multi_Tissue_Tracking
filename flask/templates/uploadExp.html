@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Upload to AN Experiment{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center;">Upload a Zip of Experiment</h2>
+
+<form method=post action="" enctype="multipart/form-data">
+  <fieldset>
+
+    <legend> Upload ZIP</legend>
+    {{ form.hidden_tag() }}
+
+    {{ form.file.label }}<br>
+    {{ form.file }}
+    <br>
+
+    {{ form.submit }}
+
+  </fieldset>
+</form>
+{% endblock %}
