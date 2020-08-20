@@ -139,7 +139,6 @@ def insert_experiment(num_passed):
         db.session.commit()
     else:
         logging.info('already exists')
-        return get_experiment_by_num(num_passed).experiment_id
 
 
 def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_id_passed, frequency_passed, save_path_passed, bio_reactor_num_passed):
@@ -441,9 +440,6 @@ def xml_to_experiment(file_path):
 
     exp_num = root.attrib['experiment_num']
 
-    exp_id = insert_experiment(exp_num)
-    logging.info(exp_id)
-
     for video in root.iter('video'):
         logging.info(video)
         logging.info(video.tag)
@@ -462,11 +458,16 @@ def xml_to_experiment(file_path):
                         {elem.tag: datetime.strptime(elem.text, "%Y-%m-%d")})
                 else:
                     vid_dic.update({elem.tag: elem.text})
+        # TODO: need to actually move files and change save location
+        # insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_id_passed, frequency_passed, save_path_passed, bio_reactor_num_passed):
+        vid_id = insert_video(vid_dic['date_recorded'], vid_dic['experiment_num'], vid_dic['bio_reactor_id'],
+                              vid_dic['frequency'], vid_dic['save_location'], vid_dic['bio_reactor_number'])
         logging.info(vid_dic)
 
         # logging.info()
         for tissue in video.iter('tissue'):
             logging.info(tissue)
+            # TODO: use the vid id from above
 
 
 def experment_to_xml(experiment_num):
