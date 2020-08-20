@@ -150,7 +150,6 @@ routes_for_flask = Blueprint(
 
 @routes_for_flask.route('/')
 def main():
-    logging.info(app.config["UPLOAD_FOLDER"])
     return render_template('index.html')
 
 
@@ -345,12 +344,15 @@ def add_exp_zip_to_db(path_to_zip_passed, filename_passed):
     file_path_to_exp_xml = os.path.join(
         unpack_save_location, f"{experiment_num_from_file}.xml")
     file_path_to_bio_xml = os.path.join(
-        unpack_save_location, f"bio_reactor_exp_num{experiment_num_from_file}.xml")
+        unpack_save_location, f"bio_reactor_exp_num_{experiment_num_from_file}.xml")
 
     shutil.unpack_archive(path_to_zip_passed, unpack_save_location, "zip")
 
     models.xml_to_bio(file_path_to_bio_xml)
     models.xml_to_experiment(file_path_to_exp_xml)
+
+    shutil.rmtree(unpack_save_location)
+    os.remove(path_to_zip_passed)
 
 
 @routes_for_flask.route('/upload/uploadExp', methods=['GET', 'POST'])

@@ -135,6 +135,7 @@ def check_path_exisits(file_path_passed):
 
 def populate():
     x = datetime(2020, 5, 17)
+
     insert_bio_reactor(1, x)
     insert_post(0, 3, 2.8, 3, 2.8, 1)
     insert_post(1, 3, 2.8, 3, 2.8, 1)
@@ -227,6 +228,13 @@ def check_vid_id(id_passed):
 def check_tissue_id(id_passed):
     # retuens true if the id exists
     if (db.session.query(Tissue.tissue_id).filter_by(tissue_id=id_passed).scalar() is None):
+        return False
+    else:
+        return True
+
+
+def check_bio_id(id_passed):
+    if (db.session.query(Bio_reactor.bio_reactor_id).filter_by(bio_reactor_id=id_passed).scalar() is None):
         return False
     else:
         return True
@@ -435,6 +443,7 @@ def bio_reactors_to_xml(experiment_num_passed, li_of_bio_ids):
         for key, val in dic.items():
             child = et.Element(key)
             child.text = str(val)
+            child.set('data_type', type(val).__name__)
             bio_reactor_elem.append(child)
 
         if (bio_reactor.posts):
@@ -473,15 +482,46 @@ def move_from_unpacked_to_exp(file_path_passed):
 
 
 def xml_to_bio(file_path):
-    logging.info(file_path)
 
-
-def xml_to_experiment(file_path):
-    logging.info(file_path)
     tree = et.parse(file_path)
     root = tree.getroot()
 
-    logging.info(root.attrib['experiment_num'])
+    for bio in root.iter('bio_reactor'):
+        bio_dic = {}
+        for elem in bio:
+            if elem.tag != 'posts':
+                elem_attrib = elem.attrib['data_type']
+                if elem_attrib == 'int':
+                    bio_dic.update({elem.tag: int(elem.text)})
+                elif elem_attrib == 'float':
+                    bio_dic.update({elem.tag: float(elem.text)})
+                else:
+                    bio_dic.update({elem.tag: elem.text})
+        if check_bio_id(bio_dic['bio_reactor_id']) == False:
+            bio_id = insert_bio_reactor(bio_dic['bio_reactor_number'], datetime.strptime(
+                bio_dic['date_added'], "%Y-%m-%d"))
+            for post in bio.iter('post'):
+                post_dic = {}
+                for elem in post:
+                    elem_attrib = elem.attrib['data_type']
+                    if elem_attrib == 'int':
+                        post_dic.update({elem.tag: int(elem.text)})
+                    elif elem_attrib == 'float':
+                        post_dic.update({elem.tag: float(elem.text)})
+                    else:
+                        post_dic.update({elem.tag: elem.text})
+                insert_post(post_dic['post_number'], post_dic['left_post_height'], post_dic['left_tissue_height'],
+                            post_dic['right_post_height'], post_dic['right_tissue_height'], bio_id)
+
+        else:
+            logging.info("bio already exisits")
+            bio_id = bio_dic['bio_reactor_id']
+
+
+def xml_to_experiment(file_path):
+
+    tree = et.parse(file_path)
+    root = tree.getroot()
 
     exp_num = root.attrib['experiment_num']
 
@@ -504,6 +544,7 @@ def xml_to_experiment(file_path):
         move_from_unpacked_to_exp(vid_dic['save_location'])
 
         if check_vid_id(vid_dic['video_id']) == False:
+            # TODO: change bio id to new id
             vid_id = insert_video(vid_dic['date_recorded'], vid_dic['experiment_num'], vid_dic['bio_reactor_id'],
                                   vid_dic['frequency'], vid_dic['save_location'], vid_dic['bio_reactor_number'])
         else:
