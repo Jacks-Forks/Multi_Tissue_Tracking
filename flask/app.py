@@ -11,8 +11,6 @@ logging.basicConfig(filename='app.log',
 logging.warning("New Run Starts Here")
 
 current_directory = os.getcwd()
-
-UPLOAD_FOLDER = current_directory + "/static/uploads"
 ALLOWED_EXTENSIONS = {'csv', 'mov', 'mp4'}
 video_file_extentions = {'mov', 'mp4'}
 
@@ -23,7 +21,7 @@ def create_app():
     location = 'mysql'
     dbname = 'test_db'
     app = Flask(__name__)
-    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['UPLOAD_FOLDER'] = models.UPLOAD_FOLDER
     app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{username}:{password}@{location}:3306/{dbname}?charset=utf8mb4"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # Shows sql querys being made if having database issue set to true
@@ -36,7 +34,7 @@ def create_app():
     return app
 
 
-#  REVIEW: is having this here correct
+# REVIEW: is having this here correct
 app = create_app()
 app.app_context().push()
 db.create_all()
@@ -44,11 +42,8 @@ models.populate()
 
 
 def check_system():
-    if os.path.isdir(app.config['UPLOAD_FOLDER']) is False:
-        logging.info("no uploads folder")
-        os.mkdir(app.config['UPLOAD_FOLDER'])
-    if os.path.isdir(current_directory + '/static/img') is False:
-        os.mkdir(current_directory + '/static/img')
+    models.check_path_exisits(app.config['UPLOAD_FOLDER'])
+    models.check_path_exisits(models.IMG_FOLDER)
 
 
 check_system()

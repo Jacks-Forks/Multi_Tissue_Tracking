@@ -21,12 +21,25 @@ from werkzeug.utils import secure_filename
 
 current_directory = os.getcwd()
 
-UPLOAD_FOLDER = "static/uploads"
+UPLOAD_FOLDER = models.UPLOAD_FOLDER
+
 
 files = None
 
 
 # glob_data = None
+
+def coord_distance(coords_list):
+    dist_list = []
+    for i in range(1, len(coords_list), 2):
+        point_one = coords_list[i - 1]
+        point_two = coords_list[i]
+
+        d = float(distance.euclidean(point_one, point_two))
+
+        dist_list.append(d)
+
+    return dist_list
 
 
 def save_video_file(form_passed):
@@ -43,8 +56,7 @@ def save_video_file(form_passed):
         UPLOAD_FOLDER, experiment_num, date_string, 'videoFiles')
 
     # cheacks to make sure the save location exists if not exists
-    if not os.path.exists(where_to_save):
-        os.makedirs(where_to_save)
+    models.check_path_exisits(where_to_save)
 
     orginal_filename = form_passed.file.data.filename
     extenstion = orginal_filename.rsplit('.', 1)[1].lower()
@@ -54,7 +66,7 @@ def save_video_file(form_passed):
         "Freq" + str(form_passed.frequency.data) + "_" + \
         "Bio" + str(bio_reactor_num) + "." + extenstion
 
-    # makes sure file name is crrect formats
+    # makes sure file name is correct formats
     safe_filename = secure_filename(new_filename)
 
     # creates path to file
@@ -65,7 +77,7 @@ def save_video_file(form_passed):
 
     '''
     # TODO: write fuction to get the bio reactor id based on the number and date
-    #bio_reactor_id = 1
+    # bio_reactor_id = 1
     bio_reactor_id = models.calculate_bio_id(
         bio_reactor_num, form_passed.date_recorded.data)
     '''
@@ -207,7 +219,7 @@ def graphUpdate():
 
         raw[int(data['value'])]['disp'] = raw[int(data['value'])]['disp'] * -1
         dataframe_smooth, peaks, basepoints, frontpoints, ten, fifty, eighty, ninety = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
-                                                                                                   int(data['buffers']), int(data['polynomials']), int(
+                                                                                                           int(data['buffers']), int(data['polynomials']), int(
             data['windows']), float(data['thresholds']), int(data['minDistances']),
             int(data['xrange'][0]), int(data['xrange'][1]))
         glob_data[int(data['value'])] = analysis.findpoints(raw[int(data['value'])]['disp'], datafram[int(data['value'])],
@@ -253,19 +265,6 @@ def graphUpdate():
                                                  }})
 
 
-def coord_distance(coords_list):
-    dist_list = []
-    for i in range(1, len(coords_list), 2):
-        point_one = coords_list[i - 1]
-        point_two = coords_list[i]
-
-        d = float(distance.euclidean(point_one, point_two))
-
-        dist_list.append(d)
-
-    return dist_list
-
-
 @ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():
     # TODO: comment all of this so it makes tissue_number_passed
@@ -298,7 +297,12 @@ def boxcoordinates():
         return jsonify({'status': 'OK', 'data': box_coords})
 
 
-@ routes_for_flask.route('/uploadFile/reactorB', methods=['GET', 'POST'])
+@routes_for_flask.route('/upload')
+def upload():
+    return render_template('upload.html')
+
+
+@ routes_for_flask.route('/upload/reactorB', methods=['GET', 'POST'])
 def upload_to_b():
     form = forms.upload_to_b_form()
     form.bio_reactor.choices = models.get_bio_choices()
@@ -315,31 +319,69 @@ def upload_to_b():
             li_of_post_info = tup[1]
             logging.info(li_of_post_info)
 
-            # REVIEW: ideally would like to make these drop downs for experminet and bio reactor
-
             # checks if experiment exsits if it does makes it
             experiment_num = form.experiment_num.data
             if models.get_experiment_by_num(experiment_num) is None:
                 models.insert_experiment(experiment_num)
 
-            '''
-            # checks if experiment exsits if it does makes it
-            bio_reactor_num = form.bio_reactor_num.data
-            if models.get_bio_reactor_by_num(bio_reactor_num) is None:
-                models.insert_bio_reactor(bio_reactor_num, datetime.now())
-            '''
-
-            # TODO: if upload a csv
-            # adds the vid to the db and saves the file
-            # retuens the id of the vid
             new_video_id = save_video_file(form)
 
-            # add the tissues to the databse as children of the vid, experiment and bio reactor
+            # add the tissues to the databse as children of the vid
             add_tissues(li_of_post_info, new_video_id)
 
             return redirect('/pick_video')
     else:
         return render_template('uploadToB.html', form=form)
+
+
+def add_exp_zip_to_db(path_to_zip_passed, filename_passed):
+    experiment_num_from_file = filename_passed.split('.')[0]
+    unpack_save_location = os.path.join(
+        models.UNPACKED_FOLDER, experiment_num_from_file)
+
+    models.check_path_exisits(unpack_save_location)
+
+    file_path_to_exp_xml = os.path.join(
+        unpack_save_location, f"{experiment_num_from_file}.xml")
+    file_path_to_bio_xml = os.path.join(
+        unpack_save_location, f"bio_reactor_exp_num_{experiment_num_from_file}.xml")
+
+    shutil.unpack_archive(path_to_zip_passed, unpack_save_location, "zip")
+
+    models.xml_to_bio(file_path_to_bio_xml)
+    models.xml_to_experiment(file_path_to_exp_xml)
+
+    shutil.rmtree(unpack_save_location)
+    os.remove(path_to_zip_passed)
+
+
+@routes_for_flask.route('/upload/uploadExp', methods=['GET', 'POST'])
+def upload_experiment():
+    form = forms.upload_experiment()
+
+    if request.method == 'POST':
+        if form.validate() == False:
+            return render_template('uploadExp.html', form=form)
+        else:
+
+            # makes sure file name is correct formats
+            safe_filename = secure_filename(form.file.data.filename)
+
+            #where_to_save = os.path.join(UPLOAD_FOLDER, 'zips')
+
+            # creates path to zip file
+            path_to_zip_file = os.path.join(models.ZIPS_FOLDER, safe_filename)
+
+            models.check_path_exisits(models.ZIPS_FOLDER)
+
+            # saves the zip file
+            form.file.data.save(path_to_zip_file)
+
+            add_exp_zip_to_db(path_to_zip_file, safe_filename)
+            return redirect('/showExp')
+    else:
+
+        return render_template('uploadExp.html', form=form)
 
 
 @ routes_for_flask.route('/pick_video', methods=['GET', 'POST'])
@@ -457,7 +499,6 @@ def delete_tissue():
 @ routes_for_flask.route('/deleteVideo', methods=['POST'])
 def delete_video():
     from_js = request.get_data()
-    logging.info(from_js)
     video_id = json.loads(from_js)
     models.delete_video(video_id)
     return jsonify({'status': 'OK'})
