@@ -21,7 +21,8 @@ from werkzeug.utils import secure_filename
 
 current_directory = os.getcwd()
 
-UPLOAD_FOLDER = "static/uploads"
+UPLOAD_FOLDER = models.UPLOAD_FOLDER
+
 
 files = None
 
@@ -55,8 +56,7 @@ def save_video_file(form_passed):
         UPLOAD_FOLDER, experiment_num, date_string, 'videoFiles')
 
     # cheacks to make sure the save location exists if not exists
-    if not os.path.exists(where_to_save):
-        os.makedirs(where_to_save)
+    models.check_path_exisits(where_to_save)
 
     orginal_filename = form_passed.file.data.filename
     extenstion = orginal_filename.rsplit('.', 1)[1].lower()
@@ -150,6 +150,7 @@ routes_for_flask = Blueprint(
 
 @routes_for_flask.route('/')
 def main():
+    logging.info(app.config["UPLOAD_FOLDER"])
     return render_template('index.html')
 
 
@@ -334,20 +335,19 @@ def upload_to_b():
         return render_template('uploadToB.html', form=form)
 
 
-def add_exp_zip_to_db(path_to_zip, filename_passed):
+def add_exp_zip_to_db(path_to_zip_passed, filename_passed):
     experiment_num_from_file = filename_passed.split('.')[0]
     unpack_save_location = os.path.join(
-        UPLOAD_FOLDER, 'zips', 'unpacked', experiment_num_from_file)
+        models.UNPACKED_FOLDER, experiment_num_from_file)
 
-    if not os.path.exists(unpack_save_location):
-        os.makedirs(unpack_save_location)
+    models.check_path_exisits(unpack_save_location)
 
     file_path_to_exp_xml = os.path.join(
         unpack_save_location, f"{experiment_num_from_file}.xml")
     file_path_to_bio_xml = os.path.join(
         unpack_save_location, f"bio_reactor_exp_num{experiment_num_from_file}.xml")
 
-    shutil.unpack_archive(path_to_zip, unpack_save_location, "zip")
+    shutil.unpack_archive(path_to_zip_passed, unpack_save_location, "zip")
 
     models.xml_to_bio(file_path_to_bio_xml)
     models.xml_to_experiment(file_path_to_exp_xml)
@@ -365,18 +365,17 @@ def upload_experiment():
             # makes sure file name is correct formats
             safe_filename = secure_filename(form.file.data.filename)
 
-            where_to_save = os.path.join(UPLOAD_FOLDER, 'zips')
+            #where_to_save = os.path.join(UPLOAD_FOLDER, 'zips')
 
-            # creates path to file
-            path_to_file = os.path.join(where_to_save, safe_filename)
+            # creates path to zip file
+            path_to_zip_file = os.path.join(models.ZIPS_FOLDER, safe_filename)
 
-            if not os.path.exists(where_to_save):
-                os.makedirs(where_to_save)
+            models.check_path_exisits(models.ZIPS_FOLDER)
 
-            # saves the file
-            form.file.data.save(path_to_file)
+            # saves the zip file
+            form.file.data.save(path_to_zip_file)
 
-            add_exp_zip_to_db(path_to_file, safe_filename)
+            add_exp_zip_to_db(path_to_zip_file, safe_filename)
             return redirect('/showExp')
     else:
 
@@ -498,7 +497,6 @@ def delete_tissue():
 @ routes_for_flask.route('/deleteVideo', methods=['POST'])
 def delete_video():
     from_js = request.get_data()
-    logging.info(from_js)
     video_id = json.loads(from_js)
     models.delete_video(video_id)
     return jsonify({'status': 'OK'})

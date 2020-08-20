@@ -16,8 +16,15 @@ tz = timezone('EST')
 # TODO: ensure adding process works
 # TODO: what hnappens when get fails check that work flow
 
+current_directory = os.getcwd()
 
-@dataclass
+UPLOAD_FOLDER = "static/uploads"
+ZIPS_FOLDER = os.path.join(UPLOAD_FOLDER, 'zips')
+UNPACKED_FOLDER = os.path.join(ZIPS_FOLDER, 'unpacked')
+IMG_FOLDER = os.path.join(current_directory, 'static/img')
+
+
+@ dataclass
 class Experiment(db.Model):
     experiment_id: int = db.Column(
         db.Integer, primary_key=True, autoincrement=True)
@@ -27,9 +34,10 @@ class Experiment(db.Model):
         'Video', back_populates='experiment', passive_deletes=True)
 
 
-@dataclass
+@ dataclass
 class Video(db.Model):
-    video_id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    video_id: int = db.Column(
+        db.Integer, primary_key=True, autoincrement=True)
     # TODO: add call factor float
     date_uploaded: datetime.date = db.Column(db.Date, nullable=False,
                                              default=datetime.now(tz))
@@ -60,7 +68,7 @@ class Video(db.Model):
         'Tissue', back_populates='video', passive_deletes=True)
 
 
-@dataclass
+@ dataclass
 class Tissue(db.Model):
     tissue_id: int = db.Column(
         db.Integer, primary_key=True, autoincrement=True)
@@ -80,7 +88,7 @@ class Tissue(db.Model):
         return '<Tissue %r>' % self.tissue_id
 
 
-@dataclass
+@ dataclass
 class Bio_reactor(db.Model):
     bio_reactor_id: int = db.Column(
         db.Integer, primary_key=True, autoincrement=True)
@@ -95,9 +103,10 @@ class Bio_reactor(db.Model):
         'Post', back_populates='bio_reactor', passive_deletes=True)
 
 
-@dataclass
+@ dataclass
 class Post(db.Model):
-    post_id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    post_id: int = db.Column(
+        db.Integer, primary_key=True, autoincrement=True)
     post_number: int = db.Column(db.Integer, nullable=False)
 
     left_post_height: float = db.Column(db.Float, nullable=False)
@@ -118,7 +127,10 @@ def delete_empties():
             logging.info(root)
             os.rmdir(root)
 
-# TODO: what happens if already exsits?
+
+def check_path_exisits(file_path_passed):
+    if not os.path.exists(file_path_passed):
+        os.makedirs(file_path_passed)
 
 
 def populate():
@@ -202,6 +214,22 @@ def insert_post(post_number_passed, left_post_height_passed, left_tissue_height_
         logging.info('already exists')
 
     # TODO: add error handling for all get functions
+
+
+def check_vid_id(id_passed):
+    # retuens true if the id exists
+    if (db.session.query(Video.video_id).filter_by(video_id=id_passed).scalar() is None):
+        return False
+    else:
+        return True
+
+
+def check_tissue_id(id_passed):
+    # retuens true if the id exists
+    if (db.session.query(Tissue.tissue_id).filter_by(tissue_id=id_passed).scalar() is None):
+        return False
+    else:
+        return True
 
 
 def get_bio_reactor_by_num(bio_reactor_num_passed):
@@ -426,6 +454,24 @@ def bio_reactors_to_xml(experiment_num_passed, li_of_bio_ids):
         tree.write(f)
 
 
+def move_from_unpacked_to_exp(file_path_passed):
+    '''
+    gets the file path from the experement folder onward onstead of old from static
+    realtes it to the file witin the unpacked fold
+    then moved the file to the full file path
+    '''
+
+    splited_path = file_path_passed.split('/')
+    from_exp = os.path.join(*splited_path[-4:])
+
+    actual_file_path = os.path.join(UNPACKED_FOLDER, from_exp)
+    check_path_exisits(os.path.split(file_path_passed)[0])
+    if os.path.isfile(file_path_passed):
+        logging.info('file already there')
+    else:
+        shutil.move(actual_file_path, file_path_passed)
+
+
 def xml_to_bio(file_path):
     logging.info(file_path)
 
@@ -434,20 +480,17 @@ def xml_to_experiment(file_path):
     logging.info(file_path)
     tree = et.parse(file_path)
     root = tree.getroot()
-    logging.info(root)
 
     logging.info(root.attrib['experiment_num'])
 
     exp_num = root.attrib['experiment_num']
 
+    insert_experiment(exp_num)
+
     for video in root.iter('video'):
-        logging.info(video)
-        logging.info(video.tag)
         vid_dic = {}
         for elem in video:
-            logging.info(elem.tag)
             if elem.tag != 'tissues':
-                logging.info(elem.attrib)
                 elem_attrib = elem.attrib['data_type']
                 if elem_attrib == 'int':
                     vid_dic.update({elem.tag: int(elem.text)})
@@ -458,16 +501,35 @@ def xml_to_experiment(file_path):
                         {elem.tag: datetime.strptime(elem.text, "%Y-%m-%d")})
                 else:
                     vid_dic.update({elem.tag: elem.text})
-        # TODO: need to actually move files and change save location
-        # insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_id_passed, frequency_passed, save_path_passed, bio_reactor_num_passed):
-        vid_id = insert_video(vid_dic['date_recorded'], vid_dic['experiment_num'], vid_dic['bio_reactor_id'],
-                              vid_dic['frequency'], vid_dic['save_location'], vid_dic['bio_reactor_number'])
-        logging.info(vid_dic)
+        move_from_unpacked_to_exp(vid_dic['save_location'])
 
-        # logging.info()
+        if check_vid_id(vid_dic['video_id']) == False:
+            vid_id = insert_video(vid_dic['date_recorded'], vid_dic['experiment_num'], vid_dic['bio_reactor_id'],
+                                  vid_dic['frequency'], vid_dic['save_location'], vid_dic['bio_reactor_number'])
+        else:
+            logging.info('vid already in db')
+            vid_id = vid_dic['video_id']
+
         for tissue in video.iter('tissue'):
-            logging.info(tissue)
-            # TODO: use the vid id from above
+            tissue_dic = {}
+            for elem in tissue:
+                elem_attrib = elem.attrib['data_type']
+                if elem_attrib == 'int':
+                    tissue_dic.update({elem.tag: int(elem.text)})
+                elif elem_attrib == 'float':
+                    tissue_dic.update({elem.tag: float(elem.text)})
+                else:
+                    tissue_dic.update({elem.tag: elem.text})
+            if tissue_dic['csv_path'] != 'None':
+                move_from_unpacked_to_exp(tissue_dic['csv_path'])
+
+            # this used the id of the vid added above and not the orginal vid_id
+            # insert_tissue_sample_csv(tissue_number_passed, tissue_type_passed, post_passed, video_id_passed, csv_passed):
+            if check_tissue_id(tissue_dic['tissue_id']) == False:
+                insert_tissue_sample_csv(
+                    tissue_dic['tissue_number'], tissue_dic['tissue_type'], tissue_dic['post'], vid_id, tissue_dic['csv_path'])
+            else:
+                logging.info('tissue already in DB')
 
 
 def experment_to_xml(experiment_num):
