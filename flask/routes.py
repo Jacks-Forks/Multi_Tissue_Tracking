@@ -334,8 +334,23 @@ def upload_to_b():
         return render_template('uploadToB.html', form=form)
 
 
-def add_exp_zip_to_db(path_to_file):
-    logging.info(path_to_file)
+def add_exp_zip_to_db(path_to_zip, filename_passed):
+    experiment_num_from_file = filename_passed.split('.')[0]
+    unpack_save_location = os.path.join(
+        UPLOAD_FOLDER, 'zips', 'unpacked', experiment_num_from_file)
+
+    if not os.path.exists(unpack_save_location):
+        os.makedirs(unpack_save_location)
+
+    file_path_to_exp_xml = os.path.join(
+        unpack_save_location, f"{experiment_num_from_file}.xml")
+    file_path_to_bio_xml = os.path.join(
+        unpack_save_location, f"bio_reactor_exp_num{experiment_num_from_file}.xml")
+
+    shutil.unpack_archive(path_to_zip, unpack_save_location, "zip")
+
+    models.xml_to_bio(file_path_to_bio_xml)
+    models.xml_to_experiment(file_path_to_exp_xml)
 
 
 @routes_for_flask.route('/upload/uploadExp', methods=['GET', 'POST'])
@@ -350,16 +365,19 @@ def upload_experiment():
             # makes sure file name is correct formats
             safe_filename = secure_filename(form.file.data.filename)
 
+            where_to_save = os.path.join(UPLOAD_FOLDER, 'zips')
+
             # creates path to file
-            path_to_file = os.path.join(UPLOAD_FOLDER, safe_filename)
+            path_to_file = os.path.join(where_to_save, safe_filename)
+
+            if not os.path.exists(where_to_save):
+                os.makedirs(where_to_save)
 
             # saves the file
             form.file.data.save(path_to_file)
 
-            add_exp_zip_to_db(path_to_file)
-            return '''
-            <h1>hi</h1>
-            '''
+            add_exp_zip_to_db(path_to_file, safe_filename)
+            return redirect('/showExp')
     else:
 
         return render_template('uploadExp.html', form=form)

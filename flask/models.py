@@ -139,6 +139,7 @@ def insert_experiment(num_passed):
         db.session.commit()
     else:
         logging.info('already exists')
+        return get_experiment_by_num(num_passed).experiment_id
 
 
 def insert_video(date_recorded_passed, experiment_num_passed, bio_reactor_id_passed, frequency_passed, save_path_passed, bio_reactor_num_passed):
@@ -418,11 +419,54 @@ def bio_reactors_to_xml(experiment_num_passed, li_of_bio_ids):
                 for key, val in post_dic.items():
                     child = et.Element(key)
                     child.text = str(val)
+                    child.set('data_type', type(val).__name__)
                     post_elem.append(child)
 
     tree = et.ElementTree(root)
     with open(f'static/uploads/{experiment_num_passed}/bio_reactor_exp_num_{experiment_num_passed}.xml', 'wb') as f:
         tree.write(f)
+
+
+def xml_to_bio(file_path):
+    logging.info(file_path)
+
+
+def xml_to_experiment(file_path):
+    logging.info(file_path)
+    tree = et.parse(file_path)
+    root = tree.getroot()
+    logging.info(root)
+
+    logging.info(root.attrib['experiment_num'])
+
+    exp_num = root.attrib['experiment_num']
+
+    exp_id = insert_experiment(exp_num)
+    logging.info(exp_id)
+
+    for video in root.iter('video'):
+        logging.info(video)
+        logging.info(video.tag)
+        vid_dic = {}
+        for elem in video:
+            logging.info(elem.tag)
+            if elem.tag != 'tissues':
+                logging.info(elem.attrib)
+                elem_attrib = elem.attrib['data_type']
+                if elem_attrib == 'int':
+                    vid_dic.update({elem.tag: int(elem.text)})
+                elif elem_attrib == 'float':
+                    vid_dic.update({elem.tag: float(elem.text)})
+                elif elem_attrib == 'date':
+                    vid_dic.update(
+                        {elem.tag: datetime.strptime(elem.text, "%Y-%m-%d")})
+                else:
+                    vid_dic.update({elem.tag: elem.text})
+        logging.info(vid_dic)
+
+        # logging.info()
+        for tissue in video.iter('tissue'):
+            logging.info(tissue)
 
 
 def experment_to_xml(experiment_num):
@@ -441,6 +485,7 @@ def experment_to_xml(experiment_num):
                 if key == 'bio_reactor_id' and val not in used_bios_ids:
                     used_bios_ids.append(val)
                 child = et.Element(key)
+                child.set('data_type', type(val).__name__)
                 child.text = str(val)
                 video_elemant.append(child)
 
@@ -455,6 +500,7 @@ def experment_to_xml(experiment_num):
                     for key, val in tissue_dic.items():
                         child = et.Element(key)
                         child.text = str(val)
+                        child.set('data_type', type(val).__name__)
                         tissue_elemant.append(child)
 
     bio_reactors_to_xml(experiment_num, used_bios_ids)
