@@ -19,4 +19,4 @@ Raspberry Pi 4 Recording Software: [[Repository](https://github.com/teammurphy/M
 
 Tracking and Analysis Web App: [[Current Repository](https://github.com/teammurphy/Multi_Tissue_Tracking)]
 
-CAD Hardware Designs: [[Repository](https://github.com/teammurphy/Multi_Tissue_CAD]
+CAD Hardware Designs: [[Repository](https://github.com/teammurphy/Multi_Tissue_CAD)]
