@@ -84,7 +84,7 @@ def carry_calcs(all_data, files):
 		time2pks.append(time2pk(ten, peaks, time))
 		time50rel.append(time2rel50(fifty, peaks, time))
 		time80rel.append(time2rel80(eighty, peaks, time))
-		time90rel.append(time2rel90(ninety, peaks, time))
+		time90rel.append(time2rel90(ten, peaks, time))
 		t_50.append(t50(fifty))
 		c_50.append(c50(peaks, fifty, time))
 		r_50.append(r50(peaks, fifty, time))

@@ -45,7 +45,7 @@ def findpoints(raw, dataframe, buffer, poly, window, thresh, mindist, xstart, xe
 	# Call the findP function to find the points at 10%, 50%, 90%
 	ten = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .10)
 	fifty = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .50)
-	eighty = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .80)
+	eighty = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .20)
 	ninety = findP(peaks, basepoints, frontpoints, dataframe['disp'], dataframe['time'], .90)
 
 	return dataframe, peaks, basepoints, frontpoints, ten, fifty, eighty, ninety
