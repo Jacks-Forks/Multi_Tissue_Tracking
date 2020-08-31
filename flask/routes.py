@@ -16,6 +16,7 @@ import pandas as pd
 import tracking
 from flask import (Blueprint, after_this_request, jsonify, redirect,
                    render_template, request, send_file)
+from flask_wtf.csrf import CSRFError, CSRFProtect
 from scipy.spatial import distance
 from werkzeug.utils import secure_filename
 
@@ -25,6 +26,8 @@ UPLOAD_FOLDER = models.UPLOAD_FOLDER
 
 
 files = None
+
+csrf = CSRFProtect()
 
 
 # glob_data = None
@@ -544,3 +547,9 @@ def download_exp():
         return response
 
     return send_file(zip_path, as_attachment=True)
+
+
+@routes_for_flask.errorhandler(CSRFError)
+def csrf_error(reason):
+    logging.info(reason)
+    return render_template("CSRFtokenError.html", reason=reason)

@@ -3,6 +3,7 @@
 
 {% block content %}
 <form method=post action="" enctype="multipart/form-data">
+  {{ form.csrf_token }}
   {{ form.experiment}}
   {{ form.date }}
   {{ form.vids }}

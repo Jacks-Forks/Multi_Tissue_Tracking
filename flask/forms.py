@@ -36,7 +36,6 @@ class upload_experiment(FlaskForm):
 
 
 class PickVid(FlaskForm):
-    form_name = HiddenField('Form Name')
     experiment = SelectField('Experiment', id='select_experiment')
     date = SelectField('Date', id='select_date')
     vids = SelectField('Vids', id='select_vids')
