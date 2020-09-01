@@ -11,6 +11,7 @@
 <h5> Please select posts for {{ number_tissues }} tissues</h5>
 <!-- TODO: use session instead of hidden forms -->
 <form id="number_of_posts" action="#" onsubmit="getPostCount();return false">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
   <input type="hidden" id="videoId" name="videoId" value="{{ vid_id }}" />
   <input type="hidden" id="numTissues" name="numTissues" value="{{ number_tissues }}" />
   <label for="calDist">Enter the calibration Disttance (mm)</label>

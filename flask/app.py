@@ -4,7 +4,7 @@ import os
 import models
 from flask import Flask
 from models import db
-from routes import routes_for_flask
+from routes import csrf, routes_for_flask
 
 logging.basicConfig(filename='app.log',
                     format='[%(filename)s:%(lineno)d] %(message)s', level=logging.DEBUG)
@@ -27,9 +27,11 @@ def create_app():
     # Shows sql querys being made if having database issue set to true
     app.config['SQLALCHEMY_ECHO'] = False
     #  REVIEW:  this needs to be changed
+    app.config['WTF_CSRF_TIME_LIMIT'] = None
     app.secret_key = 'development key'
     app.register_blueprint(routes_for_flask)
     db.init_app(app)
+    csrf.init_app(app)
 
     return app
 

@@ -8,7 +8,7 @@
   <fieldset>
 
     <legend> Upload Form</legend>
-    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
 
     {{ form.date_recorded.label }}<br>
     {{ form.date_recorded }}

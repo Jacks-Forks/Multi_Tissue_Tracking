@@ -8,7 +8,7 @@
   <fieldset>
 
     <legend>Upload ZIP</legend>
-    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
 
     {{ form.file.label }}<br>
     {{ form.file }}

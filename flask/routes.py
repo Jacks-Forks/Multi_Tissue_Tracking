@@ -16,6 +16,7 @@ import pandas as pd
 import tracking
 from flask import (Blueprint, after_this_request, jsonify, redirect,
                    render_template, request, send_file)
+from flask_wtf.csrf import CSRFError, CSRFProtect
 from scipy.spatial import distance
 from werkzeug.utils import secure_filename
 
@@ -25,6 +26,8 @@ UPLOAD_FOLDER = models.UPLOAD_FOLDER
 
 
 files = None
+
+csrf = CSRFProtect()
 
 
 # glob_data = None
@@ -141,14 +144,45 @@ def get_post_locations(vid_id):
     image_path = 'static/img/' + str(vid_id) + '.jpg'
     cv2.imwrite(image_path, image)
     return (image_path, number_of_tisues)
-    # return render_template("selectPosts.html", path=image_path)
+
+
+def add_exp_zip_to_db(path_to_zip_passed, filename_passed):
+    experiment_num_from_file = filename_passed.split('.')[0]
+    unpack_save_location = os.path.join(
+        models.UNPACKED_FOLDER, experiment_num_from_file)
+
+    models.check_path_exisits(unpack_save_location)
+
+    file_path_to_exp_xml = os.path.join(
+        unpack_save_location, f"{experiment_num_from_file}.xml")
+    file_path_to_bio_xml = os.path.join(
+        unpack_save_location, f"bio_reactor_exp_num_{experiment_num_from_file}.xml")
+
+    shutil.unpack_archive(path_to_zip_passed, unpack_save_location, "zip")
+
+    models.xml_to_bio(file_path_to_bio_xml)
+    models.xml_to_experiment(file_path_to_exp_xml)
+
+    shutil.rmtree(unpack_save_location)
+    os.remove(path_to_zip_passed)
+
+
+def post_tissue_heights(wtforms_list, bio_number):
+    li = []
+    for i, entry in enumerate(wtforms_list):
+        left_tissue_height = entry.data['left_tissue_height']
+        left_post_height = entry.data['left_post_height']
+        right_tissue_height = entry.data['right_tissue_height']
+        right_post_height = entry.data['right_post_height']
+        models.insert_post(i, left_tissue_height, left_post_height,
+                           right_tissue_height, right_post_height, bio_number)
 
 
 routes_for_flask = Blueprint(
     'routes_for_flask', __name__, template_folder='templates')
 
 
-@routes_for_flask.route('/')
+@ routes_for_flask.route('/')
 def main():
     return render_template('index.html')
 
@@ -265,6 +299,7 @@ def graphUpdate():
                                                  }})
 
 
+@ csrf.exempt
 @ routes_for_flask.route("/boxCoordinates", methods=['GET', 'POST'])
 def boxcoordinates():
     # TODO: comment all of this so it makes tissue_number_passed
@@ -297,7 +332,7 @@ def boxcoordinates():
         return jsonify({'status': 'OK', 'data': box_coords})
 
 
-@routes_for_flask.route('/upload')
+@ routes_for_flask.route('/upload')
 def upload():
     return render_template('upload.html')
 
@@ -332,27 +367,6 @@ def upload_to_b():
             return redirect('/pick_video')
     else:
         return render_template('uploadToB.html', form=form)
-
-
-def add_exp_zip_to_db(path_to_zip_passed, filename_passed):
-    experiment_num_from_file = filename_passed.split('.')[0]
-    unpack_save_location = os.path.join(
-        models.UNPACKED_FOLDER, experiment_num_from_file)
-
-    models.check_path_exisits(unpack_save_location)
-
-    file_path_to_exp_xml = os.path.join(
-        unpack_save_location, f"{experiment_num_from_file}.xml")
-    file_path_to_bio_xml = os.path.join(
-        unpack_save_location, f"bio_reactor_exp_num_{experiment_num_from_file}.xml")
-
-    shutil.unpack_archive(path_to_zip_passed, unpack_save_location, "zip")
-
-    models.xml_to_bio(file_path_to_bio_xml)
-    models.xml_to_experiment(file_path_to_exp_xml)
-
-    shutil.rmtree(unpack_save_location)
-    os.remove(path_to_zip_passed)
 
 
 @routes_for_flask.route('/upload/uploadExp', methods=['GET', 'POST'])
@@ -430,18 +444,7 @@ def get_video():
     return jsonify(vids)
 
 
-def post_tissue_heights(wtforms_list, bio_number):
-    li = []
-    for i, entry in enumerate(wtforms_list):
-        left_tissue_height = entry.data['left_tissue_height']
-        left_post_height = entry.data['left_post_height']
-        right_tissue_height = entry.data['right_tissue_height']
-        right_post_height = entry.data['right_post_height']
-        models.insert_post(i, left_tissue_height, left_post_height,
-                           right_tissue_height, right_post_height, bio_number)
-
-
-@routes_for_flask.route('/addBio', methods=['GET', 'POST'])
+@ routes_for_flask.route('/addBio', methods=['GET', 'POST'])
 def add_bio():
     form = forms.addBio()
     if request.method == 'POST':
@@ -482,7 +485,7 @@ def show_experiment():
     return render_template('showExp.html', data=data)
 
 
-@routes_for_flask.route('/showPosts/<bio_reactor_id>')
+@ routes_for_flask.route('/showPosts/<bio_reactor_id>')
 def show_posts(bio_reactor_id):
     data = models.get_posts(bio_reactor_id)
     return render_template('showPosts.html', data=data)
@@ -544,3 +547,9 @@ def download_exp():
         return response
 
     return send_file(zip_path, as_attachment=True)
+
+
+@ routes_for_flask.errorhandler(CSRFError)
+def csrf_error(reason):
+    logging.info(reason)
+    return render_template("CSRFtokenError.html", reason=reason)
