@@ -16,10 +16,10 @@ video_file_extentions = {'mov', 'mp4'}
 
 
 def create_app():
-    username = 'newuser'
-    password = 'newpassword'
-    location = os.environ['location']
-    dbname = 'test_db'
+    username = os.environ['DB_USERNAMES']
+    password = od.environ['DB_PASSWORD']
+    location = os.environ['DB_LOCATION']
+    dbname = os.environ['DB_NAME']
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = models.UPLOAD_FOLDER
     app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{username}:{password}@{location}:3306/{dbname}?charset=utf8mb4"
