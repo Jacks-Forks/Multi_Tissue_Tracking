@@ -16,8 +16,8 @@ video_file_extentions = {'mov', 'mp4'}
 
 
 def create_app():
-    username = os.environ['DB_USERNAMES']
-    password = od.environ['DB_PASSWORD']
+    username = os.environ['DB_USERNAME']
+    password = os.environ['DB_PASSWORD']
     location = os.environ['DB_LOCATION']
     dbname = os.environ['DB_NAME']
     app = Flask(__name__)
