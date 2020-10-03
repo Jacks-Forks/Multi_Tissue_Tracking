@@ -2,6 +2,7 @@ import logging
 import os
 
 import models
+from dotenv import load_dotenv
 from flask import Flask
 from models import db
 from routes import csrf, routes_for_flask
@@ -16,10 +17,11 @@ video_file_extentions = {'mov', 'mp4'}
 
 
 def create_app():
-    username = os.environ['DB_USERNAME']
-    password = os.environ['DB_PASSWORD']
-    location = os.environ['DB_LOCATION']
-    dbname = os.environ['DB_NAME']
+    load_dotenv('.env')
+    username = os.getenv('DB_USERNAME')
+    password = os.getenv('DB_PASSWORD')
+    location = os.getenv('DB_LOCATION')
+    dbname = os.getenv('DB_NAME')
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = models.UPLOAD_FOLDER
     app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{username}:{password}@{location}:3306/{dbname}?charset=utf8mb4"
@@ -28,7 +30,7 @@ def create_app():
     app.config['SQLALCHEMY_ECHO'] = False
     #  REVIEW:  this needs to be changed
     app.config['WTF_CSRF_TIME_LIMIT'] = None
-    app.secret_key = 'development key'
+    app.secret_key = os.getenv('SECRET_KEY')
     app.register_blueprint(routes_for_flask)
     db.init_app(app)
     csrf.init_app(app)
