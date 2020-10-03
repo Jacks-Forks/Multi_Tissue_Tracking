@@ -6,6 +6,12 @@ services:
     image: murphs/mtt:flask
     container_name: flask
     restart: always
+    environment:
+      - DB_USERNAME=newuser
+      - DB_PASSWORD=newpassword
+      - DB_LOCATION=mysql
+      - DB_NAME=test_db
+      - SECRET_KEY=developmentkey 
     expose:
       - 8080
     volumes:

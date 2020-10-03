@@ -182,11 +182,13 @@ routes_for_flask = Blueprint(
     'routes_for_flask', __name__, template_folder='templates')
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/')
 def main():
     return render_template('index.html')
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/analysis', methods=['GET', 'POST'])
 def analysis_page():
     form = forms.PickVid()
@@ -227,18 +229,21 @@ def analysis_page():
     return redirect('/get_dates')
 
 
+@ csrf.exempt
 @ routes_for_flask.route("/call_calcs")
 def call_calcs():
     calcs.carry_calcs(glob_data, files)
     return "Nothing"
 
 
+@ csrf.exempt
 @ routes_for_flask.route("/reloader")
 def reloader():
     calcs.reload_database()
     return "Nothing"
 
 
+@ csrf.exempt
 @ routes_for_flask.route("/graphUpdate", methods=['GET', 'POST'])
 def graphUpdate():
     if request.method == "POST":
@@ -332,11 +337,13 @@ def boxcoordinates():
         return jsonify({'status': 'OK', 'data': box_coords})
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/upload')
 def upload():
     return render_template('upload.html')
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/upload/reactorB', methods=['GET', 'POST'])
 def upload_to_b():
     form = forms.upload_to_b_form()
@@ -369,6 +376,7 @@ def upload_to_b():
         return render_template('uploadToB.html', form=form)
 
 
+@ csrf.exempt
 @routes_for_flask.route('/upload/uploadExp', methods=['GET', 'POST'])
 def upload_experiment():
     form = forms.upload_experiment()
@@ -398,6 +406,7 @@ def upload_experiment():
         return render_template('uploadExp.html', form=form)
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/pick_video', methods=['GET', 'POST'])
 def pick_video():
     form = forms.PickVid()
@@ -418,6 +427,7 @@ def pick_video():
     return redirect('/get_dates')
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/get_dates')
 def get_dates():
     experiment = request.args.get('experiment', '01', type=str)
@@ -431,6 +441,7 @@ def get_dates():
     return jsonify(dates)
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/get_video')
 def get_video():
     date = request.args.get('dates', '01', type=str)
@@ -444,6 +455,7 @@ def get_video():
     return jsonify(vids)
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/addBio', methods=['GET', 'POST'])
 def add_bio():
     form = forms.addBio()
@@ -461,12 +473,14 @@ def add_bio():
         return render_template('addBio.html', form=form)
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/showVideos')
 def show_videos():
     data = models.get_all_videos()
     return render_template('showVideos.html', data=data)
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/showTissues')
 def show_tissues():
     data = models.get_all_tissues()
@@ -479,18 +493,21 @@ def show_bio_reactors():
     return render_template('showBios.html', data=data)
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/showExp')
 def show_experiment():
     data = models.get_all_experiments()
     return render_template('showExp.html', data=data)
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/showPosts/<bio_reactor_id>')
 def show_posts(bio_reactor_id):
     data = models.get_posts(bio_reactor_id)
     return render_template('showPosts.html', data=data)
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/deleteTissue', methods=['POST'])
 def delete_tissue():
     from_js = request.get_data()
@@ -499,6 +516,7 @@ def delete_tissue():
     return jsonify({'status': 'OK'})
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/deleteVideo', methods=['POST'])
 def delete_video():
     from_js = request.get_data()
@@ -515,6 +533,7 @@ def delete_exp():
     return jsonify({'status': 'OK'})
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/deleteBio', methods=['POST'])
 def delete_bio_reactor():
     from_js = request.get_data()
@@ -529,6 +548,7 @@ def download():
     return send_file(file_path, as_attachment=True)
 
 
+@ csrf.exempt
 @ routes_for_flask.route('/downloadExp', methods=['POST'])
 def download_exp():
     exp_num = request.form['download']
@@ -549,6 +569,7 @@ def download_exp():
     return send_file(zip_path, as_attachment=True)
 
 
+@ csrf.exempt
 @ routes_for_flask.errorhandler(CSRFError)
 def csrf_error(reason):
     logging.info(reason)
